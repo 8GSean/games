@@ -514,7 +514,8 @@
             playerGroup.add(playerMesh);
 
             // Default scaling for giants
-            if (characters[idx].name === 'Red Hulk') pScale = 10.0;
+            if (characters[idx].name === 'Iron Man') pScale = 9.0;
+            else if (characters[idx].name === 'Red Hulk') pScale = 10.0;
             else if (characters[idx].name === 'Hulkbuster') pScale = 4.0; 
             else pScale = 1.0;
 
@@ -705,7 +706,7 @@
             }
 
             // Scaling logic
-            const maxS = (characters[currentCharIdx].name === 'Red Hulk') ? 10.0 : (characters[currentCharIdx].name === 'Hulkbuster' ? 8.0 : 4.0);
+            const maxS = (characters[currentCharIdx].name === 'Iron Man') ? 36.0 : ((characters[currentCharIdx].name === 'Red Hulk') ? 10.0 : (characters[currentCharIdx].name === 'Hulkbuster' ? 8.0 : 4.0));
             if (keys['v']) pScale = Math.min(maxS, pScale + 0.02);
             if (keys['c']) pScale = Math.max(0.5, pScale - 0.02);
             playerGroup.scale.set(pScale, pScale, pScale);

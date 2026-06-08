@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stark Run: 3D Lane Edition</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; }
+        #ui-layer { pointer-events: none; }
+        .hidden { display: none !important; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Three.js will inject canvas here -->
+        
+        <div id="ui-layer">
+            <div id="hud">
+                <div class="hud-item">
+                    <span class="label">ARC REACTOR</span>
+                    <div class="progress-bar"><div id="energy-fill" style="width: 100%;"></div></div>
+                </div>
+                <div class="hud-item">
+                    <span class="label">SCORE</span>
+                    <span id="score-val">000000</span>
+                </div>
+            </div>
+
+            <div id="start-screen" class="overlay">
+                <div class="content">
+                    <h1 class="glitch" data-text="STARK RUN 3D">STARK RUN 3D</h1>
+                    <p class="subtitle">PROTOCOL: SUBWAY SURFER | GAMEPAD ENABLED</p>
+                    <button id="start-btn" style="pointer-events: auto;">INITIATE FLIGHT</button>
+                    <div class="controls-hint">
+                        <span>[A/D or Stick] MOVE</span>
+                        <span>[SPACE or Button 0] JUMP</span>
+                        <span>[S or Button 1] SLIDE</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="game-over" class="overlay hidden">
+                <div class="content">
+                    <h1>MISSION FAILED</h1>
+                    <p>RECOVERY SCORE: <span id="final-score">0</span></p>
+                    <button id="restart-btn" style="pointer-events: auto;">REBOOT SUIT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+:root {
+    --primary: #00d2ff;
+    --secondary: #ff0055;
+    --accent: #ffcc00;
+    --bg: #050a14;
+    --glass: rgba(0, 210, 255, 0.1);
+    --glass-border: rgba(0, 210, 255, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+}
+
+body {
+    background-color: var(--bg);
+    overflow: hidden;
+    color: white;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at center, #1a1f35 0%, #050a14 100%);
+}
+
+#gameCanvas {
+    display: block;
+    background: transparent;
+}
+
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* HUD */
+#hud {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    right: 2rem;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+}
+
+.hud-item {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    padding: 1rem 1.5rem;
+    border-radius: 4px;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 200px;
+}
+
+.label {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+#score-val {
+    font-size: 1.5rem;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+#energy-fill {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), #00ffcc);
+    box-shadow: 0 0 10px var(--primary);
+    transition: width 0.3s ease;
+}
+
+/* Overlays */
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 10, 20, 0.85);
+    backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 100;
+    pointer-events: all;
+    transition: opacity 0.5s ease;
+}
+
+.hidden {
+    opacity: 0;
+    pointer-events: none;
+    display: none !important;
+}
+
+.content {
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h1 {
+    font-size: 5rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+    letter-spacing: -2px;
+}
+
+.glitch {
+    position: relative;
+    color: white;
+}
+
+.glitch::before, .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.subtitle {
+    color: var(--primary);
+    letter-spacing: 4px;
+    font-size: 1rem;
+    margin-bottom: 3rem;
+}
+
+button {
+    background: transparent;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    padding: 1.2rem 3rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+button:hover {
+    background: var(--primary);
+    color: var(--bg);
+    box-shadow: 0 0 30px var(--primary);
+}
+
+.controls-hint {
+    margin-top: 2rem;
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    font-size: 0.8rem;
+    opacity: 0.6;
+}
+
+#game-over h1 {
+    color: var(--secondary);
+}
+
+#game-over #final-score {
+    color: white;
+    font-size: 3rem;
+    font-weight: 900;
+}

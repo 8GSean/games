@@ -59,7 +59,7 @@
         }
 
         .score-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: var(--stark-blue); }
-        .score-value { font-size: 2rem; font-weight: bold; color: var(--stark-gold); font-variant-numeric: tabular-nums; }
+        .score-value { font-size: 2rem; font-weight: bold; color: var(--stark-gold); font-variant-numeric: tabular-nums; transition: transform 0.1s, color 0.1s; }
 
         .character-panel {
             background: var(--stark-glass);
@@ -185,7 +185,10 @@
                 <div id="p2-info" style="margin-top: 10px; opacity: 0.8; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 5px;">
                     PLAYER 2: <span id="p2-name">HULK</span>
                 </div>
-                <button class="switch-btn" onclick="game.nextCharacter(1)">SWITCH HERO</button>
+                <div style="display: flex; gap: 8px; margin-top: 10px;">
+                    <button class="switch-btn" style="margin-top: 0; flex: 1; padding: 6px;" onclick="game.nextCharacter(-1)">PREV HERO</button>
+                    <button class="switch-btn" style="margin-top: 0; flex: 1; padding: 6px;" onclick="game.nextCharacter(1)">NEXT HERO</button>
+                </div>
             </div>
         </div>
     </div>
@@ -221,7 +224,7 @@
     <script>
     /**
      * LEGO Avengers 3: Universe Unleashed
-     * Core Game Engine - Patch 3.2 (Full Reconstruction)
+     * Core Game Engine - Patch 3.5 (Final Reconstruction)
      */
     const game = (function() {
         if (typeof THREE === 'undefined') {
@@ -229,9 +232,9 @@
         }
 
         let scene, camera, renderer, clock;
-        let p1Char = 'ULTRON', p2Char = 'IRON_MAN';
+        let p1Char = 'HULK', p2Char = 'IRON_MAN_99';
         let characters = {};
-        const charRoster = ['ULTRON', 'BLACK_PANTHER', 'IRON_MAN', 'HULK', 'RED_HULK', 'CAPTAIN_AMERICA', 'THOR', 'THANOS', 'GODZILLA', 'CAPTAIN_MARVEL', 'SPIDER_MAN', 'DOCTOR_STRANGE', 'BLACK_WIDOW', 'HULKBUSTER'];
+        const charRoster = ['HULK', 'IRON_MAN_MK7', 'IRON_MAN_MK6', 'IRON_MAN_MK500', 'IRON_MAN_89', 'IRON_MAN_99', 'ULTRON', 'BLACK_PANTHER', 'IRON_MAN', 'IRON_MAN_MK42', 'IRON_MAN_MK45', 'IRON_MAN_MK41', 'IRON_MAN_MK85', 'IRON_MAN_MK100', 'RED_HULK', 'CAPTAIN_AMERICA', 'THOR', 'THANOS', 'GODZILLA', 'CAPTAIN_MARVEL', 'SPIDER_MAN', 'DOCTOR_STRANGE', 'BLACK_WIDOW', 'HULKBUSTER'];
         
         let bricks = [], obstacles = [], buildings = [];
         let score = 0;
@@ -249,6 +252,78 @@
         let shakeAmount = 0;
         let heatParticles = [];
 
+        function gainScore(amount, pos) {
+            if (typeof amount !== 'number' || isNaN(amount)) amount = 0;
+            score += amount;
+            updateHUD();
+            
+            // UI Feedback
+            const scoreEl = document.getElementById('score');
+            if (scoreEl) {
+                scoreEl.style.transform = 'scale(1.2)';
+                scoreEl.style.color = '#fff';
+                setTimeout(() => {
+                    scoreEl.style.transform = 'scale(1)';
+                    scoreEl.style.color = 'var(--stark-gold)';
+                }, 100);
+            }
+
+            if (pos) {
+                spawnFloatingScore(pos, amount);
+                spawnPointBurst(pos);
+            }
+        }
+
+        function spawnPointBurst(pos) {
+            for(let i=0; i<8; i++) {
+                const p = createBox(0.3, 0.3, 0.3, 0xffcc00, true);
+                p.position.copy(pos);
+                p.userData = {
+                    vel: new THREE.Vector3((Math.random()-0.5)*1.5, 1.0 + Math.random()*1.5, (Math.random()-0.5)*1.5),
+                    life: 1.0,
+                    rot: new THREE.Vector3(Math.random()*0.2, Math.random()*0.2, Math.random()*0.2)
+                };
+                scene.add(p);
+                heatParticles.push(p); 
+            }
+        }
+
+        function spawnFloatingScore(pos, value) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256; canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            
+            // Premium Text Styling
+            ctx.shadowColor = 'rgba(0, 204, 255, 0.8)';
+            ctx.shadowBlur = 15;
+            ctx.font = 'bold 90px "Segoe UI", Roboto, Arial';
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.strokeStyle = '#ffcc00';
+            ctx.lineWidth = 4;
+            
+            ctx.strokeText(`+${value}`, 128, 90);
+            ctx.fillText(`+${value}`, 128, 90);
+            
+            const tex = new THREE.CanvasTexture(canvas);
+            const mat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+            const sprite = new THREE.Sprite(mat);
+            sprite.position.copy(pos);
+            sprite.position.y += 5;
+            sprite.scale.set(6, 3, 1);
+            scene.add(sprite);
+            
+            let life = 0;
+            const animateScore = () => {
+                life += 0.015;
+                sprite.position.y += 0.2;
+                sprite.scale.multiplyScalar(1.005);
+                sprite.material.opacity = 1 - (life * life); // Smooth fade
+                if (life < 1) requestAnimationFrame(animateScore);
+                else scene.remove(sprite);
+            };
+            animateScore();
+        }
 
         let lastPopTime = 0;
         function showMessage(text, color = 'var(--stark-blue)') {
@@ -322,10 +397,15 @@
         }
 
         const charData = {
+            'IRON_MAN_MK7': { name: "איירון מן מרק 7", ability: "Missile Salvo", speed: 0.38, jump: 0.45, color: 0xcc0000, isGiant: true, sizeLevels: [81, 243, 729], sizeIndex: 0, sizeTarget: 81, sizeCurrent: 81 },
+            'IRON_MAN_MK6': { name: "איירון מן מרק 6", ability: "Laser Spin", speed: 0.4, jump: 0.45, color: 0xcc0000, isGiant: true, sizeLevels: [45, 135, 405], sizeIndex: 0, sizeTarget: 45, sizeCurrent: 45 },
+            'IRON_MAN_MK500': { name: "איירון מן מרק 500 (GOD)", ability: "Cosmic Obliteration", speed: 0.6, jump: 0.8, color: 0xffffff, isGiant: true, sizeLevels: [450], sizeIndex: 0, sizeTarget: 450, sizeCurrent: 450 },
+            'IRON_MAN_89': { name: "איירון מן 89", ability: "Nano-Barrage", speed: 0.35, jump: 0.4, color: 0xffd700, isGiant: true, sizeLevels: [80.1], sizeIndex: 0, sizeTarget: 80.1, sizeCurrent: 80.1 },
+            'IRON_MAN_99': { name: "איירון מן מרק 99", ability: "Endgame Protocol", speed: 0.4, jump: 0.45, color: 0xcc0000, isGiant: true, sizeLevels: [89.1], sizeIndex: 0, sizeTarget: 89.1, sizeCurrent: 89.1 },
             'ULTRON': { name: "אולטרון", ability: "Extinction Level Event", speed: 0.38, jump: 0.3, color: 0x999999, isGiant: true, sizeLevels: [1, 10, 35, 80, 200], sizeIndex: 1, sizeTarget: 10, sizeCurrent: 10 },
             'BLACK_PANTHER': { name: "הפנתר השחור", ability: "Kinetic Pulse", speed: 0.35, jump: 0.32, color: 0x111111, canClimb: true },
-            'IRON_MAN': { name: "איירון מן", ability: "Unibeam", speed: 0.8, jump: 0.5, color: 0xaa0000, isGiant: true, sizeLevels: [7], sizeIndex: 0, sizeTarget: 7, sizeCurrent: 7 },
-            'HULK': { name: "הענק הירוק", ability: "Gamma Smash", speed: 0.22, jump: 0.45, color: 0x008800, isGiant: true, sizeLevels: [6, 9], sizeIndex: 0, sizeTarget: 6, sizeCurrent: 6 },
+            'IRON_MAN': { name: "איירון מן", ability: "Unibeam", speed: 0.8, jump: 0.5, color: 0xaa0000, isGiant: true, sizeLevels: [63], sizeIndex: 0, sizeTarget: 63, sizeCurrent: 63 },
+            'HULK': { name: "הענק הירוק", ability: "Gamma Smash", speed: 0.22, jump: 0.45, color: 0x008800, isGiant: true, sizeLevels: [6, 18, 36], sizeIndex: 0, sizeTarget: 6, sizeCurrent: 6 },
             'RED_HULK': { name: "רד הלאק", ability: "Gamma Burst", speed: 0.25, jump: 0.5, color: 0xaa0000, isGiant: true, sizeLevels: [6, 12, 24], sizeIndex: 0, sizeTarget: 6, sizeCurrent: 6, heatMode: true },
 
             'CAPTAIN_AMERICA': { name: "קפטן אמריקה", ability: "Shield Throw", speed: 0.24, jump: 0.25, color: 0x0000aa },
@@ -336,7 +416,12 @@
             'SPIDER_MAN': { name: "ספיידרמן", ability: "Web Pull", speed: 0.32, jump: 0.45, color: 0xcc0000 },
             'DOCTOR_STRANGE': { name: "דוקטור סטריינג'", ability: "Mystic Shield", speed: 0.22, jump: 0.30, color: 0x880000 },
             'BLACK_WIDOW': { name: "אלמנה שחורה", ability: "Widow's Bite", speed: 0.28, jump: 0.25, color: 0x111111 },
-            'HULKBUSTER': { name: "האלקבאסטר", ability: "Heavy Repulsor", speed: 0.18, jump: 0.25, color: 0x991b1b, isGiant: true, sizeLevels: [6, 8], sizeIndex: 0, sizeTarget: 6, sizeCurrent: 6 }
+            'HULKBUSTER': { name: "האלקבאסטר", ability: "Heavy Repulsor", speed: 0.18, jump: 0.25, color: 0x991b1b, isGiant: true, sizeLevels: [6, 8], sizeIndex: 0, sizeTarget: 6, sizeCurrent: 6 },
+            'IRON_MAN_MK42': { name: "איירון מן מרק 42", ability: "Prodigal Son Repulsor", speed: 0.35, jump: 0.45, color: 0xe6b422, isGiant: true, sizeLevels: [45, 135, 450], sizeIndex: 0, sizeTarget: 45, sizeCurrent: 45 },
+            'IRON_MAN_MK45': { name: "איירון מן מרק 45", ability: "Prime Unibeam", speed: 0.4, jump: 0.5, color: 0xaa0000, isGiant: true, sizeLevels: [54, 180, 630], sizeIndex: 0, sizeTarget: 54, sizeCurrent: 54 },
+            'IRON_MAN_MK41': { name: "איירון מן מרק 41", ability: "Bones Fragment", speed: 0.5, jump: 0.6, color: 0x111111, isGiant: true, sizeLevels: [36, 108, 360], sizeIndex: 0, sizeTarget: 36, sizeCurrent: 36 },
+            'IRON_MAN_MK85': { name: "איירון מן מרק 85", ability: "Nanotech Blade", speed: 0.38, jump: 0.4, color: 0xaa0000, isGiant: true, sizeLevels: [36, 108, 360], sizeIndex: 0, sizeTarget: 36, sizeCurrent: 36 },
+            'IRON_MAN_MK100': { name: "איירון מן מרק 100", ability: "Reality Breaker", speed: 0.45, jump: 0.6, color: 0xdddddd, isGiant: true, sizeLevels: [90, 270, 900], sizeIndex: 0, sizeTarget: 90, sizeCurrent: 90 }
         };
 
         function init() {
@@ -365,7 +450,7 @@
                 spawnEnemiesInFront(15);
                 
                 document.getElementById('loading').style.opacity = '0';
-                setTimeout(() => document.getElementById('loading').style.display = 'none', 1000);
+                setTimeout(() => document.getElementById('loading').style.display = 'none', 100);
             } catch (err) {
                 console.error("Init Error:", err);
                 document.getElementById('load-status').innerText = "Jarvis Error: Check Console";
@@ -415,7 +500,7 @@
             for (let i = 0; i < 150; i++) spawnBuilding();
             for (let i = 0; i < 100; i++) spawnTree();
             if (p1Char !== 'ULTRON') {
-                for (let i = 0; i < 5000; i++) spawnBrick();
+                for (let i = 0; i < 1000; i++) spawnBrick();
             }
         }
 
@@ -497,6 +582,34 @@
             
             g.userData.lLeg = l; g.userData.rLeg = r;
 
+            if (type === 'HULK') {
+                // Purple pants/shorts on legs and lower body
+                l.material = new THREE.MeshStandardMaterial({ color: 0x4a148c, roughness: 0.4 });
+                r.material = new THREE.MeshStandardMaterial({ color: 0x4a148c, roughness: 0.4 });
+                
+                // Green toes/feet detail
+                const toeL = createBox(0.4, 0.15, 0.45, d.color); toeL.position.set(0, -0.4, 0.05); l.add(toeL);
+                const toeR = createBox(0.4, 0.15, 0.45, d.color); toeR.position.set(0, -0.4, 0.05); r.add(toeR);
+
+                // Purple waist band overlay on torso
+                const belt = createBox(0.85, 0.35, 0.45, 0x4a148c); belt.position.set(0, -0.4, 0); t.add(belt);
+
+                // Bulkier green shoulder guards and chest highlights
+                const shoulderL = createBox(0.5, 0.6, 0.5, d.color); shoulderL.position.set(-0.6, 0.3, 0); t.add(shoulderL);
+                const shoulderR = createBox(0.5, 0.6, 0.5, d.color); shoulderR.position.set(0.6, 0.3, 0); t.add(shoulderR);
+                
+                const pecL = createBox(0.35, 0.4, 0.15, 0x009900); pecL.position.set(-0.18, 0.2, 0.22); t.add(pecL);
+                const pecR = createBox(0.35, 0.4, 0.15, 0x009900); pecR.position.set(0.18, 0.2, 0.22); t.add(pecR);
+                const abs = createBox(0.3, 0.3, 0.1, 0x009900); abs.position.set(0, -0.15, 0.21); t.add(abs);
+
+                // Black hair block
+                const hair = createBox(0.65, 0.2, 0.65, 0x111111); hair.position.set(0, 0.35, 0); h.add(hair);
+
+                // Angry white eyes
+                const eyeL = createBox(0.12, 0.08, 0.1, 0xffffff); eyeL.position.set(-0.15, 0.1, 0.31); h.add(eyeL);
+                const eyeR = createBox(0.12, 0.08, 0.1, 0xffffff); eyeR.position.set(0.15, 0.1, 0.31); h.add(eyeR);
+            }
+
             if (type === 'ULTRON') {
                 const eyeL = createBox(0.1, 0.1, 0.1, 0xff0000); eyeL.position.set(-0.15, 2.2, 0.3); g.add(eyeL);
                 const eyeR = createBox(0.1, 0.1, 0.1, 0xff0000); eyeR.position.set(0.15, 2.2, 0.3); g.add(eyeR);
@@ -537,6 +650,187 @@
                 const eyeL = createBox(0.15, 0.1, 0.1, 0x00ffff); eyeL.position.set(-0.2, 2.2, 0.3); g.add(eyeL);
                 const eyeR = createBox(0.15, 0.1, 0.1, 0x00ffff); eyeR.position.set(0.2, 2.2, 0.3); g.add(eyeR);
             }
+            if (type === 'IRON_MAN_MK42') {
+                // Gold base (already handled by d.color)
+                // Red details (chest, arms, legs)
+                const chestRed = createBox(0.65, 0.45, 0.15, 0xaa0000); chestRed.position.set(0, 1.4, 0.25); g.add(chestRed);
+                const reactor = createBox(0.2, 0.2, 0.1, 0x00ffff); reactor.position.set(0, 1.4, 0.35); g.add(reactor);
+                
+                // Detailed Shoulders
+                const shoulderRedL = createBox(0.5, 0.35, 0.5, 0xaa0000); shoulderRedL.position.set(-0.45, 1.6, 0); g.add(shoulderRedL);
+                const shoulderRedR = createBox(0.5, 0.35, 0.5, 0xaa0000); shoulderRedR.position.set(0.45, 1.6, 0); g.add(shoulderRedR);
+                const shoulderGoldL = createBox(0.3, 0.1, 0.55, 0xe6b422); shoulderGoldL.position.set(-0.45, 1.8, 0); g.add(shoulderGoldL);
+                const shoulderGoldR = createBox(0.3, 0.1, 0.55, 0xe6b422); shoulderGoldR.position.set(0.45, 1.8, 0); g.add(shoulderGoldR);
+                
+                // Detailed Legs
+                const thighRedL = createBox(0.45, 0.4, 0.45, 0xaa0000); thighRedL.position.set(-0.25, 0.6, 0.05); g.add(thighRedL);
+                const thighRedR = createBox(0.45, 0.4, 0.45, 0xaa0000); thighRedR.position.set(0.25, 0.6, 0.05); g.add(thighRedR);
+                
+                const eyeL = createBox(0.15, 0.08, 0.1, 0x00ffff); eyeL.position.set(-0.15, 2.2, 0.3); g.add(eyeL);
+                const eyeR = createBox(0.15, 0.08, 0.1, 0x00ffff); eyeR.position.set(0.15, 2.2, 0.3); g.add(eyeR);
+                
+                // Arc reactor glow
+                const rGlow = new THREE.PointLight(0x00ffff, 1, 5);
+                rGlow.position.set(0, 1.4, 0.5);
+                g.add(rGlow);
+            }
+            if (type === 'IRON_MAN_MK45') {
+                // Red base (already handled by d.color)
+                // Gold details (face, shoulders, chest)
+                const faceGold = createBox(0.4, 0.3, 0.1, 0xffcc00); faceGold.position.set(0, 2.15, 0.3); g.add(faceGold);
+                const chestGold = createBox(0.4, 0.2, 0.1, 0xffcc00); chestGold.position.set(0, 1.5, 0.25); g.add(chestGold);
+                
+                const shoulderGoldL = createBox(0.45, 0.35, 0.5, 0xffcc00); shoulderGoldL.position.set(-0.5, 1.6, 0); g.add(shoulderGoldL);
+                const shoulderGoldR = createBox(0.45, 0.35, 0.5, 0xffcc00); shoulderGoldR.position.set(0.5, 1.6, 0); g.add(shoulderGoldR);
+                
+                // Hexagonal-ish reactor
+                const reactor = createBox(0.25, 0.25, 0.1, 0xffffff); reactor.position.set(0, 1.4, 0.35); g.add(reactor);
+                const reactorGlow = new THREE.PointLight(0xffffff, 2, 8); reactorGlow.position.set(0, 1.4, 0.5); g.add(reactorGlow);
+                
+                const eyeL = createBox(0.12, 0.06, 0.1, 0x00ffff); eyeL.position.set(-0.15, 2.2, 0.35); g.add(eyeL);
+                const eyeR = createBox(0.12, 0.06, 0.1, 0x00ffff); eyeR.position.set(0.15, 2.2, 0.35); g.add(eyeR);
+                
+                // Extra armor plating
+                const plateL = createBox(0.3, 0.6, 0.1, 0xaa0000); plateL.position.set(-0.25, 0.6, 0.2); g.add(plateL);
+                const plateR = createBox(0.3, 0.6, 0.1, 0xaa0000); plateR.position.set(0.25, 0.6, 0.2); g.add(plateR);
+            }
+            if (type === 'IRON_MAN_MK85') {
+                // Red base, lots of gold
+                const faceGold = createBox(0.4, 0.3, 0.1, 0xffcc00); faceGold.position.set(0, 2.15, 0.3); g.add(faceGold);
+                const neckGold = createBox(0.5, 0.1, 0.4, 0xffcc00); neckGold.position.set(0, 1.8, 0); g.add(neckGold);
+                
+                const armGoldL = createBox(0.3, 0.6, 0.4, 0xffcc00); armGoldL.position.set(-0.55, 1.2, 0); g.add(armGoldL);
+                const armGoldR = createBox(0.3, 0.6, 0.4, 0xffcc00); armGoldR.position.set(0.55, 1.2, 0); g.add(armGoldR);
+                
+                const thighGoldL = createBox(0.3, 0.6, 0.4, 0xffcc00); thighGoldL.position.set(-0.25, 0.4, 0); g.add(thighGoldL);
+                const thighGoldR = createBox(0.3, 0.6, 0.4, 0xffcc00); thighGoldR.position.set(0.25, 0.4, 0); g.add(thighGoldR);
+                
+                // Triangular-ish reactor
+                const reactor = createBox(0.3, 0.3, 0.1, 0x00ffff); reactor.position.set(0, 1.4, 0.3); reactor.rotation.z = Math.PI / 4; g.add(reactor);
+                const rGlow = new THREE.PointLight(0x00ffff, 1.5, 6); rGlow.position.set(0, 1.4, 0.5); g.add(rGlow);
+            }
+            if (type === 'IRON_MAN_MK100') {
+                // Silver base
+                const faceBlue = createBox(0.4, 0.2, 0.1, 0x00ccff); faceBlue.position.set(0, 2.2, 0.35); g.add(faceBlue);
+                
+                // Tech wings / shoulders
+                const wingL = createBox(0.2, 1.5, 0.8, 0x333333); wingL.position.set(-0.8, 1.5, -0.4); wingL.rotation.y = 0.5; g.add(wingL);
+                const wingR = createBox(0.2, 1.5, 0.8, 0x333333); wingR.position.set(0.8, 1.5, -0.4); wingR.rotation.y = -0.5; g.add(wingR);
+                
+                // Multiple glowing ports
+                for(let i=0; i<3; i++) {
+                    const port = createBox(0.2, 0.2, 0.1, 0x00ffff);
+                    port.position.set(0, 1.0 + i*0.4, 0.35);
+                    g.add(port);
+                }
+                
+                // Translucent Energy Wings
+                const energyL = createBox(0.1, 2.0, 1.2, 0x00ffff, false, true);
+                energyL.position.set(-1.0, 1.8, -0.6); energyL.rotation.z = 0.4;
+                g.add(energyL);
+                const energyR = createBox(0.1, 2.0, 1.2, 0x00ffff, false, true);
+                energyR.position.set(1.0, 1.8, -0.6); energyR.rotation.z = -0.4;
+                g.add(energyR);
+                
+                const mainGlow = new THREE.PointLight(0x00ffff, 3, 15); mainGlow.position.set(0, 1.4, 1); g.add(mainGlow);
+            }
+            if (type === 'IRON_MAN_MK41') {
+                // Black skeletal base
+                for(let i=0; i<5; i++) {
+                    const rib = createBox(0.9, 0.1, 0.5, 0xffcc00);
+                    rib.position.set(0, 0.8 + i*0.2, 0);
+                    g.add(rib);
+                }
+                const eyeL = createBox(0.1, 0.1, 0.1, 0x00ffff); eyeL.position.set(-0.15, 2.2, 0.3); g.add(eyeL);
+                const eyeR = createBox(0.1, 0.1, 0.1, 0x00ffff); eyeR.position.set(0.15, 2.2, 0.3); g.add(eyeR);
+                const reactor = createBox(0.15, 0.15, 0.1, 0x00ffff); reactor.position.set(0, 1.4, 0.25); g.add(reactor);
+            }
+            if (type === 'IRON_MAN_89') {
+                const arc = createBox(0.2, 0.2, 0.1, 0x00ffff); arc.position.set(0, 1.5, 0.25); g.add(arc);
+                const shoulderL = createBox(0.4, 0.3, 0.4, 0xaa0000); shoulderL.position.set(-0.5, 1.6, 0); g.add(shoulderL);
+                const shoulderR = createBox(0.4, 0.3, 0.4, 0xaa0000); shoulderR.position.set(0.5, 1.6, 0); g.add(shoulderR);
+            }
+            if (type === 'IRON_MAN_99') {
+                const arc = createBox(0.25, 0.25, 0.1, 0xffffff); arc.position.set(0, 1.5, 0.25); g.add(arc);
+                // Gold wings
+                const wingL = createBox(0.1, 1.2, 0.6, 0xffd700); wingL.position.set(-0.6, 1.5, -0.3); wingL.rotation.z = 0.5; g.add(wingL);
+                const wingR = createBox(0.1, 1.2, 0.6, 0xffd700); wingR.position.set(0.6, 1.5, -0.3); wingR.rotation.z = -0.5; g.add(wingR);
+                // Yellow face plate
+                const face = createBox(0.4, 0.4, 0.1, 0xffff00); face.position.set(0, 2.1, 0.3); g.add(face);
+                // Gold armor plates
+                const chest = createBox(0.6, 0.4, 0.1, 0xffd700); chest.position.set(0, 1.4, 0.21); g.add(chest);
+            }
+            if (type === 'IRON_MAN_MK7') {
+                // Red base with gold faceplate and chest, silver highlights
+                const faceGold = createBox(0.4, 0.3, 0.1, 0xffcc00); faceGold.position.set(0, 2.15, 0.3); g.add(faceGold);
+                const chestGold = createBox(0.45, 0.25, 0.1, 0xffcc00); chestGold.position.set(0, 1.5, 0.25); g.add(chestGold);
+                
+                // Circular arc reactor
+                const reactor = createBox(0.2, 0.2, 0.15, 0x00ffff); reactor.position.set(0, 1.4, 0.3); g.add(reactor);
+                const reactorGlow = new THREE.PointLight(0x00ffff, 2.5, 10); reactorGlow.position.set(0, 1.4, 0.5); g.add(reactorGlow);
+                
+                // Bulky shoulder missile pods
+                const podL = createBox(0.45, 0.4, 0.55, 0xaa0000); podL.position.set(-0.55, 1.6, 0); g.add(podL);
+                const podR = createBox(0.45, 0.4, 0.55, 0xaa0000); podR.position.set(0.55, 1.6, 0); g.add(podR);
+                // Missile details (little yellow dots on the pods)
+                const dotL = createBox(0.2, 0.1, 0.1, 0xffcc00); dotL.position.set(-0.55, 1.6, 0.28); g.add(dotL);
+                const dotR = createBox(0.2, 0.1, 0.1, 0xffcc00); dotR.position.set(0.55, 1.6, 0.28); g.add(dotR);
+                
+                // Eyes
+                const eyeL = createBox(0.12, 0.06, 0.1, 0x00ffff); eyeL.position.set(-0.15, 2.2, 0.35); g.add(eyeL);
+                const eyeR = createBox(0.12, 0.06, 0.1, 0x00ffff); eyeR.position.set(0.15, 2.2, 0.35); g.add(eyeR);
+            }
+            if (type === 'IRON_MAN_MK6') {
+                // Red base with gold faceplate and silver/gold highlights
+                const faceGold = createBox(0.4, 0.3, 0.1, 0xffcc00); faceGold.position.set(0, 2.15, 0.3); g.add(faceGold);
+                const chestGold = createBox(0.4, 0.2, 0.1, 0xffcc00); chestGold.position.set(0, 1.5, 0.25); g.add(chestGold);
+                
+                // Triangular arc reactor (Mark 6 signature feature)
+                const reactor = createBox(0.25, 0.25, 0.15, 0x00ffff);
+                reactor.position.set(0, 1.4, 0.3);
+                reactor.rotation.z = Math.PI / 4; // Rotated box looks like a diamond/triangle
+                g.add(reactor);
+                const reactorGlow = new THREE.PointLight(0x00ffff, 2, 8); reactorGlow.position.set(0, 1.4, 0.5); g.add(reactorGlow);
+                
+                // Shoulder pads
+                const shoulderL = createBox(0.45, 0.35, 0.5, 0xaa0000); shoulderL.position.set(-0.5, 1.6, 0); g.add(shoulderL);
+                const shoulderR = createBox(0.45, 0.35, 0.5, 0xaa0000); shoulderR.position.set(0.5, 1.6, 0); g.add(shoulderR);
+                
+                // Eyes
+                const eyeL = createBox(0.12, 0.06, 0.1, 0x00ffff); eyeL.position.set(-0.15, 2.2, 0.35); g.add(eyeL);
+                const eyeR = createBox(0.12, 0.06, 0.1, 0x00ffff); eyeR.position.set(0.15, 2.2, 0.35); g.add(eyeR);
+            }
+            if (type === 'IRON_MAN_MK500') {
+                // Chrome Body
+                const chromeMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 1.0, roughness: 0.1 });
+                g.children.forEach(c => { if(c.material) c.material = chromeMat; });
+                
+                // Neon blue accents
+                const arc = createBox(0.3, 0.3, 0.15, 0x00ffff); arc.position.set(0, 1.5, 0.25); g.add(arc);
+                const arcGlow = new THREE.PointLight(0x00ffff, 10, 50); arcGlow.position.set(0, 1.5, 1); g.add(arcGlow);
+                
+                // Add a "Halo" of light
+                const halo = new THREE.PointLight(0xffffff, 5, 200);
+                halo.position.set(0, 5, 0);
+                g.add(halo);
+                
+                // Cosmic Wings (6 floating bits)
+                for(let i=0; i<6; i++) {
+                    const bit = createBox(0.15, 0.8, 0.4, 0x00ffff, false, true);
+                    const angle = (i / 6) * Math.PI * 2;
+                    bit.position.set(Math.cos(angle) * 1.5, 1.5 + Math.sin(angle) * 1.5, -0.5);
+                    bit.rotation.z = angle;
+                    g.add(bit);
+                    
+                    // Orbit animation logic via userData
+                    bit.userData = { orbit: true, angle: angle, speed: 0.05 };
+                }
+                
+                const eyeL = createBox(0.15, 0.05, 0.1, 0x00ffff); eyeL.position.set(-0.15, 2.2, 0.35); g.add(eyeL);
+                const eyeR = createBox(0.15, 0.05, 0.1, 0x00ffff); eyeR.position.set(0.15, 2.2, 0.35); g.add(eyeR);
+                g.scale.set(50, 50, 50);
+            }
+
             if (d && d.sizeCurrent) {
                 g.scale.set(d.sizeCurrent, d.sizeCurrent, d.sizeCurrent);
             } else if (type === 'HULK' || type === 'GODZILLA' || type === 'THANOS') {
@@ -581,7 +875,12 @@
                 if (e.code === 'KeyL') toggleLegion();
                 if (e.code === 'KeyV') adjustSize(1);
                 if (e.code === 'KeyC') adjustSize(-1);
-                if (e.code === 'Enter') nextCharacter(1);
+                if (e.code === 'Enter') {
+                    if (e.shiftKey) nextCharacter(-1);
+                    else nextCharacter(1);
+                }
+                if (e.code === 'Backspace' || e.code === 'KeyQ') nextCharacter(-1);
+                if (e.code === 'KeyE') nextCharacter(1);
             });
             window.addEventListener('keyup', e => keys[e.code] = false);
 
@@ -633,14 +932,119 @@
             const mesh = characters[char].mesh;
             const d = charData[char];
             const isRedHulk = char === 'RED_HULK';
+            const isMk45 = char === 'IRON_MAN_MK45';
+            const isMk85 = char === 'IRON_MAN_MK85';
+            const isMk100 = char === 'IRON_MAN_MK100';
+            const isIM89 = char === 'IRON_MAN_89';
+            const isIM99 = char === 'IRON_MAN_99';
+            const isMk500 = char === 'IRON_MAN_MK500';
+            const isMk6 = char === 'IRON_MAN_MK6';
+            const isMk7 = char === 'IRON_MAN_MK7';
             
-            const color = isRedHulk ? 0xff4400 : (char === 'BLACK_PANTHER' ? 0xaa00ff : d.color);
+            const color = isMk500 ? 0x00ffff : (isMk100 ? 0x00ffff : (isMk85 ? 0xffcc00 : (isMk7 ? 0xff0000 : (isMk6 ? 0xff0000 : (isMk45 ? 0xffffff : (isRedHulk ? 0xff4400 : (char === 'BLACK_PANTHER' ? 0xaa00ff : d.color)))))));
             const s = createBox(3, 3, 3, color, false, true);
             s.position.copy(mesh.position); scene.add(s);
             
+            if (isMk7) {
+                shakeCamera(5.0);
+                showMessage("MISSILE SALVO LAUNCHED", "#ffcc00");
+                for(let i=0; i<8; i++) {
+                    const missile = createBox(0.4, 0.4, 0.8, 0xffcc00, true);
+                    missile.position.copy(mesh.position);
+                    missile.position.y += 2 * (d.sizeCurrent || 1);
+                    
+                    const angle = (Math.random() - 0.5) * 1.5;
+                    const speed = 2.0 + Math.random() * 1.5;
+                    const vel = new THREE.Vector3(Math.sin(angle) * speed, 0.5 + Math.random(), Math.cos(angle) * speed);
+                    
+                    missile.userData = { vel: vel, life: 80, charType: char, hitRadius: 8 * (d.sizeCurrent || 1) };
+                    scene.add(missile);
+                    projectiles.push(missile);
+                }
+            }
+
+            if (isMk6) {
+                shakeCamera(4.0);
+                showMessage("LASER SPIN ACTIVATED", "#ff3333");
+                // Rotating lasers
+                for(let angle=0; angle<Math.PI*2; angle+=Math.PI/4) {
+                    const beam = createBox(0.25, 0.25, 20 * (d.sizeCurrent || 1), 0xff3300, false, true);
+                    beam.position.copy(mesh.position);
+                    beam.position.y += 1.5 * (d.sizeCurrent || 1);
+                    scene.add(beam);
+                    
+                    let time = 0;
+                    const rotateBeam = () => {
+                        time += 0.05;
+                        beam.rotation.y += 0.15;
+                        beam.position.copy(mesh.position);
+                        beam.position.y += 1.5 * (d.sizeCurrent || 1);
+                        beam.material.opacity = 1 - (time / 2);
+                        
+                        obstacles.forEach((o, oi) => {
+                            if (o.position.distanceTo(mesh.position) < 20 * (d.sizeCurrent || 1)) {
+                                scene.remove(o); obstacles.splice(oi, 1);
+                                gainScore(200, o.position); spawnFlash(o.position); playPop();
+                            }
+                        });
+                        
+                        enemies.forEach(en => {
+                            if (en.userData.type === 'ENEMY' && en.position.distanceTo(mesh.position) < 20 * (d.sizeCurrent || 1)) {
+                                en.userData.hp -= 5;
+                            }
+                        });
+                        
+                        if (time < 2) requestAnimationFrame(rotateBeam); else scene.remove(beam);
+                    }; rotateBeam();
+                }
+            }
+
+            if (isMk100 || isIM99 || isMk500) {
+                shakeCamera(isMk500 ? 15.0 : 3.0);
+                if (isMk500) {
+                    showMessage("COSMIC OBLITERATION INITIATED", "#00ffff");
+                    // Clear all visible obstacles and enemies
+                    obstacles.forEach((o, i) => {
+                        if (o.position.distanceTo(mesh.position) < 500) {
+                            spawnLegoExplosion(o.position, 0xffffff, 100);
+                        }
+                    });
+                    obstacles = [];
+                    enemies.forEach(en => {
+                        en.userData.hp = 0;
+                    });
+                }
+                for(let i=0; i<(isMk500 ? 15 : 3); i++) {
+                    const wave = createBox(5, 0.5, 5, 0xffffff, false, true);
+                    wave.position.copy(mesh.position);
+                    scene.add(wave);
+                    let wsc = 1;
+                    const wan = () => {
+                        wsc += (isMk500 ? 15 : 5); wave.scale.set(wsc, 1, wsc); wave.material.opacity -= (isMk500 ? 0.01 : 0.02);
+                        if (wave.material.opacity > 0) requestAnimationFrame(wan); else scene.remove(wave);
+                    }; wan();
+                }
+            }
+            
+            if (isMk85 || isIM89) {
+                s.rotation.x = Math.PI / 4;
+                s.rotation.y = Math.PI / 4;
+            }
+            
+            if (isMk45) {
+                s.rotation.z = Math.PI / 4;
+                const s2 = createBox(3, 3, 3, 0x00ffff, false, true);
+                s2.position.copy(mesh.position);
+                scene.add(s2);
+                let sc2 = 1;
+                const an2 = () => {
+                    sc2 += 2.5; s2.scale.set(sc2, sc2, sc2); s2.material.opacity -= 0.05;
+                    if (s2.material.opacity > 0) requestAnimationFrame(an2); else scene.remove(s2);
+                }; an2();
+            }
+            
             if (isRedHulk) {
                 shakeCamera(2.0);
-                // Extra fire particles for Red Hulk
                 for(let i=0; i<20; i++) {
                     const f = createBox(1, 1, 1, 0xffaa00);
                     f.position.copy(mesh.position);
@@ -649,26 +1053,24 @@
                         life: 1.0 
                     };
                     scene.add(f);
-                    bricks.push(f); // Using bricks array for simple particle cleanup
+                    heatParticles.push(f); 
                 }
             }
 
             let sc = 1;
             const an = () => {
-                sc += isRedHulk ? 2.0 : 1.2; s.scale.set(sc, sc, sc); s.material.opacity -= 0.04;
+                sc += isMk500 ? 5.0 : (isRedHulk ? 2.0 : 1.2); s.scale.set(sc, sc, sc); s.material.opacity -= 0.04;
                 if (s.material.opacity > 0) requestAnimationFrame(an); else scene.remove(s);
-                obstacles.forEach((o, i) => { if (o.position.distanceTo(mesh.position) < sc*2) { scene.remove(o); obstacles.splice(i, 1); score += 200; updateHUD(); spawnFlash(o.position); } });
+                obstacles.forEach((o, i) => { if (o.position.distanceTo(mesh.position) < sc*2) { scene.remove(o); obstacles.splice(i, 1); gainScore(200, o.position); spawnFlash(o.position); } });
             }; an();
             playSparkle();
         }
-
 
         function toggleLegion() {
             legionMode = !legionMode;
             updateHUD();
             
             if (legionMode) {
-                // Clear existing just in case
                 legionAllies.forEach(a => scene.remove(a));
                 legionAllies = [];
                 
@@ -690,7 +1092,6 @@
                         lastFire: 0
                     };
                     
-                    // Initial position near player
                     const pMesh = characters[p1Char].mesh;
                     mesh.position.set(
                         pMesh.position.x + (Math.random()-0.5) * 40,
@@ -708,25 +1109,22 @@
         }
 
         function nextCharacter(p) {
+            if (typeof p !== 'number') p = 1;
             const oldChar = p1Char;
             characters[p1Char].mesh.visible = false;
-            p1Char = charRoster[(charRoster.indexOf(p1Char) + 1) % charRoster.length];
+            p1Char = charRoster[(charRoster.indexOf(p1Char) + p + charRoster.length) % charRoster.length];
             characters[p1Char].mesh.visible = true;
             
-            // If Legion Mode is active, swap the new player character out of the legion 
-            // and put the old player character back in.
             if (legionMode) {
-                // Find new char in legion and remove it
                 const idx = legionAllies.findIndex(a => a.userData.charType === p1Char);
                 if (idx > -1) {
                     scene.remove(legionAllies[idx]);
                     legionAllies.splice(idx, 1);
                 }
                 
-                // Add old char to legion at current position
                 const mesh = buildCharacterMesh(oldChar);
                 mesh.visible = true;
-                mesh.position.copy(characters[p1Char].mesh.position); // Use NEW player's position as starting point
+                mesh.position.copy(characters[p1Char].mesh.position); 
                 mesh.userData = {
                     type: 'LEGION',
                     charType: oldChar,
@@ -741,13 +1139,11 @@
                 legionAllies.push(mesh);
             }
 
-            // Re-align all drones based on new character
             const isUltronPlayer = (p1Char === 'ULTRON');
             enemies.forEach(en => {
-                const isDrone = (en.userData.hp !== undefined && (en.children.length > 0)); // Basic drone check
+                const isDrone = (en.userData.hp !== undefined && (en.children.length > 0)); 
                 if (isDrone) {
                     en.userData.type = isUltronPlayer ? 'ALLY' : 'ENEMY';
-                    // Update eyes
                     const eye = en.children.find(c => c.geometry && c.geometry.type === 'BoxGeometry' && c.scale.x < 1);
                     if (eye) eye.material.color.set(isUltronPlayer ? 0x00ccff : 0xff0000);
                 }
@@ -765,6 +1161,7 @@
             if (magnetTimer > 0) nameStr += " [MAGNET!]";
             if (legionMode) nameStr += " [LEGION ACTIVE]";
             document.getElementById('p1-name').innerText = nameStr;
+            document.getElementById('p2-name').innerText = charData[p2Char].name;
             
             const legionBtn = document.getElementById('btn-legion');
             if (legionBtn) {
@@ -793,43 +1190,16 @@
                     life: 1.0
                 };
                 scene.add(b);
-                bricks.push(b); 
+                heatParticles.push(b); 
             }
-            if (value > 0) spawnFloatingScore(pos, value);
+            if (value > 0) gainScore(value, pos);
             playPop();
-        }
-
-        function spawnFloatingScore(pos, value) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 256; canvas.height = 128;
-            const ctx = canvas.getContext('2d');
-            ctx.font = 'bold 80px Arial';
-            ctx.fillStyle = '#ffcc00';
-            ctx.textAlign = 'center';
-            ctx.fillText(`+${value}`, 128, 80);
-            
-            const tex = new THREE.CanvasTexture(canvas);
-            const mat = new THREE.SpriteMaterial({ map: tex, transparent: true });
-            const sprite = new THREE.Sprite(mat);
-            sprite.position.copy(pos);
-            sprite.position.y += 5;
-            sprite.scale.set(4, 2, 1);
-            scene.add(sprite);
-            
-            let life = 0;
-            const animate = () => {
-                life += 0.02;
-                sprite.position.y += 0.1;
-                sprite.material.opacity = 1 - life;
-                if (life < 1) requestAnimationFrame(animate);
-                else scene.remove(sprite);
-            };
-            animate();
         }
 
         function getCollidedObstacle(nx, nz) {
             for (const o of obstacles) {
                 const ox = o.position.x, oz = o.position.z;
+                if (Math.abs(nx - ox) > 25 || Math.abs(nz - oz) > 25) continue;
                 const buffer = 1.8;
                 if (Math.abs(nx - ox) < (o.userData.w/2 + buffer) && Math.abs(nz - oz) < (o.userData.d/2 + buffer)) return o;
             }
@@ -839,10 +1209,8 @@
         function updatePlayer(char, isP1) {
             const st = characters[char]; const m = st.mesh; const d = st.data;
             
-            // Proportional speed scaling
             const currentSpeed = d.speed * (1 + (d.sizeIndex || 0) * 1.5);
 
-            // Slower, smoother scaling
             if (d.sizeLevels) {
                 d.sizeCurrent = THREE.MathUtils.lerp(d.sizeCurrent, d.sizeTarget, 0.03);
                 m.scale.set(d.sizeCurrent, d.sizeCurrent, d.sizeCurrent);
@@ -854,17 +1222,14 @@
                 if (keys['KeyA']) mx -= currentSpeed; if (keys['KeyD']) mx += currentSpeed;
                 if (Math.abs(mobileInput.x) > 0.1 || Math.abs(mobileInput.z) > 0.1) { mx = mobileInput.x * currentSpeed; mz = mobileInput.z * currentSpeed; }
                 
-                // Jump & Double Jump
                 if ((keys['Space'] || mobileInput.jump)) {
                     if (m.position.y <= 0.1) { st.yVel = d.jump; st.jumpCount = 1; }
                     else if (st.jumpCount === 1) { st.yVel = d.jump; st.jumpCount = 2; playSparkle(); }
                     mobileInput.jump = false;
                 }
 
-                // Player Auto-Attack
                 const now = Date.now();
                 if (!st.lastAutoFire) st.lastAutoFire = 0;
-                // Only attack if we are NOT Ultron (Ultron drones are your allies)
                 if (p1Char !== 'ULTRON' && (now - st.lastAutoFire > 500)) {
                     let closest = null, minDist = 40 * (d.sizeCurrent || 1);
                     enemies.forEach(en => {
@@ -890,12 +1255,10 @@
             const nx = m.position.x + mx, nz = m.position.z + mz;
             const obs = getCollidedObstacle(nx, nz);
             
-            // Interaction logic
-            const destRadius = d.isGiant ? (d.sizeCurrent * 1.2) : 1.8;
             if (obs && d.isGiant && (mx !== 0 || mz !== 0) && d.sizeCurrent > 4.0) {
                 scene.remove(obs);
                 const idx = obstacles.indexOf(obs); if (idx > -1) obstacles.splice(idx, 1);
-                score += 500; updateHUD(); spawnFlash(obs.position); playPop();
+                gainScore(500, obs.position); spawnFlash(obs.position); playPop();
             }
 
             if (!obs || (d.isGiant && d.sizeCurrent > 4.0)) {
@@ -908,7 +1271,6 @@
                 else if (!getCollidedObstacle(m.position.x, nz)) m.position.z = nz;
             }
 
-            // Stride Animation
             if (mx !== 0 || mz !== 0) {
                 m.rotation.y = Math.atan2(mx, mz);
                 const legSpeed = 0.15 * (d.isGiant ? 1 : 1.5);
@@ -918,7 +1280,6 @@
                 
                 if (d.isGiant) {
                     m.position.y += Math.abs(wave) * 0.1 * (d.sizeCurrent / 4); 
-                    // Footstep shake
                     if (Math.abs(wave) > 0.9 && !st.lastStep) {
                         shakeCamera(d.sizeCurrent * 0.02);
                         st.lastStep = true;
@@ -941,7 +1302,6 @@
                 m.position.y = 0; st.yVel = 0; st.jumpCount = 0; 
             }
 
-            // Screen Shake & Heat Particles for Red Hulk
             if (isP1 && d.heatMode) {
                 if (Math.random() < 0.3) createHeatParticle(m.position, d.sizeCurrent);
                 if (m.userData.glow) {
@@ -949,8 +1309,6 @@
                 }
             }
 
-            
-            // SQUAD / ENEMY LOGIC
             for (let i = enemies.length - 1; i >= 0; i--) {
                 const en = enemies[i];
                 const pMesh = characters[p1Char].mesh;
@@ -962,18 +1320,15 @@
                     spawnLegoExplosion(en.position, isEnemy ? 0x444444 : 0x888888, 500);
                     scene.remove(en);
                     enemies.splice(i, 1);
-                    score += 500; updateHUD();
                     continue;
                 }
 
                 if (isEnemy) {
-                    // Move to player
                     const dir = pMesh.position.clone().sub(en.position).normalize();
                     en.position.x += dir.x * en.userData.speed;
                     en.position.z += dir.z * en.userData.speed;
                     en.lookAt(pMesh.position);
                 } else {
-                    // Dynamic Circling Pattern for Allies
                     en.userData.rotParam += en.userData.rotSpeed;
                     const radius = 8 + pScale * 2 + Math.sin(en.userData.rotParam * 0.5) * 3;
                     const targetX = pMesh.position.x + Math.cos(en.userData.rotParam) * radius;
@@ -990,7 +1345,6 @@
                     }
                 }
 
-                // Size Fluctuation
                 if (en.userData.isSizeShifter) {
                     en.userData.scaleShift += 0.05;
                     const fluctuate = 1.25 + Math.sin(en.userData.scaleShift) * 0.75; 
@@ -1000,26 +1354,24 @@
 
                 en.position.y = THREE.MathUtils.lerp(en.position.y, 0, 0.1);
 
-                // Allies help destroy nearby obstacles
                 if (!isEnemy) {
                     const interactDist = 3 + pScale * 0.5;
-                    obstacles.forEach((obs, oi) => {
+                    for (let oi = obstacles.length - 1; oi >= 0; oi--) {
+                        const obs = obstacles[oi];
+                        if (Math.abs(en.position.x - obs.position.x) > 25 || Math.abs(en.position.z - obs.position.z) > 25) continue;
                         if (en.position.distanceTo(obs.position) < interactDist) {
                             scene.remove(obs); obstacles.splice(oi, 1);
-                            score += 100; updateHUD(); spawnFlash(obs.position); playPop();
-                            spawnFloatingScore(obs.position, 100);
+                            gainScore(100, obs.position); spawnFlash(obs.position); playPop();
                         }
-                    });
+                    }
                 }
             }
 
-            // LEGION ALLIES UPDATE - FORMATION & COOPERATION
             legionAllies.forEach((ally, idx) => {
                 const pMesh = characters[p1Char].mesh;
                 const pData = charData[p1Char];
                 const pScale = pData.sizeCurrent || 1;
                 
-                // 1. Combat Logic - Find Priority Target
                 let targetEnemy = null;
                 let minDist = 30 * pScale;
                 enemies.forEach(en => {
@@ -1029,16 +1381,13 @@
                     }
                 });
 
-                // 2. Movement Logic (Formation vs Combat)
                 let targetPos = new THREE.Vector3();
                 const now = Date.now();
                 
                 if (targetEnemy && p1Char !== 'ULTRON') {
-                    // Attack stance - move towards enemy but keep some distance
                     const dir = targetEnemy.position.clone().sub(ally.position).normalize();
                     targetPos.copy(targetEnemy.position).sub(dir.multiplyScalar(5 * pScale));
                     
-                    // Fire at enemy
                     if (now - ally.userData.lastFire > 600) {
                         const aScale = ally.scale.y;
                         const pSize = Math.max(0.8, aScale * 0.4);
@@ -1051,7 +1400,6 @@
                         playSparkle();
                     }
                 } else {
-                    // Formation stance - staggered circle/V behind player
                     const angle = (idx / legionAllies.length) * Math.PI - (Math.PI / 2);
                     const pRot = pMesh.rotation.y;
                     const radius = 10 * pScale + (idx % 3) * 5;
@@ -1060,27 +1408,28 @@
                     targetPos.set(pMesh.position.x + offsetX, 0, pMesh.position.z + offsetZ);
                 }
 
-                // 3. Appropriate Scaling Logic
                 const dAlly = charData[ally.userData.charType];
                 let targetScale = 1.0;
                 if (dAlly.sizeLevels) targetScale = dAlly.sizeLevels[0]; 
-                if (ally.userData.charType === 'HULK' || ally.userData.charType === 'THANOS') targetScale = 1.8;
+                if (ally.userData.charType === 'HULK') targetScale = 6.0;
+                if (ally.userData.charType === 'THANOS') targetScale = 1.8;
                 if (ally.userData.charType === 'GODZILLA') targetScale = 3.0;
                 if (ally.userData.charType === 'HULKBUSTER') targetScale = 6.0;
                 if (ally.userData.charType === 'RED_HULK') targetScale = 10.0;
+                if (ally.userData.charType === 'IRON_MAN_89') targetScale = 80.1;
+                if (ally.userData.charType === 'IRON_MAN_99') targetScale = 89.1;
+                if (ally.userData.charType === 'IRON_MAN_MK6') targetScale = 45.0;
+                if (ally.userData.charType === 'IRON_MAN_MK7') targetScale = 81.0;
+                if (ally.userData.charType === 'IRON_MAN_MK500') targetScale = 450.0;
                 
-                // If the player is massive, allies grow slightly but stay proportional 
                 const growthFactor = Math.sqrt(pScale); 
                 targetScale *= growthFactor;
                 
-                // Red Hulk must always be the biggest leader!
-                if (p1Char === 'RED_HULK' && targetScale >= pScale) {
-                    targetScale = pScale * 0.8;
-                }
+                if (p1Char === 'RED_HULK' && targetScale >= pScale) targetScale = pScale * 0.8;
+                if (p1Char === 'IRON_MAN_MK500' && targetScale >= pScale) targetScale = pScale * 0.5;
                 
                 ally.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
 
-                // 4. Separation (Don't stack)
                 let separation = new THREE.Vector3();
                 legionAllies.forEach((other, oIdx) => {
                     if (idx === oIdx) return;
@@ -1092,7 +1441,6 @@
                 });
                 targetPos.add(separation);
 
-                // 5. Apply Movement
                 const distToTarget = ally.position.distanceTo(targetPos);
                 if (distToTarget > 0.2) {
                     const moveDir = targetPos.clone().sub(ally.position).normalize();
@@ -1100,7 +1448,6 @@
                     ally.position.x += moveDir.x * moveSpeed;
                     ally.position.z += moveDir.z * moveSpeed;
                     
-                    // Look at movement or enemy
                     if (targetEnemy) {
                         ally.lookAt(targetEnemy.position.x, ally.position.y, targetEnemy.position.z);
                     } else {
@@ -1108,7 +1455,6 @@
                         ally.lookAt(lookTarget.x, ally.position.y, lookTarget.z);
                     }
 
-                    // Stride animation
                     const wave = Math.sin(now * 0.015);
                     if (ally.userData.lLeg) ally.userData.lLeg.rotation.x = wave * 1.2;
                     if (ally.userData.rLeg) ally.userData.rLeg.rotation.x = -wave * 1.2;
@@ -1117,24 +1463,22 @@
                     if (ally.userData.rLeg) ally.userData.rLeg.rotation.x = 0;
                 }
                 
-                // Help destroy obstacles
                 const interactDistLegion = 5 + targetScale;
-                obstacles.forEach((obs, oi) => {
+                for (let oi = obstacles.length - 1; oi >= 0; oi--) {
+                    const obs = obstacles[oi];
+                    if (Math.abs(ally.position.x - obs.position.x) > 25 || Math.abs(ally.position.z - obs.position.z) > 25) continue;
                     if (ally.position.distanceTo(obs.position) < interactDistLegion) {
                         scene.remove(obs); obstacles.splice(oi, 1);
-                        score += 200; updateHUD(); spawnFlash(obs.position); playPop();
-                        spawnFloatingScore(obs.position, 200);
+                        gainScore(200, obs.position); spawnFlash(obs.position); playPop();
                     }
-                });
+                }
             });
 
-            // Projectiles Update
             for (let i = projectiles.length - 1; i >= 0; i--) {
                 const p = projectiles[i];
                 p.position.add(p.userData.vel);
                 p.userData.life--;
                 
-                // Hit detection
                 const radius = p.userData.hitRadius || 5;
                 enemies.forEach(en => {
                     if (en.userData.type === 'ENEMY' && p.position.distanceTo(en.position) < radius) {
@@ -1145,27 +1489,46 @@
                 });
 
                 if (p.userData.life <= 0) {
+                    if (p.userData.charType === 'IRON_MAN_MK7') {
+                        spawnLegoExplosion(p.position, 0xff3300, 100);
+                        // Blast radius to hit enemies and obstacles
+                        enemies.forEach(en => {
+                            if (en.userData.type === 'ENEMY' && p.position.distanceTo(en.position) < 15) {
+                                en.userData.hp -= 10;
+                            }
+                        });
+                        for (let oi = obstacles.length - 1; oi >= 0; oi--) {
+                            const o = obstacles[oi];
+                            if (p.position.distanceTo(o.position) < 15) {
+                                scene.remove(o); obstacles.splice(oi, 1);
+                                gainScore(200, o.position); spawnFlash(o.position); playPop();
+                            }
+                        }
+                    }
                     scene.remove(p);
                     projectiles.splice(i, 1);
                 }
             }
 
-            // Performance Optimized Collection - STOP BRICKS AT LARGE SCALE
-            if (d.sizeCurrent > 15) return; 
+            if (d.sizeCurrent > 15 && p1Char !== 'IRON_MAN_MK500' && p1Char !== 'GODZILLA') return; 
 
             const collDist = d.isGiant ? (d.sizeCurrent * 1.5) : 2.5; 
-            const attractRange = d.isGiant ? Math.max(22, d.sizeCurrent * 5) : 22;
+            const attractRange = (p1Char === 'IRON_MAN_MK500') ? 1000 : (d.isGiant ? Math.max(22, d.sizeCurrent * 5) : 22);
 
+            const px = m.position.x, pz = m.position.z;
             for (let i = bricks.length - 1; i >= 0; i--) {
                 const b = bricks[i];
+                const bx = b.position.x, bz = b.position.z;
+                if (Math.abs(px - bx) > attractRange && Math.abs(pz - bz) > attractRange) continue;
+                
                 const dist = b.position.distanceTo(m.position);
-                if (magnetTimer > 0 && dist < attractRange) {
+                if ((magnetTimer > 0 || p1Char === 'IRON_MAN_MK500') && dist < attractRange) {
                     b.position.lerp(m.position, 0.3);
                 }
                 
                 if (dist < collDist) { 
                     if (b.userData.magnet) { magnetTimer = 600; playSparkle(); } 
-                    else { score += b.userData.value; playPop(); }
+                    else { gainScore(b.userData.value || 0, b.position); playPop(); }
                     scene.remove(b); bricks.splice(i, 1); updateHUD(); spawnFlash(m.position);
                     if (bricks.length < 3000) spawnBrick(Math.random() * 0.05); 
                 } 
@@ -1178,7 +1541,6 @@
             if (Math.abs(gp.axes[0]) > 0.1) mobileInput.x = gp.axes[0];
             if (Math.abs(gp.axes[1]) > 0.1) mobileInput.z = gp.axes[1];
             
-            // PS Buttons
             if (gp.buttons[0].pressed && !keys['gpSizeUp']) { 
                 adjustSize(1); keys['gpSizeUp'] = true;
             } else if (!gp.buttons[0].pressed) keys['gpSizeUp'] = false;
@@ -1187,17 +1549,15 @@
                 adjustSize(-1); keys['gpSizeDown'] = true;
             } else if (!gp.buttons[1].pressed) keys['gpSizeDown'] = false;
             
-            // Extra actions
             if (gp.buttons[2].pressed && !keys['gpA']) { triggerAbility(p1Char); keys['gpA']=true; }
             if (!gp.buttons[2].pressed) keys['gpA']=false;
             if (gp.buttons[3].pressed && !keys['gpS']) { nextCharacter(1); keys['gpS']=true; }
             if (!gp.buttons[3].pressed) keys['gpS']=false;
             
-            // Legion on Options/Start (Button 9)
             if (gp.buttons[9].pressed && !keys['gpLegion']) { toggleLegion(); keys['gpLegion']=true; }
             if (!gp.buttons[9].pressed) keys['gpLegion']=false;
 
-            if (gp.buttons[10].pressed) mobileInput.jump = true; // L3 or R3 for jump as backup
+            if (gp.buttons[10].pressed) mobileInput.jump = true; 
         }
 
         function animate() {
@@ -1211,7 +1571,6 @@
             updatePlayer(p1Char, true);
             if (magnetTimer > 0) magnetTimer--;
             
-            // Periodically transform a tree into a mini Ultron
             if (Date.now() % 120 === 0 && enemies.length < 150) {
                 const treeIdx = obstacles.findIndex(o => o.userData.type === 'TREE');
                 if (treeIdx > -1) {
@@ -1221,13 +1580,12 @@
                     scene.remove(tree);
                     obstacles.splice(treeIdx, 1);
                     
-                    const en = buildEnemy(pos.x, pos.z);
+                    buildEnemy(pos.x, pos.z);
                     spawnFlash(pos);
                     playPop();
                 }
             }
 
-            // Spawn swarm periodically in front
             enemySpawnTimer++;
             const spawnRate = legionMode ? 100 : 200;
             if (enemySpawnTimer > spawnRate && enemies.length < 150) {
@@ -1237,17 +1595,35 @@
             
             const d = charData[p1Char];
             const scale = d.sizeCurrent || 1.0;
-            const camOffset = new THREE.Vector3(0, 15 + scale * 4, 30 + scale * 7);
             
-            // Thin out fog as we grow
-            if (scene.fog) scene.fog.density = 0.002 / (1 + scale * 0.1);
+            // Dynamic Camera for Massive Characters
+            const heightMultiplier = (p1Char === 'IRON_MAN_MK500') ? 8 : 4;
+            const distMultiplier = (p1Char === 'IRON_MAN_MK500') ? 15 : 7;
+            const camOffset = new THREE.Vector3(0, 15 + scale * heightMultiplier, 30 + scale * distMultiplier);
+            
+            // MK500 Divine Sky Environment
+            if (p1Char === 'IRON_MAN_MK500') {
+                scene.background = new THREE.Color(0xe0f7ff);
+                if (scene.fog) {
+                    scene.fog.color.set(0xe0f7ff);
+                    scene.fog.density = 0.0008; 
+                }
+                renderer.setClearColor(0xe0f7ff);
+            } else {
+                scene.background = new THREE.Color(0x87ceeb);
+                if (scene.fog) {
+                    scene.fog.color.set(0x87ceeb);
+                    scene.fog.density = Math.max(0.0005, 0.002 / (1 + scale * 0.1));
+                }
+                renderer.setClearColor(0x87ceeb);
+            }
 
             const targetPos = characters[p1Char].mesh.position.clone();
-            const lookTarget = targetPos.clone().add(new THREE.Vector3(0, scale * 1.5, 0));
+            // Look higher up for giants
+            const lookTarget = targetPos.clone().add(new THREE.Vector3(0, scale * 2.0, 0));
             
             camera.position.lerp(targetPos.add(camOffset), 0.1);
             
-            // Apply Camera Shake
             if (shakeAmount > 0) {
                 camera.position.x += (Math.random() - 0.5) * shakeAmount;
                 camera.position.y += (Math.random() - 0.5) * shakeAmount;
@@ -1257,17 +1633,31 @@
 
             camera.lookAt(lookTarget);
 
-            // Update Heat Particles
+            // Update Heat Particles & Orbiting Bits
             for (let i = heatParticles.length - 1; i >= 0; i--) {
                 const p = heatParticles[i];
                 p.position.add(p.userData.vel);
-                p.userData.life -= p.userData.decay;
+                if (p.userData.rot) {
+                    p.rotation.x += p.userData.rot.x;
+                    p.rotation.y += p.userData.rot.y;
+                }
+                p.userData.life -= p.userData.decay || 0.02;
                 p.scale.setScalar(p.userData.life);
                 if (p.userData.life <= 0) {
                     scene.remove(p);
                     heatParticles.splice(i, 1);
                 }
             }
+
+            // Animate Mark 500 Wings
+            characters[p1Char].mesh.children.forEach(c => {
+                if (c.userData && c.userData.orbit) {
+                    c.userData.angle += c.userData.speed;
+                    c.position.x = Math.cos(c.userData.angle) * 1.5;
+                    c.position.y = 1.5 + Math.sin(c.userData.angle) * 0.5;
+                    c.rotation.z += 0.1;
+                }
+            });
 
             renderer.render(scene, camera);
 

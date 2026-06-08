@@ -1,0 +1,3082 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEGO Batman 4: Gotham City Chronicles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Outfit:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bat-yellow: #ffcc00;
+            --bat-blue: #00d2ff;
+            --bat-dark: #060a13;
+            --bat-purple: #a855f7;
+            --bat-glass: rgba(6, 10, 19, 0.75);
+            --bat-border: 1px solid rgba(0, 210, 255, 0.3);
+            --bat-glow: 0 0 15px rgba(0, 210, 255, 0.4);
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #020408;
+            font-family: 'Outfit', 'Segoe UI', sans-serif;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            color: #fff;
+        }
+
+        canvas { display: block; }
+
+        /* HUD - Batcomputer Theme */
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        .hud-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        /* Glassmorphic Panels */
+        .glass-panel {
+            background: var(--bat-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: var(--bat-border);
+            border-radius: 16px;
+            padding: 15px 25px;
+            box-shadow: var(--bat-glow);
+            pointer-events: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .studs-panel {
+            border-right: 4px solid var(--bat-yellow);
+        }
+
+        .stud-label {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: var(--bat-blue);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .stud-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--bat-yellow);
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+        }
+
+        /* True Hero Progress Bar */
+        .true-hero-container {
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 320px;
+            text-align: center;
+            pointer-events: auto;
+        }
+
+        .true-hero-label {
+            font-size: 0.85rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px var(--bat-blue);
+            margin-bottom: 5px;
+            transition: all 0.3s;
+        }
+
+        .true-hero-bar {
+            width: 100%;
+            height: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--bat-blue);
+            border-radius: 7px;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .true-hero-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--bat-blue), var(--bat-yellow));
+            box-shadow: 0 0 15px var(--bat-yellow);
+            transition: width 0.2s cubic-bezier(0.1, 0.8, 0.2, 1);
+        }
+
+        .true-hero-active .true-hero-label {
+            color: var(--bat-yellow);
+            text-shadow: 0 0 20px var(--bat-yellow);
+            animation: pulse-gold 1.5s infinite;
+        }
+
+        @keyframes pulse-gold {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Character Select and Suit Select */
+        .character-panel {
+            border-left: 4px solid var(--bat-blue);
+            max-width: 250px;
+            text-align: left;
+        }
+
+        .char-title {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: var(--bat-blue);
+            margin-bottom: 2px;
+        }
+
+        .char-desc {
+            font-size: 0.75rem;
+            color: #8fa0c0;
+            margin-bottom: 10px;
+        }
+
+        .char-btn-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .char-select-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            color: #fff;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .char-select-btn:hover {
+            background: rgba(0, 210, 255, 0.2);
+            border-color: var(--bat-blue);
+            transform: scale(1.05);
+        }
+
+        .char-select-btn.active {
+            background: var(--bat-blue);
+            color: #000;
+            border-color: #fff;
+            box-shadow: 0 0 10px var(--bat-blue);
+        }
+
+        /* Suit Swapping Panel */
+        .suit-panel {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            border-left: 4px solid var(--bat-yellow);
+        }
+
+        .suit-btn-grid {
+            display: flex;
+            gap: 5px;
+        }
+
+        .suit-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 204, 0, 0.2);
+            color: #fff;
+            padding: 5px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+            text-align: center;
+        }
+
+        .suit-btn:hover {
+            background: rgba(255, 204, 0, 0.2);
+            border-color: var(--bat-yellow);
+        }
+
+        .suit-btn.active {
+            background: var(--bat-yellow);
+            color: #000;
+            border-color: #fff;
+            box-shadow: 0 0 10px var(--bat-yellow);
+            font-weight: bold;
+        }
+
+        /* Bottom Controls / Action HUD */
+        .hud-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+        }
+
+        .controls-info {
+            border-right: 4px solid var(--bat-blue);
+            font-size: 0.75rem;
+            color: #8fa0c0;
+            line-height: 1.4;
+            max-width: 320px;
+        }
+
+        .controls-info span {
+            color: var(--bat-yellow);
+            font-weight: bold;
+        }
+
+        .actions-panel {
+            display: flex;
+            gap: 10px;
+            pointer-events: auto;
+        }
+
+        .action-btn {
+            background: var(--bat-glass);
+            border: 1px solid var(--bat-blue);
+            color: var(--bat-blue);
+            padding: 12px 24px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--bat-glow);
+        }
+
+        .action-btn:hover {
+            background: var(--bat-blue);
+            color: #000;
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px var(--bat-blue);
+        }
+
+        .action-btn.active {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: #fff;
+            box-shadow: 0 0 20px #ef4444;
+        }
+
+        .action-btn.batmobile-btn {
+            border-color: var(--bat-yellow);
+            color: var(--bat-yellow);
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.2);
+        }
+
+        .action-btn.batmobile-btn:hover {
+            background: var(--bat-yellow);
+            color: #000;
+            box-shadow: 0 0 25px var(--bat-yellow);
+        }
+
+        /* Boss Panel */
+        #boss-hud {
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            display: none;
+            pointer-events: none;
+        }
+
+        .boss-panel {
+            background: rgba(15, 5, 25, 0.85);
+            border: 1px solid var(--bat-purple);
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.5);
+            text-align: center;
+        }
+
+        .boss-name {
+            font-size: 1rem;
+            font-weight: 900;
+            color: var(--bat-purple);
+            text-shadow: 0 0 10px var(--bat-purple);
+            margin-bottom: 6px;
+        }
+
+        .boss-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--bat-purple);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .boss-fill {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--bat-purple), #ec4899);
+            box-shadow: 0 0 15px var(--bat-purple);
+            transition: width 0.1s linear;
+        }
+
+        /* Screen overlays */
+        #loading {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, #0c1224 0%, #020408 100%);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 1000; transition: opacity 0.8s ease;
+        }
+
+        .loader-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--bat-yellow);
+            text-shadow: 0 0 30px var(--bat-yellow);
+            margin-bottom: 5px;
+            letter-spacing: 5px;
+            animation: pulse-logo 1.5s infinite;
+        }
+
+        .loader-subtitle {
+            font-size: 1.1rem;
+            color: var(--bat-blue);
+            text-shadow: var(--bat-glow);
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+        }
+
+        @keyframes pulse-logo {
+            0%, 100% { transform: scale(0.98); opacity: 0.8; }
+            50% { transform: scale(1.02); opacity: 1; filter: drop-shadow(0 0 45px var(--bat-yellow)); }
+        }
+
+        .arc-spinner {
+            width: 80px; height: 80px; border-radius: 50%;
+            border: 4px solid rgba(0, 210, 255, 0.1);
+            border-top-color: var(--bat-blue);
+            box-shadow: var(--bat-glow);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        #announcer {
+            position: absolute;
+            top: 150px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            color: var(--bat-yellow);
+            font-weight: 900;
+            text-shadow: 0 0 20px var(--bat-yellow);
+            font-size: 2.2rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            opacity: 0;
+            transition: opacity 0.4s, transform 0.4s;
+            pointer-events: none;
+            z-index: 500;
+            text-align: center;
+        }
+
+        /* Sound control */
+        .sound-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            pointer-events: auto;
+            background: var(--bat-glass);
+            border: var(--bat-border);
+            color: var(--bat-blue);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: var(--bat-glow);
+            transition: all 0.2s;
+        }
+        .sound-toggle:hover {
+            transform: scale(1.1);
+            background: var(--bat-blue);
+            color: #000;
+        }
+
+        /* Mobile Controls */
+        #mobile-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 200;
+            display: none;
+        }
+        .joystick-zone {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50%;
+            height: 50%;
+            pointer-events: auto;
+        }
+        .action-zone {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: auto;
+        }
+        .mobile-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 210, 255, 0.5);
+            background: rgba(6, 10, 19, 0.7);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 0 10px rgba(0,210,255,0.2);
+        }
+        .mobile-btn:active {
+            transform: scale(0.9);
+            background: var(--bat-blue);
+            color: #000;
+            box-shadow: 0 0 20px var(--bat-blue);
+        }
+        
+        /* Health display overlay */
+        .health-container {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        .health-heart {
+            color: #ef4444;
+            font-size: 1.2rem;
+            filter: drop-shadow(0 0 5px rgba(239,68,68,0.5));
+        }
+
+        @media (max-width: 900px) {
+            #mobile-controls { display: block; }
+            .hud-top { flex-direction: column; gap: 10px; }
+            .character-panel { border-left: none; border-bottom: 3px solid var(--bat-blue); border-radius: 0 0 10px 10px; width: 100%; max-width: 100%; }
+            .controls-info { display: none; }
+            .suit-panel { border-left: none; border-bottom: 3px solid var(--bat-yellow); width: 100%; }
+            .true-hero-container { top: auto; bottom: 30px; left: 50%; width: 220px; }
+            .true-hero-label { font-size: 0.7rem; }
+            .stud-value { font-size: 1.6rem; }
+            .glass-panel { padding: 10px 15px; }
+            #boss-hud { width: 90%; top: auto; bottom: 70px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading">
+        <div class="loader-logo">BATMAN IV</div>
+        <div class="loader-subtitle">GOTHAM CITY CHRONICLES</div>
+        <div class="arc-spinner"></div>
+        <div style="margin-top: 20px; font-size: 0.9rem; opacity: 0.7; color: var(--bat-blue);" id="load-status">מאתחל את מערכות ה-Batcomputer...</div>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud">
+        <!-- Top HUD Elements -->
+        <div class="hud-top">
+            <!-- Stud Collection Panel -->
+            <div class="glass-panel studs-panel">
+                <div class="stud-label">איסוף לבני לגו</div>
+                <div class="stud-value" id="score">000,000</div>
+                <div class="health-container" id="hearts-container">
+                    <span class="health-heart">❤️</span>
+                    <span class="health-heart">❤️</span>
+                    <span class="health-heart">❤️</span>
+                    <span class="health-heart">❤️</span>
+                </div>
+            </div>
+
+            <!-- True Hero Status -->
+            <div class="true-hero-container" id="true-hero-panel">
+                <div class="true-hero-label">גיבור אמיתי</div>
+                <div class="true-hero-bar">
+                    <div class="true-hero-fill" id="true-hero-fill"></div>
+                </div>
+            </div>
+
+            <!-- Sound & Gamepad toggles -->
+            <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 150; pointer-events: auto;">
+                <button class="sound-toggle-btn" onclick="audioManager.toggleSound()" id="sound-btn" style="background: var(--bat-glass); border: var(--bat-border); color: var(--bat-blue); width: 44px; height: 44px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: var(--bat-glow); transition: all 0.2s; font-size: 1.2rem;">
+                    🔊
+                </button>
+                <button id="gamepad-btn" style="background: var(--bat-glass); border: var(--bat-border); color: #8fa0c0; width: 44px; height: 44px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: none; transition: all 0.2s; font-size: 1.2rem; opacity: 0.4;" onclick="alert('הוראות שלט פלייסטיישן:\n\n1. חבר את השלט למחשב דרך USB או בלוטות\'.\n2. לחץ על כפתור כלשהו בשלט כדי להפעיל אותו.\n3. ג\'ויסטיק שמאלי מניע את הדמות, X קופץ, מרובע מפעיל יכולת, עיגול נכנס/יוצא מהרכב, משולש מחליף דמות!\n\nשים לב: בדפדפנים מסוימים השלט יפעל רק לאחר לחיצה על כפתור כלשהו בשלט.')">
+                    🎮
+                </button>
+            </div>
+
+            <!-- Character Select Panel -->
+            <div class="glass-panel character-panel">
+                <div class="char-title" id="char-name">באטמן</div>
+                <div class="char-desc" id="char-desc">מגן גות'אם. השתמש בחליפות!</div>
+                <div class="char-btn-grid" id="char-grid">
+                    <!-- Javascript will generate character buttons here -->
+                </div>
+                
+                <!-- Suit Swap Grid (Visible only for Batman) -->
+                <div class="suit-panel" id="suit-panel">
+                    <div class="stud-label" style="color:var(--bat-yellow)">חליפות באטמן</div>
+                    <div class="suit-btn-grid" id="suit-grid">
+                        <!-- Javascript will generate suit buttons here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boss Health Bar -->
+        <div id="boss-hud">
+            <div class="glass-panel boss-panel">
+                <div class="boss-name" id="boss-name-label">ג'וקר-מך ענק (BOSS)</div>
+                <div class="boss-bar">
+                    <div class="boss-fill" id="boss-fill-bar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom HUD Elements -->
+        <div class="hud-bottom">
+            <!-- Controls Legend -->
+            <div class="glass-panel controls-info">
+                <div><span>תנועה:</span> WASD / חצים</div>
+                <div><span>קפיצה:</span> Space (דאייה בלחיצה ממושכת בחליפת תעופה)</div>
+                <div><span>יכולת מיוחדת:</span> F / קליק שמאל</div>
+                <div><span>באטמוביל:</span> C (כניסה/יציאה מהרכב)</div>
+                <div><span>איפוס/החלפת דמות:</span> E / Enter</div>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="actions-panel">
+                <button class="action-btn batmobile-btn" onclick="game.handleBatmobileButton()">
+                    <span id="batmobile-btn-text">🦇 קרא לבאטמוביל (C)</span>
+                </button>
+                <button class="action-btn" id="boss-btn" onclick="game.spawnBossManually()">
+                    <span>👾 זימון בוס</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Touch Controls overlay -->
+    <div id="mobile-controls">
+        <div id="joystick-zone" class="joystick-zone"></div>
+        <div class="action-zone">
+            <button class="mobile-btn" id="m-btn-special">יכולת</button>
+            <button class="mobile-btn" id="m-btn-jump">קפיצה</button>
+            <button class="mobile-btn" id="m-btn-car" style="border-color: var(--bat-yellow);">רכב</button>
+        </div>
+    </div>
+
+    <!-- Floating announcement banner -->
+    <div id="announcer">גיבור אמיתי!</div>
+
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // Web Audio Synthesizer for LEGO sound effects and Batman gothic theme
+        const audioManager = (function() {
+            let ctx = null;
+            let soundEnabled = true;
+            let bgMusicNode = null;
+            let schedulerTimer = null;
+            let currentTempo = 110;
+            let currentBeat = 0;
+            let lastBeatTime = 0;
+            let isMusicPlaying = false;
+
+            // Batman Theme Synth Notes (A minor / D minor gothic motif)
+            // 0: Rest, numbers correspond to note frequencies
+            const themeSequence = [
+                { note: 'D2', duration: 1 },
+                { note: 'D2', duration: 1 },
+                { note: 'F2', duration: 1 },
+                { note: 'D2', duration: 1 },
+                { note: 'G#2', duration: 1.5 },
+                { note: 'G2', duration: 0.5 },
+                { note: 'F2', duration: 1 },
+                { note: 'E2', duration: 1 },
+                { note: 'D2', duration: 1 },
+                { note: 'D2', duration: 1 },
+                { note: 'F2', duration: 1 },
+                { note: 'D2', duration: 1 },
+                { note: 'A#2', duration: 1.5 },
+                { note: 'A2', duration: 0.5 },
+                { note: 'G#2', duration: 1 },
+                { note: 'G2', duration: 1 }
+            ];
+
+            const noteFreqs = {
+                'D2': 73.42, 'E2': 82.41, 'F2': 87.31, 'G2': 98.00, 'G#2': 103.83, 'A2': 110.00, 'A#2': 116.54,
+                'D3': 146.83, 'F3': 174.61, 'A3': 220.00
+            };
+
+            function initContext() {
+                if (!ctx) {
+                    ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+            }
+
+            function playCoin() {
+                if (!soundEnabled) return;
+                initContext();
+                try {
+                    const now = ctx.currentTime;
+                    // Synthesize classic lego click-ding (two rapid high frequencies)
+                    const osc1 = ctx.createOscillator();
+                    const osc2 = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+
+                    osc1.connect(gainNode);
+                    osc2.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+
+                    osc1.type = 'sine';
+                    osc1.frequency.setValueAtTime(987.77, now); // B5 note
+                    osc1.frequency.setValueAtTime(1318.51, now + 0.05); // E6 note
+
+                    osc2.type = 'triangle';
+                    osc2.frequency.setValueAtTime(1975.53, now); // B6 double high
+                    osc2.frequency.setValueAtTime(2637.02, now + 0.05); // E7 double high
+
+                    gainNode.gain.setValueAtTime(0.06, now);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+                    osc1.start(now);
+                    osc2.start(now);
+                    osc1.stop(now + 0.25);
+                    osc2.stop(now + 0.25);
+                } catch(e) {}
+            }
+
+            function playSmash() {
+                if (!soundEnabled) return;
+                initContext();
+                try {
+                    const now = ctx.currentTime;
+                    // White noise burst for impact
+                    const bufferSize = ctx.sampleRate * 0.15; // 0.15 seconds
+                    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        data[i] = Math.random() * 2 - 1;
+                    }
+
+                    const noiseNode = ctx.createBufferSource();
+                    noiseNode.buffer = buffer;
+
+                    const filter = ctx.createBiquadFilter();
+                    filter.type = 'bandpass';
+                    filter.frequency.setValueAtTime(400, now);
+                    filter.Q.setValueAtTime(3, now);
+
+                    const lowOsc = ctx.createOscillator();
+                    lowOsc.type = 'triangle';
+                    lowOsc.frequency.setValueAtTime(120, now);
+                    lowOsc.frequency.exponentialRampToValueAtTime(30, now + 0.15);
+
+                    const gainNode = ctx.createGain();
+                    
+                    noiseNode.connect(filter);
+                    filter.connect(gainNode);
+                    lowOsc.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+
+                    gainNode.gain.setValueAtTime(0.15, now);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+                    noiseNode.start(now);
+                    lowOsc.start(now);
+                    noiseNode.stop(now + 0.18);
+                    lowOsc.stop(now + 0.18);
+                } catch(e) {}
+            }
+
+            function playShoot() {
+                if (!soundEnabled) return;
+                initContext();
+                try {
+                    const now = ctx.currentTime;
+                    // Laser beam swoop
+                    const osc = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    osc.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(800, now);
+                    osc.frequency.exponentialRampToValueAtTime(80, now + 0.25);
+
+                    const filter = ctx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(2000, now);
+                    osc.disconnect(gainNode);
+                    osc.connect(filter);
+                    filter.connect(gainNode);
+
+                    gainNode.gain.setValueAtTime(0.08, now);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } catch(e) {}
+            }
+
+            function playExplosion() {
+                if (!soundEnabled) return;
+                initContext();
+                try {
+                    const now = ctx.currentTime;
+                    // Loud boom noise
+                    const bufferSize = ctx.sampleRate * 0.5;
+                    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        data[i] = Math.random() * 2 - 1;
+                    }
+
+                    const noise = ctx.createBufferSource();
+                    noise.buffer = buffer;
+
+                    const filter = ctx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(100, now);
+                    filter.frequency.linearRampToValueAtTime(10, now + 0.4);
+
+                    const lowOsc = ctx.createOscillator();
+                    lowOsc.type = 'sine';
+                    lowOsc.frequency.setValueAtTime(90, now);
+                    lowOsc.frequency.linearRampToValueAtTime(20, now + 0.5);
+
+                    const gain = ctx.createGain();
+
+                    noise.connect(filter);
+                    filter.connect(gain);
+                    lowOsc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    gain.gain.setValueAtTime(0.35, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+                    noise.start(now);
+                    lowOsc.start(now);
+                    noise.stop(now + 0.5);
+                    lowOsc.stop(now + 0.5);
+                } catch(e) {}
+            }
+
+            function playSuitSwap() {
+                if (!soundEnabled) return;
+                initContext();
+                try {
+                    const now = ctx.currentTime;
+                    // Futuristic robotic transform sound
+                    const osc = ctx.createOscillator();
+                    const osc2 = ctx.createOscillator();
+                    const gain = ctx.createGain();
+
+                    osc.connect(gain);
+                    osc2.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.linearRampToValueAtTime(450, now + 0.3);
+
+                    osc2.type = 'triangle';
+                    osc2.frequency.setValueAtTime(300, now);
+                    osc2.frequency.linearRampToValueAtTime(900, now + 0.35);
+
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.linearRampToValueAtTime(0.07, now + 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+                    osc.start(now);
+                    osc2.start(now);
+                    osc.stop(now + 0.4);
+                    osc2.stop(now + 0.4);
+                } catch(e) {}
+            }
+
+            function playTrueHeroSound() {
+                if (!soundEnabled) return;
+                initContext();
+                try {
+                    const now = ctx.currentTime;
+                    // Arpeggio of bells
+                    const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98, 2093.00]; // C5, E5, G5, C6, E6, G6, C7
+                    notes.forEach((freq, idx) => {
+                        const playTime = now + idx * 0.08;
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, playTime);
+                        gain.gain.setValueAtTime(0.08, playTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, playTime + 0.4);
+
+                        osc.start(playTime);
+                        osc.stop(playTime + 0.45);
+                    });
+                } catch(e) {}
+            }
+
+            // Batmobile engine synthesis
+            let motorOsc = null;
+            let motorGain = null;
+
+            function startEngine() {
+                if (!soundEnabled) return;
+                initContext();
+                try {
+                    if (motorOsc) return;
+                    const now = ctx.currentTime;
+                    motorOsc = ctx.createOscillator();
+                    motorGain = ctx.createGain();
+                    motorOsc.connect(motorGain);
+                    motorGain.connect(ctx.destination);
+
+                    motorOsc.type = 'sawtooth';
+                    motorOsc.frequency.setValueAtTime(45, now); // Low pitch rumble
+
+                    // Lowpass filter to keep it bassy
+                    const filter = ctx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(140, now);
+                    motorOsc.disconnect(motorGain);
+                    motorOsc.connect(filter);
+                    filter.connect(motorGain);
+
+                    motorGain.gain.setValueAtTime(0.07, now);
+                    motorOsc.start(now);
+                } catch(e) {}
+            }
+
+            function updateEngine(speedRatio) {
+                if (!motorOsc || !soundEnabled) return;
+                try {
+                    const targetFreq = 40 + speedRatio * 85; // engine pitch goes up with speed
+                    motorOsc.frequency.setTargetAtTime(targetFreq, ctx.currentTime, 0.05);
+                    motorGain.gain.setTargetAtTime(0.07 + speedRatio * 0.05, ctx.currentTime, 0.05);
+                } catch(e) {}
+            }
+
+            function stopEngine() {
+                try {
+                    if (motorOsc) {
+                        motorOsc.stop();
+                        motorOsc.disconnect();
+                        motorOsc = null;
+                    }
+                    if (motorGain) {
+                        motorGain.disconnect();
+                        motorGain = null;
+                    }
+                } catch(e) {}
+            }
+
+            // Gothic Background Music Scheduler
+            function startMusic() {
+                if (isMusicPlaying || !soundEnabled) return;
+                initContext();
+                isMusicPlaying = true;
+                currentBeat = 0;
+                lastBeatTime = ctx.currentTime;
+                
+                function scheduleNextBeats() {
+                    const lookAhead = 0.3; // schedule notes 300ms in advance
+                    const timeBetweenBeats = 60 / currentTempo; // seconds per beat
+
+                    while (lastBeatTime < ctx.currentTime + lookAhead) {
+                        const beatIndex = currentBeat % themeSequence.length;
+                        const beatItem = themeSequence[beatIndex];
+                        
+                        playBassNote(beatItem.note, lastBeatTime, beatItem.duration * timeBetweenBeats - 0.05);
+                        
+                        lastBeatTime += beatItem.duration * timeBetweenBeats;
+                        currentBeat++;
+                    }
+                    schedulerTimer = setTimeout(scheduleNextBeats, 100);
+                }
+                
+                scheduleNextBeats();
+            }
+
+            function playBassNote(noteName, time, duration) {
+                if (!soundEnabled || !ctx) return;
+                const freq = noteFreqs[noteName];
+                if (!freq) return;
+
+                try {
+                    // Synth bass note
+                    const osc = ctx.createOscillator();
+                    const subOsc = ctx.createOscillator();
+                    const filter = ctx.createBiquadFilter();
+                    const gain = ctx.createGain();
+
+                    osc.connect(filter);
+                    subOsc.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(freq, time);
+                    
+                    subOsc.type = 'sine';
+                    subOsc.frequency.setValueAtTime(freq / 2, time); // Sub-bass octave
+
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(220, time);
+                    filter.frequency.exponentialRampToValueAtTime(100, time + duration);
+
+                    gain.gain.setValueAtTime(0.04, time);
+                    gain.gain.linearRampToValueAtTime(0.04, time + duration - 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+
+                    osc.start(time);
+                    subOsc.start(time);
+                    osc.stop(time + duration);
+                    subOsc.stop(time + duration);
+                } catch(e) {}
+            }
+
+            function stopMusic() {
+                isMusicPlaying = false;
+                clearTimeout(schedulerTimer);
+            }
+
+            function toggleSound() {
+                soundEnabled = !soundEnabled;
+                const btn = document.getElementById('sound-btn');
+                if (soundEnabled) {
+                    btn.innerHTML = '🔊';
+                    initContext();
+                    startMusic();
+                } else {
+                    btn.innerHTML = '🔇';
+                    stopMusic();
+                    stopEngine();
+                }
+            }
+
+            return {
+                playCoin,
+                playSmash,
+                playShoot,
+                playExplosion,
+                playSuitSwap,
+                playTrueHeroSound,
+                startEngine,
+                updateEngine,
+                stopEngine,
+                startMusic,
+                stopMusic,
+                toggleSound,
+                initContext
+            };
+        })();
+
+        // Primary Game Modules
+        const game = (function() {
+            let scene, camera, renderer, clock;
+            
+            // Player state
+            let activeChar = 'BATMAN';
+            let activeSuit = 'STANDARD';
+            let charMeshes = {};
+            let playerGroup;
+            let playerSpeed = 0.35;
+            let jumpVelocity = 0.45;
+            let verticalVelocity = 0;
+            let isGrounded = true;
+            let isGliding = false;
+            let playerHP = 4;
+            let maxHP = 4;
+            let isDead = false;
+
+            // Score and Progress
+            let score = 0;
+            let trueHeroThreshold = 25000;
+            let isTrueHero = false;
+
+            // Environment
+            let brickDebris = [];
+            let coins = [];
+            let obstacles = [];
+            let projectiles = [];
+            let searchlights = [];
+            let rainParticles = [];
+            let lightningTrail = [];
+            let enemies = [];
+            
+            // Batmobile
+            let batmobile = null;
+            let isDriving = false;
+            let batmobileVelocity = new THREE.Vector3();
+            let batmobileSpeed = 0;
+            let batmobileHeading = 0;
+
+            // Boss Mech
+            let bossMech = null;
+            let bossActive = false;
+            let bossHP = 100;
+            let bossMaxHP = 100;
+            let bossTimer = 0;
+
+            // Inputs
+            let keys = {};
+            let mobileInput = { x: 0, z: 0, jump: false, special: false };
+            let gpButtonsPressed = { b0: false, b1: false, b2: false, b3: false };
+            let lastShotTime = 0;
+            let abilityCooldown = 0;
+            let frameCount = 0;
+
+            // Roster data
+            const charRoster = {
+                'BATMAN': { name: "באטמן", desc: "שומר הגנת גות'אם. השתמש בחליפות טכנולוגיות!", color: 0x22252a, speed: 0.35, jump: 0.42 },
+                'FLASH': { name: "פלאש", desc: "מהיר פי 7! שובל חלקיקי ברקים ומהירות קיצונית.", color: 0xcc1111, speed: 2.45, jump: 0.48 },
+                'ROBIN': { name: "רובין", desc: "עוזרו הנאמן של באטמן. קפיצה אקרובטית מוגברת.", color: 0xbb1111, speed: 0.38, jump: 0.52 },
+                'BATGIRL': { name: "באטגירל", desc: "לוחמת עטלף סגולה. דאייה מובנית.", color: 0x4a1b8c, speed: 0.36, jump: 0.44 },
+                'NIGHTWING': { name: "נייטווינג", desc: "מנהיג הטיטאנים לשעבר. אומן קפוארה מהיר.", color: 0x111111, speed: 0.42, jump: 0.46 },
+                'JOKER': { name: "הג'וקר", desc: "נבל-העל הגות'אמי. יורה פצצות גז צחוק מבוססות רעל.", color: 0x7c2d12, speed: 0.34, jump: 0.40 },
+                'HARLEY': { name: "הארלי קווין", desc: "השותפה של הג'וקר. מכה בפטיש ענק.", color: 0x1e293b, speed: 0.37, jump: 0.46 },
+                'RIDDLER': { name: "איש החידות", desc: "אוהב חידות ומלכודות. חושף פריטי זהב.", color: 0x15803d, speed: 0.33, jump: 0.38 }
+            };
+
+            const suitData = {
+                'STANDARD': { name: "רגילה", color: 0x2d3748, desc: "חליפת עטלף מאוזנת וקלאסית." },
+                'POWER': { name: "כוח", color: 0x94a3b8, desc: "חליפת שריון כבדה. יורה טילי הרס [F] שמפוצצים לבני כסף." },
+                'ELECTRO': { name: "חשמל", color: 0xfef08a, desc: "חסינות לרשתות מתח. יורה ניצוץ חשמלי [F] המשתק אויבים." },
+                'SENSOR': { name: "חיישנים", color: 0x86efac, desc: "התחמקות ממצלמות לייזר [שקוף]. מגלה מטבעות סגולים נדירים." },
+                'GLIDE': { name: "תעופה", color: 0xf8fafc, desc: "מאפשרת דאייה ממושכת (רווח באוויר). יורה גל קול להריסת זכוכית." },
+                'FIRE': { name: "אש (בוער)", color: 0xff3300, desc: "באטמן בוער! פולט להבות ויורה כדורי אש הרסניים [F]." }
+            };
+
+            function init() {
+                try {
+                    // Create Scene
+                    scene = new THREE.Scene();
+                    scene.background = new THREE.Color(0x08112a);
+                    scene.fog = new THREE.FogExp2(0x08112a, 0.0010);
+
+                    // Create Camera
+                    camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 1, 3500);
+                    camera.position.set(0, 45, 90);
+
+                    // Create Renderer
+                    renderer = new THREE.WebGLRenderer({ antialias: true });
+                    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1));
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                    renderer.shadowMap.enabled = true;
+                    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                    document.body.appendChild(renderer.domElement);
+
+                    clock = new THREE.Clock();
+
+                    // Setup Lights
+                    setupLights();
+
+                    // Create Environment
+                    createGothamCity();
+
+                    // Initialize Character Selection UI & Buttons
+                    buildUI();
+
+                    // Create Player Group and Models
+                    playerGroup = new THREE.Group();
+                    playerGroup.position.set(0, 0, 20);
+                    scene.add(playerGroup);
+
+                    // Build 3D Minifigures (Batman is loaded first)
+                    buildPlayerModels();
+                    selectCharacter('BATMAN');
+
+                    // Keyboard input events
+                    window.addEventListener('keydown', e => {
+                        keys[e.code] = true;
+                        // Key triggers
+                        if (e.code === 'KeyC') handleBatmobileButton();
+                        if (e.code === 'KeyE' || e.code === 'Enter') resetCharacter();
+                    });
+                    window.addEventListener('keyup', e => { keys[e.code] = false; });
+                    window.addEventListener('resize', onResize);
+                    window.addEventListener('click', () => {
+                        // User interaction initializes audio context
+                        audioManager.initContext();
+                    });
+
+                    // Gamepad connection events
+                    window.addEventListener("gamepadconnected", (e) => {
+                        showBanner("🎮 שלט פלייסטיישן מחובר! לחץ על כפתור להפעלה");
+                    });
+                    window.addEventListener("gamepaddisconnected", (e) => {
+                        showBanner("🔌 שלט המשחק נותק");
+                    });
+
+                    // Mobile Joystick & Actions init
+                    setupMobileControls();
+
+                    // Hide Loading
+                    setTimeout(() => {
+                        const loader = document.getElementById('loading');
+                        if (loader) loader.style.opacity = '0';
+                        setTimeout(() => {
+                            if (loader) loader.style.display = 'none';
+                            audioManager.startMusic();
+                        }, 800);
+                    }, 1500);
+
+                    animate();
+                } catch(e) {
+                    console.error(e);
+                    document.getElementById('load-status').innerText = "שגיאה באתחול. אנא רענן.";
+                }
+            }
+
+            function setupLights() {
+                const ambient = new THREE.AmbientLight(0x1e2d50, 3.5);
+                scene.add(ambient);
+
+                const moonLight = new THREE.DirectionalLight(0x7ac8f8, 2.2);
+                moonLight.position.set(200, 500, 100);
+                moonLight.castShadow = true;
+                moonLight.shadow.mapSize.width = 512;
+                moonLight.shadow.mapSize.height = 512;
+                moonLight.shadow.camera.near = 100;
+                moonLight.shadow.camera.far = 1000;
+                moonLight.shadow.camera.left = -300;
+                moonLight.shadow.camera.right = 300;
+                moonLight.shadow.camera.top = 300;
+                moonLight.shadow.camera.bottom = -300;
+                scene.add(moonLight);
+
+                // Warm fill light from below/front so characters are clearly visible
+                const fillLight = new THREE.DirectionalLight(0xffd580, 1.2);
+                fillLight.position.set(-100, 80, 300);
+                scene.add(fillLight);
+
+                // Add moving searchlights (Bat-Signals) in Gotham sky
+                for (let i = 0; i < 2; i++) {
+                    const spot = new THREE.SpotLight(0xffea00, 25, 700, Math.PI / 10, 0.4, 1);
+                    spot.position.set((i === 0 ? -150 : 150), 350, -200);
+                    spot.target = new THREE.Object3D();
+                    spot.target.position.set(0, 0, 0);
+                    scene.add(spot);
+                    scene.add(spot.target);
+                    searchlights.push({ light: spot, target: spot.target, angle: i * Math.PI });
+                }
+            }
+
+            // Create flat meshes for standard Lego boxes
+            function createLegoBox(w, h, d, color, isMetal = false, isGlass = false) {
+                let mat;
+                if (isGlass) {
+                    mat = new THREE.MeshStandardMaterial({
+                        color: color,
+                        roughness: 0.1,
+                        metalness: 0.1,
+                        transparent: true,
+                        opacity: 0.5,
+                        envMapIntensity: 1.0
+                    });
+                } else if (isMetal) {
+                    mat = new THREE.MeshStandardMaterial({
+                        color: color,
+                        metalness: 0.85,
+                        roughness: 0.25
+                    });
+                } else {
+                    mat = new THREE.MeshStandardMaterial({
+                        color: color,
+                        metalness: 0.1,
+                        roughness: 0.5
+                    });
+                }
+                const geom = new THREE.BoxGeometry(w, h, d);
+                const mesh = new THREE.Mesh(geom, mat);
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+                return mesh;
+            }
+
+            // Building 3D Lego Models
+            function buildPlayerModels() {
+                // We create LEGO minifigure shapes for Batman and others inside charMeshes object
+                Object.keys(charRoster).forEach(charKey => {
+                    const group = new THREE.Group();
+                    const col = charRoster[charKey].color;
+
+                    // Minifigure parts
+                    // Legs
+                    const lLeg = createLegoBox(0.8, 1.6, 0.8, col);
+                    lLeg.position.set(-0.5, 0.8, 0);
+                    const rLeg = createLegoBox(0.8, 1.6, 0.8, col);
+                    rLeg.position.set(0.5, 0.8, 0);
+                    group.add(lLeg, rLeg);
+
+                    // Torso
+                    const torso = createLegoBox(1.8, 2.2, 1.0, col);
+                    torso.position.set(0, 2.7, 0);
+                    group.add(torso);
+
+                    // Arms
+                    const lArm = createLegoBox(0.5, 1.8, 0.5, col);
+                    lArm.position.set(-1.25, 2.7, 0);
+                    const rArm = createLegoBox(0.5, 1.8, 0.5, col);
+                    rArm.position.set(1.25, 2.7, 0);
+                    group.add(lArm, rArm);
+
+                    // Head (Lego yellow skin block except Joker is white and Riddler is tan)
+                    let headColor = 0xffcc33; // Yellow
+                    if (charKey === 'JOKER') headColor = 0xfafafa; // Pale white
+                    if (charKey === 'HARLEY') headColor = 0xfafafa;
+                    const head = createLegoBox(1.0, 1.0, 1.0, headColor);
+                    head.position.set(0, 4.3, 0);
+                    group.add(head);
+
+                    // Character specific cosmetics
+                    if (charKey === 'BATMAN') {
+                        // Batman cowl (pointy ears helm)
+                        const cowl = createLegoBox(1.1, 1.1, 1.1, 0x111317);
+                        cowl.position.set(0, 4.35, 0);
+                        const earL = createLegoBox(0.25, 0.5, 0.25, 0x111317);
+                        earL.position.set(-0.38, 5.0, 0);
+                        const earR = createLegoBox(0.25, 0.5, 0.25, 0x111317);
+                        earR.position.set(0.38, 5.0, 0);
+                        group.add(cowl, earL, earR);
+
+                        // Yellow utility belt
+                        const belt = createLegoBox(1.85, 0.25, 1.05, 0xffd700);
+                        belt.position.set(0, 1.7, 0);
+                        group.add(belt);
+
+                        // Batman Bat-Logo on chest
+                        const logo = createLegoBox(0.9, 0.45, 0.1, 0x0a0a0a);
+                        logo.position.set(0, 3.1, 0.52);
+                        group.add(logo);
+
+                        // Black cloth-like Lego cape
+                        const cape = createLegoBox(1.8, 3.0, 0.1, 0x0f1115);
+                        cape.position.set(0, 2.3, -0.6);
+                        cape.rotation.x = 0.05;
+                        group.add(cape);
+                        group.userData.cape = cape;
+                    } 
+                    else if (charKey === 'FLASH') {
+                        // Flash red mask with gold lightning wings
+                        const mask = createLegoBox(1.1, 1.1, 1.1, 0xcc1111);
+                        mask.position.set(0, 4.35, 0);
+                        const wingL = createLegoBox(0.15, 0.4, 0.4, 0xffcc00);
+                        wingL.position.set(-0.62, 4.35, 0);
+                        const wingR = createLegoBox(0.15, 0.4, 0.4, 0xffcc00);
+                        wingR.position.set(0.62, 4.35, 0);
+                        group.add(mask, wingL, wingR);
+
+                        // Yellow boots (overlay on legs)
+                        const bootL = createLegoBox(0.85, 0.5, 0.85, 0xffcc00);
+                        bootL.position.set(-0.5, 0.25, 0);
+                        const bootR = createLegoBox(0.85, 0.5, 0.85, 0xffcc00);
+                        bootR.position.set(0.5, 0.25, 0);
+                        group.add(bootL, bootR);
+
+                        // Lightning symbol chest
+                        const symbol = createLegoBox(0.6, 0.6, 0.1, 0xffcc00);
+                        symbol.position.set(0, 3.0, 0.52);
+                        group.add(symbol);
+                    }
+                    else if (charKey === 'ROBIN') {
+                        // Green boots
+                        const bootL = createLegoBox(0.85, 0.5, 0.85, 0x15803d);
+                        bootL.position.set(-0.5, 0.25, 0);
+                        const bootR = createLegoBox(0.85, 0.5, 0.85, 0x15803d);
+                        bootR.position.set(0.5, 0.25, 0);
+                        group.add(bootL, bootR);
+
+                        // Yellow cape
+                        const cape = createLegoBox(1.8, 2.8, 0.1, 0xffcc00);
+                        cape.position.set(0, 2.3, -0.6);
+                        group.add(cape);
+                        group.userData.cape = cape;
+
+                        // Black mask outline
+                        const mask = createLegoBox(1.05, 0.3, 1.05, 0x111111);
+                        mask.position.set(0, 4.4, 0);
+                        group.add(mask);
+                    }
+                    else if (charKey === 'BATGIRL') {
+                        // Purple helmet, long yellow hair back
+                        const helm = createLegoBox(1.1, 1.1, 1.1, 0x4a1b8c);
+                        helm.position.set(0, 4.35, 0);
+                        const earL = createLegoBox(0.2, 0.4, 0.2, 0x4a1b8c);
+                        earL.position.set(-0.38, 4.9, 0);
+                        const earR = createLegoBox(0.2, 0.4, 0.2, 0x4a1b8c);
+                        earR.position.set(0.38, 4.9, 0);
+                        
+                        const hair = createLegoBox(1.05, 1.8, 0.3, 0xffaa00);
+                        hair.position.set(0, 3.4, -0.6);
+
+                        // Yellow cape
+                        const cape = createLegoBox(1.8, 2.8, 0.1, 0xffcc00);
+                        cape.position.set(0, 2.3, -0.75);
+                        group.add(helm, earL, earR, hair, cape);
+                        group.userData.cape = cape;
+                    }
+                    else if (charKey === 'NIGHTWING') {
+                        // Black body, cyan bird logo on chest
+                        const bird = createLegoBox(1.0, 0.6, 0.1, 0x00d2ff);
+                        bird.position.set(0, 3.1, 0.52);
+                        // Black spiky hair
+                        const hair = createLegoBox(1.02, 0.3, 1.02, 0x111111);
+                        hair.position.set(0, 4.85, 0);
+                        // Cyan domino mask
+                        const mask = createLegoBox(1.02, 0.25, 1.02, 0x00d2ff);
+                        mask.position.set(0, 4.35, 0);
+                        group.add(bird, hair, mask);
+                    }
+                    else if (charKey === 'JOKER') {
+                        // Green hair
+                        const hair = createLegoBox(1.1, 0.4, 1.1, 0x16a34a);
+                        hair.position.set(0, 4.85, 0);
+                        // Purple flower on chest lapel
+                        const flower = createLegoBox(0.3, 0.3, 0.1, 0xeab308);
+                        flower.position.set(-0.4, 3.3, 0.52);
+                        // Red smiling lips on head
+                        const lips = createLegoBox(0.6, 0.2, 0.1, 0xdc2626);
+                        lips.position.set(0, 4.05, 0.52);
+                        group.add(hair, flower, lips);
+                    }
+                    else if (charKey === 'HARLEY') {
+                        // Red and blue pigtail blocks
+                        const hair = createLegoBox(1.05, 0.3, 1.05, 0x222222);
+                        hair.position.set(0, 4.85, 0);
+                        const pigtailL = createLegoBox(0.4, 1.2, 0.4, 0xef4444); // Red left
+                        pigtailL.position.set(-0.6, 4.4, 0);
+                        const pigtailR = createLegoBox(0.4, 1.2, 0.4, 0x3b82f6); // Blue right
+                        pigtailR.position.set(0.6, 4.4, 0);
+                        group.add(hair, pigtailL, pigtailR);
+
+                        // Red/blue half-split details on arms & legs
+                        lArm.material = new THREE.MeshStandardMaterial({ color: 0xef4444 });
+                        rArm.material = new THREE.MeshStandardMaterial({ color: 0x3b82f6 });
+                    }
+                    else if (charKey === 'RIDDLER') {
+                        // Green suit, black question mark
+                        const qMark = createLegoBox(0.5, 0.7, 0.1, 0x111111);
+                        qMark.position.set(0, 3.0, 0.52);
+                        // Brown bowler hat
+                        const brim = createLegoBox(1.3, 0.15, 1.3, 0x78350f);
+                        brim.position.set(0, 4.85, 0);
+                        const cap = createLegoBox(0.9, 0.5, 0.9, 0x78350f);
+                        cap.position.set(0, 5.1, 0);
+                        group.add(qMark, brim, cap);
+                    }
+
+                    // Save animation elements
+                    group.userData.lLeg = lLeg;
+                    group.userData.rLeg = rLeg;
+                    group.userData.lArm = lArm;
+                    group.userData.rArm = rArm;
+                    group.userData.torso = torso;
+                    group.userData.head = head;
+
+                    charMeshes[charKey] = group;
+                    group.visible = false;
+                    playerGroup.add(group);
+                });
+            }
+
+            // Build suit-specific visual recolors dynamically for Batman mesh
+            function applySuitVisuals(suitKey) {
+                if (activeChar !== 'BATMAN') return;
+                const m = charMeshes['BATMAN'];
+                const col = suitData[suitKey].color;
+                
+                // Recolor components
+                m.userData.torso.material.color.setHex(col);
+                m.userData.lLeg.material.color.setHex(col);
+                m.userData.rLeg.material.color.setHex(col);
+                m.userData.lArm.material.color.setHex(col);
+                m.userData.rArm.material.color.setHex(col);
+
+                // Add suit glow details
+                if (m.userData.suitLights) {
+                    m.remove(m.userData.suitLights);
+                    m.userData.suitLights = null;
+                }
+
+                if (suitKey === 'POWER') {
+                    // Blue reactor lights
+                    const reactor = createLegoBox(0.4, 0.4, 0.15, 0x00d2ff, false, true);
+                    reactor.position.set(0, 3.1, 0.55);
+                    m.add(reactor);
+                    m.userData.suitLights = reactor;
+                } else if (suitKey === 'ELECTRO') {
+                    // Yellow glowing details
+                    const reactor = createLegoBox(0.4, 0.4, 0.15, 0xffd700, false, true);
+                    reactor.position.set(0, 3.1, 0.55);
+                    m.add(reactor);
+                    m.userData.suitLights = reactor;
+                } else if (suitKey === 'SENSOR') {
+                    // Green glowing visors on eyes
+                    const visor = createLegoBox(0.9, 0.2, 0.15, 0x3afb65, false, true);
+                    visor.position.set(0, 4.45, 0.52);
+                    m.add(visor);
+                    m.userData.suitLights = visor;
+                } else if (suitKey === 'GLIDE') {
+                    // White cape instead of black
+                    m.userData.cape.material.color.setHex(0xf8fafc);
+                } else if (suitKey === 'FIRE') {
+                    // Red/Orange reactor light and bright orange cape
+                    const reactor = createLegoBox(0.4, 0.4, 0.15, 0xff5500, false, true);
+                    reactor.position.set(0, 3.1, 0.55);
+                    m.add(reactor);
+                    
+                    const fLight = new THREE.PointLight(0xff5500, 2.5, 20);
+                    fLight.position.set(0, 3.1, 1.2);
+                    reactor.add(fLight);
+                    
+                    m.userData.suitLights = reactor;
+                    m.userData.cape.material.color.setHex(0xff5500);
+                } else {
+                    m.userData.cape.material.color.setHex(0x0f1115);
+                }
+            }
+
+            // 3D Gotham City Creation
+            function createGothamCity() {
+                // Floor plane (neon grid road)
+                const floorGeo = new THREE.PlaneGeometry(3500, 3500);
+                const floorMat = new THREE.MeshStandardMaterial({
+                    color: 0x080f1e,
+                    roughness: 0.65,
+                    metalness: 0.15
+                });
+                const floor = new THREE.Mesh(floorGeo, floorMat);
+                floor.rotation.x = -Math.PI / 2;
+                floor.receiveShadow = true;
+                scene.add(floor);
+
+                // Neon yellow grids on floor
+                const grid = new THREE.GridHelper(3500, 140, 0x00d2ff, 0x111a2e);
+                grid.position.y = 0.05;
+                grid.material.transparent = true;
+                grid.material.opacity = 0.25;
+                scene.add(grid);
+
+                // Spawn LEGO props (lamps, hydrants, crates)
+                for (let i = 0; i < 80; i++) {
+                    spawnLegoProp();
+                }
+
+                // Gotham Gothic Skyscrapers
+                for (let i = 0; i < 50; i++) {
+                    spawnSkyscraper();
+                }
+
+                // Rain Particle System Initial Setup
+                const rainGeo = new THREE.BufferGeometry();
+                const rainCount = 500;
+                const positions = new Float32Array(rainCount * 3);
+                for(let i=0; i<rainCount*3; i+=3) {
+                    positions[i] = (Math.random() - 0.5) * 600;
+                    positions[i+1] = Math.random() * 300;
+                    positions[i+2] = (Math.random() - 0.5) * 600;
+                }
+                rainGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                const rainMat = new THREE.PointsMaterial({
+                    color: 0x577fa3,
+                    size: 1.2,
+                    transparent: true,
+                    opacity: 0.6
+                });
+                const rainMesh = new THREE.Points(rainGeo, rainMat);
+                scene.add(rainMesh);
+                rainParticles.push(rainMesh);
+            }
+
+            function spawnSkyscraper() {
+                const w = 40 + Math.random() * 40;
+                const h = 180 + Math.random() * 250;
+                const d = 40 + Math.random() * 40;
+                
+                let x = (Math.random() - 0.5) * 1200;
+                let z = (Math.random() - 0.5) * 1200;
+
+                // Don't place on spawn point
+                if (Math.abs(x) < 80 && Math.abs(z) < 80) return;
+
+                const b = createLegoBox(w, h, d, 0x0f121d);
+                b.position.set(x, h/2, z);
+                scene.add(b);
+
+                // Add glowing windows grids (colored panels)
+                const winCount = 8 + Math.floor(Math.random() * 10);
+                for (let j = 0; j < winCount; j++) {
+                    const winGeo = new THREE.PlaneGeometry(w - 6, 3);
+                    const winMat = new THREE.MeshBasicMaterial({
+                        color: Math.random() < 0.2 ? 0x00d2ff : 0xffcc00,
+                        transparent: true,
+                        opacity: 0.45
+                    });
+                    const windowPlane = new THREE.Mesh(winGeo, winMat);
+                    windowPlane.position.set(0, -h/2 + 20 + j * (h / (winCount + 2)), d/2 + 0.25);
+                    b.add(windowPlane);
+                }
+                
+                b.userData = { w, h, d, x, z };
+                obstacles.push(b);
+            }
+
+            function spawnLegoProp() {
+                const x = (Math.random() - 0.5) * 1000;
+                const z = (Math.random() - 0.5) * 1000;
+                
+                if (Math.abs(x) < 30 && Math.abs(z) < 30) return;
+
+                const propType = Math.floor(Math.random() * 5); // 0: Lamp, 1: Hydrant, 2: Crate, 3: Special Metal, 4: Special Glass
+                const propGroup = new THREE.Group();
+                propGroup.position.set(x, 0, z);
+
+                if (propType === 0) {
+                    // Street lamp
+                    const base = createLegoBox(0.8, 1.2, 0.8, 0x111b2e);
+                    base.position.y = 0.6;
+                    const pole = createLegoBox(0.3, 7.0, 0.3, 0x1f2e4d);
+                    pole.position.y = 4.7;
+                    const lamp = createLegoBox(1.2, 0.8, 1.2, 0xffd700);
+                    lamp.position.y = 8.6;
+                    propGroup.add(base, pole, lamp);
+                    propGroup.userData = { type: 'LAMP', hp: 1, baseRadius: 1.5, parts: [base, pole, lamp] };
+                } 
+                else if (propType === 1) {
+                    // Fire hydrant
+                    const base = createLegoBox(0.8, 1.6, 0.8, 0xdc2626);
+                    base.position.y = 0.8;
+                    const cap = createLegoBox(0.5, 0.5, 0.5, 0xffcc00);
+                    cap.position.set(0, 1.8, 0);
+                    propGroup.add(base, cap);
+                    propGroup.userData = { type: 'HYDRANT', hp: 1, baseRadius: 1.2, parts: [base, cap] };
+                } 
+                else if (propType === 2) {
+                    // Normal brown Lego crate
+                    const box = createLegoBox(2.2, 2.2, 2.2, 0x78350f);
+                    box.position.y = 1.1;
+                    propGroup.add(box);
+                    propGroup.userData = { type: 'CRATE_WOOD', hp: 1, baseRadius: 1.6, parts: [box] };
+                }
+                else if (propType === 3) {
+                    // Metal Silver Crate
+                    const box = createLegoBox(2.5, 2.5, 2.5, 0xb8c5d6, true, false);
+                    box.position.y = 1.25;
+                    propGroup.add(box);
+                    propGroup.userData = { type: 'CRATE_METAL', hp: 2, baseRadius: 1.8, parts: [box] };
+                }
+                else {
+                    // Translucent Cyan Glass Crate
+                    const box = createLegoBox(2.4, 2.4, 2.4, 0x00d2ff, false, true);
+                    box.position.y = 1.2;
+                    propGroup.add(box);
+                    propGroup.userData = { type: 'CRATE_GLASS', hp: 1, baseRadius: 1.7, parts: [box] };
+                }
+
+                scene.add(propGroup);
+                obstacles.push(propGroup);
+            }
+
+            function spawnLegoStud(pos, isRare = false) {
+                // A floating, spinning octahedron or box representing a LEGO Stud
+                let color = 0xb5c0c9; // Silver
+                let value = 10;
+                const rand = Math.random();
+
+                if (isRare) {
+                    color = 0xa855f7; // Purple
+                    value = 10000;
+                } else {
+                    if (rand < 0.05) {
+                        color = 0xa855f7; // Purple
+                        value = 10000;
+                    } else if (rand < 0.2) {
+                        color = 0x00d2ff; // Blue
+                        value = 1000;
+                    } else if (rand < 0.55) {
+                        color = 0xffd700; // Gold
+                        value = 100;
+                    }
+                }
+
+                // If sensor suit, reveal extra purple coins
+                if (activeChar === 'BATMAN' && activeSuit === 'SENSOR' && rand < 0.1) {
+                    color = 0xa855f7;
+                    value = 10000;
+                }
+
+                const geom = new THREE.OctahedronGeometry(0.5, 0);
+                const mat = new THREE.MeshStandardMaterial({
+                    color: color,
+                    metalness: 0.9,
+                    roughness: 0.1,
+                    emissive: color,
+                    emissiveIntensity: 0.8
+                });
+                const mesh = new THREE.Mesh(geom, mat);
+                mesh.position.copy(pos);
+                mesh.position.y = Math.max(0.6, pos.y);
+                scene.add(mesh);
+
+                // Sparkle glow light
+                let pLight = null;
+                if (value >= 1000) {
+                    pLight = new THREE.PointLight(color, 0.8, 6);
+                    mesh.add(pLight);
+                }
+
+                coins.push({
+                    mesh: mesh,
+                    value: value,
+                    light: pLight,
+                    angle: Math.random() * Math.PI
+                });
+            }
+
+            // Build HTML Dynamic list of Characters and Suits
+            function buildUI() {
+                const charGrid = document.getElementById('char-grid');
+                const suitGrid = document.getElementById('suit-grid');
+                
+                // Clear existing
+                charGrid.innerHTML = '';
+                suitGrid.innerHTML = '';
+
+                // Build Character Buttons
+                const icons = {
+                    'BATMAN': '🦇', 'FLASH': '⚡', 'ROBIN': '🟢', 'BATGIRL': '🟣',
+                    'NIGHTWING': '💙', 'JOKER': '🤡', 'HARLEY': '🔨', 'RIDDLER': '❓'
+                };
+
+                Object.keys(charRoster).forEach(charKey => {
+                    const btn = document.createElement('button');
+                    btn.className = `char-select-btn ${charKey === activeChar ? 'active' : ''}`;
+                    btn.innerHTML = icons[charKey] || '👤';
+                    btn.title = charRoster[charKey].name;
+                    btn.onclick = () => selectCharacter(charKey);
+                    charGrid.appendChild(btn);
+                });
+
+                // Build Suit Buttons
+                Object.keys(suitData).forEach(suitKey => {
+                    const btn = document.createElement('button');
+                    btn.className = `suit-btn ${suitKey === activeSuit ? 'active' : ''}`;
+                    btn.innerText = suitData[suitKey].name;
+                    btn.title = suitData[suitKey].desc;
+                    btn.onclick = () => selectSuit(suitKey);
+                    suitGrid.appendChild(btn);
+                });
+            }
+
+            function selectCharacter(charKey) {
+                if (isDriving) exitBatmobile();
+
+                // Toggle visibility
+                Object.keys(charMeshes).forEach(key => {
+                    charMeshes[key].visible = false;
+                });
+                
+                activeChar = charKey;
+                const m = charMeshes[charKey];
+                m.visible = true;
+
+                // Adjust UI
+                const activeBtn = document.querySelector('.char-select-btn.active');
+                if (activeBtn) activeBtn.classList.remove('active');
+                
+                const btns = document.querySelectorAll('.char-select-btn');
+                Object.keys(charRoster).forEach((key, idx) => {
+                    if (key === charKey && btns[idx]) btns[idx].classList.add('active');
+                });
+
+                document.getElementById('char-name').innerText = charRoster[charKey].name;
+                document.getElementById('char-desc').innerText = charRoster[charKey].desc;
+
+                // Show/hide suits panel
+                const suitPanel = document.getElementById('suit-panel');
+                if (charKey === 'BATMAN') {
+                    suitPanel.style.display = 'block';
+                    selectSuit(activeSuit);
+                } else {
+                    suitPanel.style.display = 'none';
+                    playerGroup.scale.set(1.0, 1.0, 1.0);
+                    // Standard properties
+                    playerSpeed = charRoster[charKey].speed;
+                    jumpVelocity = charRoster[charKey].jump;
+                }
+
+                // Audio
+                audioManager.playSuitSwap();
+            }
+
+            function selectSuit(suitKey) {
+                if (activeChar !== 'BATMAN') return;
+                activeSuit = suitKey;
+
+                const activeBtn = document.querySelector('.suit-btn.active');
+                if (activeBtn) activeBtn.classList.remove('active');
+
+                const btns = document.querySelectorAll('.suit-btn');
+                Object.keys(suitData).forEach((key, idx) => {
+                    if (key === suitKey && btns[idx]) btns[idx].classList.add('active');
+                });
+
+                applySuitVisuals(suitKey);
+
+                // Modify abilities based on suits
+                playerSpeed = charRoster['BATMAN'].speed;
+                jumpVelocity = charRoster['BATMAN'].jump;
+
+                if (suitKey === 'POWER') {
+                    playerSpeed = 0.28; // Heavy armor slows down
+                } else if (suitKey === 'GLIDE') {
+                    jumpVelocity = 0.45;
+                }
+
+                // Audio
+                audioManager.playSuitSwap();
+            }
+
+            function setupMobileControls() {
+                const btnSpecial = document.getElementById('m-btn-special');
+                const btnJump = document.getElementById('m-btn-jump');
+                const btnCar = document.getElementById('m-btn-car');
+
+                btnSpecial.addEventListener('touchstart', e => { e.preventDefault(); mobileInput.special = true; });
+                btnSpecial.addEventListener('touchend', e => { e.preventDefault(); mobileInput.special = false; });
+                
+                btnJump.addEventListener('touchstart', e => { e.preventDefault(); mobileInput.jump = true; });
+                btnJump.addEventListener('touchend', e => { e.preventDefault(); mobileInput.jump = false; });
+
+                btnCar.addEventListener('touchstart', e => { e.preventDefault(); handleBatmobileButton(); });
+
+                // Simple drag virtual joystick logic
+                const joyZone = document.getElementById('joystick-zone');
+                let startX = 0, startY = 0;
+                
+                joyZone.addEventListener('touchstart', e => {
+                    const touch = e.touches[0];
+                    startX = touch.clientX;
+                    startY = touch.clientY;
+                });
+                
+                joyZone.addEventListener('touchmove', e => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const diffX = touch.clientX - startX;
+                    const diffY = touch.clientY - startY;
+                    const dist = Math.min(60, Math.sqrt(diffX*diffX + diffY*diffY));
+                    const angle = Math.atan2(diffY, diffX);
+
+                    const ratio = dist / 60;
+                    mobileInput.x = Math.cos(angle) * ratio;
+                    mobileInput.z = Math.sin(angle) * ratio;
+                });
+
+                joyZone.addEventListener('touchend', () => {
+                    mobileInput.x = 0;
+                    mobileInput.z = 0;
+                });
+            }
+
+            // Spawn Batmobile
+            function spawnBatmobile() {
+                if (batmobile) {
+                    scene.remove(batmobile);
+                }
+
+                batmobile = new THREE.Group();
+                batmobile.position.copy(playerGroup.position);
+                batmobile.position.x += 10;
+                batmobile.position.y = 0.8;
+                batmobileHeading = playerGroup.rotation.y + Math.PI/2;
+
+                // Base blocky LEGO Batmobile design
+                const mainBody = createLegoBox(4.2, 1.2, 8.5, 0x111318);
+                mainBody.position.y = 0.6;
+                batmobile.add(mainBody);
+
+                // Red styling trims
+                const trimL = createLegoBox(0.3, 0.4, 8.0, 0xef4444);
+                trimL.position.set(-2.15, 0.6, 0);
+                const trimR = createLegoBox(0.3, 0.4, 8.0, 0xef4444);
+                trimR.position.set(2.15, 0.6, 0);
+                batmobile.add(trimL, trimR);
+
+                // Yellow glass windshield cockpit
+                const shield = createLegoBox(3.4, 1.0, 2.8, 0xffea00, false, true);
+                shield.position.set(0, 1.4, 0.5);
+                batmobile.add(shield);
+
+                // Big tires
+                const wheelG1 = new THREE.Group();
+                const w1 = createLegoBox(0.8, 1.8, 1.8, 0x050505);
+                wheelG1.add(w1);
+                wheelG1.position.set(-2.2, 0.3, -2.6);
+
+                const wheelG2 = wheelG1.clone();
+                wheelG2.position.set(2.2, 0.3, -2.6);
+
+                const wheelG3 = wheelG1.clone();
+                wheelG3.position.set(-2.2, 0.3, 2.6);
+
+                const wheelG4 = wheelG1.clone();
+                wheelG4.position.set(2.2, 0.3, 2.6);
+
+                batmobile.add(wheelG1, wheelG2, wheelG3, wheelG4);
+                batmobile.userData = {
+                    wheels: [wheelG1, wheelG2, wheelG3, wheelG4],
+                    body: mainBody
+                };
+
+                // Rear rocket exhaust flame light
+                const exhaust = createLegoBox(0.8, 0.8, 0.8, 0xff5500);
+                exhaust.position.set(0, 0.6, -4.4);
+                batmobile.add(exhaust);
+
+                const eLight = new THREE.PointLight(0xff3300, 1.5, 12);
+                eLight.position.set(0, 0.6, -5.2);
+                batmobile.add(eLight);
+
+                scene.add(batmobile);
+                audioManager.playExplosion(); // Summon sound
+                showBanner("באטמוביל זומנה!");
+            }
+
+            function enterBatmobile() {
+                if (!batmobile) {
+                    spawnBatmobile();
+                }
+
+                isDriving = true;
+                // Move player group into car coordinates and hide
+                playerGroup.position.copy(batmobile.position);
+                charMeshes[activeChar].visible = false;
+
+                document.getElementById('batmobile-btn-text').innerText = "צא מהרכב (C)";
+                showBanner("נכנסת לבאטמוביל!");
+                audioManager.startEngine();
+            }
+
+            function exitBatmobile() {
+                isDriving = false;
+                charMeshes[activeChar].visible = true;
+                playerGroup.position.copy(batmobile.position);
+                playerGroup.position.y = 0.1; // reset height
+
+                document.getElementById('batmobile-btn-text').innerText = "כנס לרכב (C)";
+                showBanner("יצאת מהבאטמוביל!");
+                audioManager.stopEngine();
+            }
+
+            function handleBatmobileButton() {
+                if (isDriving) {
+                    exitBatmobile();
+                } else {
+                    const dist = batmobile ? playerGroup.position.distanceTo(batmobile.position) : 9999;
+                    if (dist < 12) {
+                        enterBatmobile();
+                    } else {
+                        spawnBatmobile();
+                    }
+                }
+            }
+
+            // Attack / Action abilities
+            function useAbility() {
+                const now = Date.now();
+                if (now - lastShotTime < abilityCooldown) return;
+                lastShotTime = now;
+
+                if (activeChar === 'BATMAN') {
+                    if (activeSuit === 'STANDARD') {
+                        // Throw standard Batarang
+                        throwBatarang(0x222222, 10, 'BATARANG');
+                        abilityCooldown = 300;
+                    } 
+                    else if (activeSuit === 'POWER') {
+                        // Shoot heavy rocket
+                        throwBatarang(0x94a3b8, 28, 'MISSILE');
+                        abilityCooldown = 800;
+                    }
+                    else if (activeSuit === 'ELECTRO') {
+                        // Discharge electricity pulse
+                        electroPulse();
+                        abilityCooldown = 700;
+                    }
+                    else if (activeSuit === 'SENSOR') {
+                        // Reveal hidden items temporarily and pulse green scan
+                        sensorScan();
+                        abilityCooldown = 600;
+                    }
+                    else if (activeSuit === 'GLIDE') {
+                        // Sonic blast
+                        sonicBlast();
+                        abilityCooldown = 500;
+                    }
+                    else if (activeSuit === 'FIRE') {
+                        // Fireball blast
+                        shootFireball();
+                        abilityCooldown = 400;
+                    }
+                } 
+                else if (activeChar === 'FLASH') {
+                    // Extreme rapid flash dash / speed attack
+                    flashDashAttack();
+                    abilityCooldown = 150;
+                }
+                else if (activeChar === 'ROBIN') {
+                    // Staff swing wave
+                    throwBatarang(0x22c55e, 12, 'STAFF');
+                    abilityCooldown = 300;
+                }
+                else if (activeChar === 'JOKER') {
+                    // Throw laughing gas bombs
+                    throwBatarang(0xa855f7, 15, 'GAS_BOMB');
+                    abilityCooldown = 500;
+                }
+                else if (activeChar === 'HARLEY') {
+                    // Hammer slam range
+                    hammerSlam();
+                    abilityCooldown = 600;
+                }
+                else {
+                    // Default batarang/ability
+                    throwBatarang(0xffcc00, 10, 'DEFAULT');
+                    abilityCooldown = 400;
+                }
+            }
+
+            function throwBatarang(color, damage, type) {
+                audioManager.playShoot();
+
+                const geom = new THREE.BoxGeometry(1.2, 0.2, 0.4);
+                const mat = new THREE.MeshBasicMaterial({ color: color });
+                const mesh = new THREE.Mesh(geom, mat);
+
+                // Align bullet positioning
+                mesh.position.copy(playerGroup.position);
+                mesh.position.y += 2.4;
+
+                const heading = playerGroup.rotation.y;
+                const dir = new THREE.Vector3(-Math.sin(heading), 0, -Math.cos(heading)).normalize();
+
+                mesh.rotation.y = heading;
+                scene.add(mesh);
+
+                projectiles.push({
+                    mesh: mesh,
+                    dir: dir,
+                    damage: damage,
+                    type: type,
+                    life: 120, // frames
+                    speed: 2.2
+                });
+            }
+
+            function shootFireball() {
+                audioManager.playShoot();
+
+                const geom = new THREE.SphereGeometry(0.8, 8, 8);
+                const mat = new THREE.MeshBasicMaterial({ color: 0xff4500 });
+                const mesh = new THREE.Mesh(geom, mat);
+
+                mesh.position.copy(playerGroup.position);
+                mesh.position.y += 2.4;
+
+                const heading = playerGroup.rotation.y;
+                const dir = new THREE.Vector3(-Math.sin(heading), 0, -Math.cos(heading)).normalize();
+
+                const fLight = new THREE.PointLight(0xff5500, 1.5, 10);
+                mesh.add(fLight);
+
+                scene.add(mesh);
+
+                projectiles.push({
+                    mesh: mesh,
+                    dir: dir,
+                    damage: 35,
+                    type: 'FIREBALL',
+                    life: 90,
+                    speed: 2.5
+                });
+            }
+
+            function cycleCharacters() {
+                const keys = Object.keys(charRoster);
+                let idx = keys.indexOf(activeChar);
+                idx = (idx + 1) % keys.length;
+                selectCharacter(keys[idx]);
+            }
+
+            function electroPulse() {
+                audioManager.playShoot();
+                
+                const pulseRing = new THREE.Mesh(
+                    new THREE.RingGeometry(1, 15, 16),
+                    new THREE.MeshBasicMaterial({ color: 0xffea00, side: THREE.DoubleSide, transparent: true, opacity: 0.6 })
+                );
+                pulseRing.rotation.x = Math.PI / 2;
+                pulseRing.position.copy(playerGroup.position);
+                scene.add(pulseRing);
+
+                // Shock goons close to player
+                enemies.forEach(goon => {
+                    const dist = playerGroup.position.distanceTo(goon.position);
+                    if (dist < 18) {
+                        goon.userData.hp -= 20;
+                        goon.userData.stunned = 120; // 2 sec stun
+                        spawnSparks(goon.position, 0xffea00);
+                    }
+                });
+
+                let scale = 1;
+                const anim = () => {
+                    scale += 1.2;
+                    pulseRing.scale.set(scale, scale, 1);
+                    pulseRing.material.opacity -= 0.05;
+                    if (pulseRing.material.opacity > 0) {
+                        requestAnimationFrame(anim);
+                    } else {
+                        scene.remove(pulseRing);
+                    }
+                };
+                anim();
+            }
+
+            function sensorScan() {
+                audioManager.playSuitSwap();
+                const scanPlane = new THREE.Mesh(
+                    new THREE.RingGeometry(1, 25, 20),
+                    new THREE.MeshBasicMaterial({ color: 0x3afb65, side: THREE.DoubleSide, transparent: true, opacity: 0.5 })
+                );
+                scanPlane.rotation.x = Math.PI/2;
+                scanPlane.position.copy(playerGroup.position);
+                scene.add(scanPlane);
+
+                // Magnetic pull of all close coins
+                coins.forEach(coin => {
+                    const dist = playerGroup.position.distanceTo(coin.mesh.position);
+                    if (dist < 100) {
+                        coin.pulled = true;
+                    }
+                });
+
+                let sc = 1;
+                const anim = () => {
+                    sc += 1.8;
+                    scanPlane.scale.set(sc, sc, 1);
+                    scanPlane.material.opacity -= 0.04;
+                    if (scanPlane.material.opacity > 0) {
+                        requestAnimationFrame(anim);
+                    } else {
+                        scene.remove(scanPlane);
+                    }
+                };
+                anim();
+            }
+
+            function sonicBlast() {
+                audioManager.playShoot();
+                const cone = new THREE.Mesh(
+                    new THREE.RingGeometry(1, 10, 16),
+                    new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.7 })
+                );
+                cone.rotation.x = Math.PI/2;
+                cone.position.copy(playerGroup.position);
+                scene.add(cone);
+
+                // Check glass crates
+                obstacles.forEach((prop, idx) => {
+                    if (prop.userData && prop.userData.type === 'CRATE_GLASS') {
+                        const d = playerGroup.position.distanceTo(prop.position);
+                        if (d < 16) {
+                            smashLegoProp(prop, idx);
+                        }
+                    }
+                });
+
+                // Attack close goons
+                enemies.forEach(goon => {
+                    const dist = playerGroup.position.distanceTo(goon.position);
+                    if (dist < 14) {
+                        goon.userData.hp -= 25;
+                        spawnSparks(goon.position, 0xffffff);
+                    }
+                });
+
+                let sc = 1;
+                const anim = () => {
+                    sc += 1.0;
+                    cone.scale.set(sc, sc, 1);
+                    cone.material.opacity -= 0.07;
+                    if (cone.material.opacity > 0) {
+                        requestAnimationFrame(anim);
+                    } else {
+                        scene.remove(cone);
+                    }
+                };
+                anim();
+            }
+
+            function hammerSlam() {
+                audioManager.playSmash();
+                cameraShake(0.8);
+                
+                const blast = new THREE.Mesh(
+                    new THREE.RingGeometry(1, 12, 16),
+                    new THREE.MeshBasicMaterial({ color: 0xef4444, side: THREE.DoubleSide, transparent: true, opacity: 0.8 })
+                );
+                blast.rotation.x = Math.PI/2;
+                blast.position.copy(playerGroup.position);
+                scene.add(blast);
+
+                // Smash obstacles and enemies
+                obstacles.forEach((prop, idx) => {
+                    const d = playerGroup.position.distanceTo(prop.position);
+                    if (d < 14) {
+                        smashLegoProp(prop, idx);
+                    }
+                });
+
+                enemies.forEach(goon => {
+                    const d = playerGroup.position.distanceTo(goon.position);
+                    if (d < 14) {
+                        goon.userData.hp -= 35;
+                        goon.position.add(goon.position.clone().sub(playerGroup.position).normalize().multiplyScalar(4));
+                        spawnSparks(goon.position, 0xef4444);
+                    }
+                });
+
+                let sc = 1;
+                const anim = () => {
+                    sc += 1.1;
+                    blast.scale.set(sc, sc, 1);
+                    blast.material.opacity -= 0.08;
+                    if (blast.material.opacity > 0) {
+                        requestAnimationFrame(anim);
+                    } else {
+                        scene.remove(blast);
+                    }
+                };
+                anim();
+            }
+
+            function flashDashAttack() {
+                // Flash jumps forward fast, attacking all in way
+                const heading = playerGroup.rotation.y;
+                const forward = new THREE.Vector3(-Math.sin(heading), 0, -Math.cos(heading)).normalize();
+                
+                // Teleport/Dash forward slightly
+                const testPos = playerGroup.position.clone().addScaledVector(forward, 15);
+                
+                // Spawn dash lightning trail
+                for(let i=0; i<6; i++) {
+                    const interpPos = playerGroup.position.clone().lerp(testPos, i / 5);
+                    spawnSparks(interpPos, 0xffea00);
+                }
+
+                playerGroup.position.copy(testPos);
+                audioManager.playShoot();
+
+                // Shock goons in line
+                enemies.forEach(goon => {
+                    const d = playerGroup.position.distanceTo(goon.position);
+                    if (d < 16) {
+                        goon.userData.hp -= 15;
+                        goon.userData.stunned = 30;
+                    }
+                });
+            }
+
+            // Smash interactable prop
+            function smashLegoProp(prop, index) {
+                audioManager.playSmash();
+                cameraShake(0.5);
+
+                const parts = prop.userData.parts;
+                const type = prop.userData.type;
+
+                // Spawn LEGO brick shards
+                const _shardGeo = new THREE.BoxGeometry(0.4, 0.4, 0.4);
+                parts.forEach(part => {
+                    part.scale.multiplyScalar(0.7);
+                    scene.remove(part);
+
+                    if (brickDebris.length < 60) {
+                        for (let i = 0; i < 2; i++) {
+                            const shard = new THREE.Mesh(_shardGeo, new THREE.MeshBasicMaterial({ color: part.material.color.getHex(), transparent: true, opacity: 1 }));
+                            shard.position.copy(prop.position);
+                            shard.position.y += Math.random() * 2;
+                            scene.add(shard);
+                            brickDebris.push({
+                                mesh: shard,
+                                vel: new THREE.Vector3(
+                                    (Math.random() - 0.5) * 1.5,
+                                    2.0 + Math.random() * 2,
+                                    (Math.random() - 0.5) * 1.5
+                                ),
+                                life: 1.0
+                            });
+                        }
+                    }
+                });
+
+                // Drop Studs based on prop size
+                let coinCount = 3;
+                if (type === 'CRATE_METAL') coinCount = 6;
+                
+                for (let i = 0; i < coinCount; i++) {
+                    const studOffset = new THREE.Vector3(
+                        prop.position.x + (Math.random() - 0.5) * 3,
+                        prop.position.y + Math.random() * 2,
+                        prop.position.z + (Math.random() - 0.5) * 3
+                    );
+                    spawnLegoStud(studOffset, type === 'CRATE_METAL' || type === 'CRATE_GLASS');
+                }
+
+                scene.remove(prop);
+                obstacles.splice(index, 1);
+            }
+
+            const _sparkGeo = new THREE.BoxGeometry(0.25, 0.25, 0.25);
+            function spawnSparks(pos, color) {
+                if (brickDebris.length >= 60) return;
+                for (let i = 0; i < 3; i++) {
+                    const sp = new THREE.Mesh(_sparkGeo, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 1 }));
+                    sp.position.copy(pos);
+                    scene.add(sp);
+                    brickDebris.push({
+                        mesh: sp,
+                        vel: new THREE.Vector3((Math.random()-0.5)*2.5, 1.5+Math.random()*2, (Math.random()-0.5)*2.5),
+                        life: 0.8
+                    });
+                }
+            }
+
+            function gainScore(val) {
+                score += val;
+                
+                // Update text
+                const formatted = String(score).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                document.getElementById('score').innerText = formatted;
+
+                // Sound
+                audioManager.playCoin();
+
+                // True Hero Fill Bar updates
+                const ratio = Math.min(1.0, score / trueHeroThreshold);
+                document.getElementById('true-hero-fill').style.width = (ratio * 100) + '%';
+
+                if (score >= trueHeroThreshold && !isTrueHero) {
+                    isTrueHero = true;
+                    document.getElementById('true-hero-panel').classList.add('true-hero-active');
+                    showBanner("גיבור אמיתי! (TRUE HERO)");
+                    audioManager.playTrueHeroSound();
+                    
+                    // Rain down gold coins at player
+                    for (let i = 0; i < 20; i++) {
+                        const goldOffset = new THREE.Vector3(
+                            playerGroup.position.x + (Math.random()-0.5)*40,
+                            25 + Math.random()*15,
+                            playerGroup.position.z + (Math.random()-0.5)*40
+                        );
+                        spawnLegoStud(goldOffset, true);
+                    }
+                }
+            }
+
+            function spawnEnemyGoon() {
+                if (enemies.length >= 15) return;
+
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 150 + Math.random() * 80;
+                const gx = playerGroup.position.x + Math.cos(angle) * dist;
+                const gz = playerGroup.position.z + Math.sin(angle) * dist;
+
+                const goon = new THREE.Group();
+                goon.position.set(gx, 0, gz);
+
+                // Goon parts (Joker style colors: green hair, white face, purple suit)
+                const legs = createLegoBox(1.5, 1.5, 0.8, 0x581c87);
+                legs.position.y = 0.75;
+                const torso = createLegoBox(1.7, 2.0, 0.9, 0x701a75);
+                torso.position.y = 2.5;
+                const head = createLegoBox(0.9, 0.9, 0.9, 0xfafafa);
+                head.position.y = 3.95;
+                const hair = createLegoBox(1.0, 0.3, 1.0, 0x16a34a);
+                hair.position.y = 4.5;
+
+                goon.add(legs, torso, head, hair);
+                
+                goon.userData = {
+                    hp: 30,
+                    lLeg: legs,
+                    torso: torso,
+                    head: head,
+                    stunned: 0
+                };
+
+                scene.add(goon);
+                enemies.push(goon);
+            }
+
+            // Joker Mech Boss
+            function spawnBossMech() {
+                if (bossActive) return;
+                bossActive = true;
+                bossHP = bossMaxHP;
+
+                document.getElementById('boss-hud').style.display = 'block';
+                document.getElementById('boss-fill-bar').style.width = '100%';
+                showBanner("ג'וקר-מך ענק נכנס לקרב!");
+
+                bossMech = new THREE.Group();
+                bossMech.position.copy(playerGroup.position);
+                bossMech.position.z -= 180;
+                bossMech.position.y = 0;
+                bossMech.scale.set(6.5, 6.5, 6.5); // GIANT!
+
+                // Build a blocky Joker style mech
+                const legs = createLegoBox(1.8, 1.5, 1.2, 0x4c1d95);
+                legs.position.y = 0.75;
+                const torso = createLegoBox(2.2, 2.2, 1.5, 0x7e22ce);
+                torso.position.y = 2.6;
+                const head = createLegoBox(1.2, 1.2, 1.2, 0xfafafa);
+                head.position.y = 4.3;
+                const hair = createLegoBox(1.3, 0.4, 1.3, 0x15803d);
+                hair.position.y = 5.0;
+
+                // Gun launchers on arms
+                const launcherL = createLegoBox(0.6, 2.2, 0.6, 0x111111);
+                launcherL.position.set(-1.6, 2.6, 0);
+                const launcherR = createLegoBox(0.6, 2.2, 0.6, 0x111111);
+                launcherR.position.set(1.6, 2.6, 0);
+
+                bossMech.add(legs, torso, head, hair, launcherL, launcherR);
+                scene.add(bossMech);
+                audioManager.playExplosion();
+            }
+
+            function damageBoss(amount) {
+                if (!bossActive) return;
+                bossHP -= amount;
+                
+                const pct = Math.max(0, (bossHP / bossMaxHP) * 100);
+                document.getElementById('boss-fill-bar').style.width = pct + '%';
+                
+                // Visual spark hits
+                spawnSparks(bossMech.position, 0x7e22ce);
+                cameraShake(0.7);
+
+                if (bossHP <= 0) {
+                    defeatBoss();
+                }
+            }
+
+            function defeatBoss() {
+                bossActive = false;
+                document.getElementById('boss-hud').style.display = 'none';
+                showBanner("ניצחון! הג'וקר-מך הובס!");
+                audioManager.playExplosion();
+
+                // Drop heaps of rare purple studs
+                for(let i=0; i<15; i++) {
+                    const offset = new THREE.Vector3(
+                        bossMech.position.x + (Math.random()-0.5)*30,
+                        bossMech.position.y + 4 + Math.random()*8,
+                        bossMech.position.z + (Math.random()-0.5)*30
+                    );
+                    spawnLegoStud(offset, true);
+                }
+
+                // Debris explosion animation
+                for(let i=0; i<30; i++) {
+                    const dMesh = createLegoBox(1.2, 1.2, 1.2, 0x7e22ce);
+                    dMesh.position.copy(bossMech.position);
+                    scene.add(dMesh);
+                    brickDebris.push({
+                        mesh: dMesh,
+                        vel: new THREE.Vector3((Math.random()-0.5)*8, 5+Math.random()*6, (Math.random()-0.5)*8),
+                        life: 1.0
+                    });
+                }
+
+                scene.remove(bossMech);
+                bossMech = null;
+            }
+
+            function cameraShake(amt) {
+                let shakeFrame = 0;
+                const shake = () => {
+                    camera.position.x += (Math.random()-0.5)*amt*10;
+                    camera.position.y += (Math.random()-0.5)*amt*10;
+                    shakeFrame++;
+                    if (shakeFrame < 8) {
+                        requestAnimationFrame(shake);
+                    }
+                };
+                shake();
+            }
+
+            function resetCharacter() {
+                // Instant respawn/refresh
+                playerGroup.position.set(0, 0, 20);
+                verticalVelocity = 0;
+                playerHP = maxHP;
+                isDead = false;
+                
+                // Redraw UI hearts
+                const hc = document.getElementById('hearts-container');
+                hc.innerHTML = '❤️'.repeat(maxHP);
+
+                if (isDriving) exitBatmobile();
+                selectCharacter(activeChar);
+                showBanner("מערכות אותחלו בהצלחה!");
+            }
+
+            function takeDamage() {
+                if (isDead) return;
+                playerHP--;
+                
+                const hc = document.getElementById('hearts-container');
+                hc.innerHTML = '❤️'.repeat(Math.max(0, playerHP));
+
+                // Screen red hit flash / camera shake
+                cameraShake(0.9);
+                audioManager.playSmash();
+
+                if (playerHP <= 0) {
+                    isDead = true;
+                    showBanner("באטמן נפגע! לחץ E לאתחול!");
+                    audioManager.playExplosion();
+                    // Explode player
+                    spawnSparks(playerGroup.position, 0xef4444);
+                }
+            }
+
+            function showBanner(text) {
+                const el = document.getElementById('announcer');
+                el.innerText = text;
+                el.style.opacity = '1';
+                el.style.transform = 'translateX(-50%) translateY(0)';
+                
+                clearTimeout(el.timer);
+                el.timer = setTimeout(() => {
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateX(-50%) translateY(-20px)';
+                }, 3000);
+            }
+
+            function updateGamepadStatus() {
+                const gamepads = navigator.getGamepads();
+                let gpFound = false;
+                if (gamepads) {
+                    for (let i = 0; i < gamepads.length; i++) {
+                        if (gamepads[i]) {
+                            gpFound = true;
+                            break;
+                        }
+                    }
+                }
+                const gpBtn = document.getElementById('gamepad-btn');
+                if (gpBtn) {
+                    if (gpFound) {
+                        gpBtn.style.opacity = '1';
+                        gpBtn.style.color = 'var(--bat-blue)';
+                        gpBtn.style.borderColor = 'var(--bat-blue)';
+                        gpBtn.style.boxShadow = 'var(--bat-glow)';
+                    } else {
+                        gpBtn.style.opacity = '0.4';
+                        gpBtn.style.color = '#8fa0c0';
+                        gpBtn.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                        gpBtn.style.boxShadow = 'none';
+                    }
+                }
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+
+                frameCount++;
+                if (frameCount % 60 === 0) updateGamepadStatus();
+
+                const dt = clock.getDelta();
+                const now = Date.now();
+
+                // Rotate coins
+                coins.forEach((coin, idx) => {
+                    coin.mesh.rotation.y += 0.03;
+                    coin.mesh.position.y = Math.max(0.6, 1.8 + Math.sin(clock.getElapsedTime()*3 + idx)*0.3);
+
+                    // Magnet pull
+                    const dist = playerGroup.position.distanceTo(coin.mesh.position);
+                    if (dist < 40 || coin.pulled) {
+                        coin.mesh.position.lerp(playerGroup.position.clone().add(new THREE.Vector3(0,1.5,0)), 0.16);
+                        if (dist < 3) {
+                            gainScore(coin.value);
+                            scene.remove(coin.mesh);
+                            coins.splice(idx, 1);
+                        }
+                    }
+                });
+
+                // Update searchlights
+                searchlights.forEach(sl => {
+                    sl.angle += 0.005;
+                    const tx = Math.cos(sl.angle) * 200;
+                    const tz = Math.sin(sl.angle * 1.5) * 200;
+                    sl.target.position.set(tx, 0, tz);
+                });
+
+                // Update rain
+                rainParticles.forEach(rain => {
+                    const posAttr = rain.geometry.attributes.position;
+                    const len = posAttr.count;
+                    for (let i = 0; i < len; i++) {
+                        let y = posAttr.getY(i);
+                        y -= 4.2; // Fall speed
+                        if (y < 0) {
+                            y = 300; // Reset
+                        }
+                        posAttr.setY(i, y);
+                    }
+                    posAttr.needsUpdate = true;
+                });
+
+                // Update lightning trail (for Flash)
+                if (activeChar === 'FLASH' && lightningTrail.length < 20 && (keys['KeyW'] || keys['KeyS'] || keys['KeyA'] || keys['KeyD'] || mobileInput.x !== 0 || mobileInput.z !== 0)) {
+                    const lP = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({ color: 0xffea00, transparent: true, opacity: 1 }));
+                    lP.position.copy(playerGroup.position);
+                    lP.position.y += Math.random() * 2;
+                    scene.add(lP);
+                    lightningTrail.push({ mesh: lP, life: 1.0 });
+                }
+
+                // Update fire particles (for Burning Batman / FIRE Suit)
+                if (activeChar === 'BATMAN' && activeSuit === 'FIRE' && brickDebris.length < 60) {
+                    const size = 0.35 + Math.random() * 0.25;
+                    const fP = new THREE.Mesh(new THREE.BoxGeometry(size, size, size), new THREE.MeshBasicMaterial({ color: [0xff3300, 0xff5500, 0xffaa00][Math.floor(Math.random()*3)], transparent: true, opacity: 0.9 }));
+                    fP.position.copy(playerGroup.position);
+                    fP.position.x += (Math.random()-0.5)*2.0;
+                    fP.position.z += (Math.random()-0.5)*1.2;
+                    fP.position.y += Math.random()*4.0;
+                    scene.add(fP);
+                    brickDebris.push({
+                        mesh: fP,
+                        vel: new THREE.Vector3((Math.random()-0.5)*0.3, 0.4 + Math.random()*0.6, (Math.random()-0.5)*0.3),
+                        life: 0.8
+                    });
+                }
+
+                // Animate lightning trails
+                for (let i = lightningTrail.length - 1; i >= 0; i--) {
+                    const l = lightningTrail[i];
+                    l.life -= 0.08;
+                    l.mesh.scale.multiplyScalar(0.9);
+                    l.mesh.material.opacity = l.life;
+                    if (l.life <= 0) {
+                        scene.remove(l.mesh);
+                        lightningTrail.splice(i, 1);
+                    }
+                }
+
+                // Update brick debris shards
+                for (let i = brickDebris.length - 1; i >= 0; i--) {
+                    const d = brickDebris[i];
+                    d.vel.y -= 0.15; // gravity
+                    d.mesh.position.add(d.vel);
+                    d.life -= 0.035;
+                    d.mesh.material.opacity = d.life;
+                    d.mesh.rotation.x += 0.1;
+                    d.mesh.rotation.y += 0.1;
+
+                    if (d.mesh.position.y < 0.2) {
+                        d.mesh.position.y = 0.2;
+                        d.vel.set(0, 0, 0);
+                    }
+
+                    if (d.life <= 0) {
+                        scene.remove(d.mesh);
+                        brickDebris.splice(i, 1);
+                    }
+                }
+
+                // Update Projectiles
+                for(let i = projectiles.length - 1; i >= 0; i--) {
+                    const p = projectiles[i];
+                    p.mesh.position.addScaledVector(p.dir, p.speed);
+                    p.mesh.rotation.z += 0.2;
+                    p.life--;
+
+                    // Collision check with obstacles
+                    obstacles.forEach((prop, pIdx) => {
+                        const d = p.mesh.position.distanceTo(prop.position);
+                        if (d < prop.userData.baseRadius + 1.2) {
+                            if (p.type === 'MISSILE' || p.type === 'FIREBALL' || prop.userData.type !== 'CRATE_METAL') {
+                                smashLegoProp(prop, pIdx);
+                                p.life = 0;
+                            }
+                        }
+                    });
+
+                    // Collision check with Boss
+                    if (bossActive && p.mesh.position.distanceTo(bossMech.position) < 22) {
+                        damageBoss(p.damage);
+                        p.life = 0;
+                    }
+
+                    // Collision with enemies
+                    enemies.forEach((goon, gIdx) => {
+                        const d = p.mesh.position.distanceTo(goon.position);
+                        if (d < 3.2) {
+                            goon.userData.hp -= p.damage;
+                            spawnSparks(goon.position, 0xef4444);
+                            p.life = 0;
+                            
+                            // Stun check
+                            if (p.type === 'ELECTRO') {
+                                goon.userData.stunned = 120;
+                            }
+                        }
+                    });
+
+                    if (p.life <= 0) {
+                        scene.remove(p.mesh);
+                        projectiles.splice(i, 1);
+                    }
+                }
+
+                // Spawning goons periodically
+                if (Math.random() < 0.004) {
+                    spawnEnemyGoon();
+                }
+
+                // Update Goons behavior
+                for (let i = enemies.length - 1; i >= 0; i--) {
+                    const goon = enemies[i];
+                    
+                    if (goon.userData.hp <= 0) {
+                        // Drop coins
+                        gainScore(100);
+                        spawnLegoStud(goon.position, false);
+                        spawnSparks(goon.position, 0xff0000);
+                        scene.remove(goon);
+                        enemies.splice(i, 1);
+                        continue;
+                    }
+
+                    if (goon.userData.stunned > 0) {
+                        goon.userData.stunned--;
+                        continue; // skip movement
+                    }
+
+                    // Look and chase player or Batmobile
+                    const target = playerGroup.position;
+                    const dir = target.clone().sub(goon.position);
+                    dir.y = 0;
+                    const len = dir.length();
+                    
+                    if (len > 3) {
+                        dir.normalize();
+                        goon.position.addScaledVector(dir, 0.12);
+                        goon.rotation.y = Math.atan2(dir.x, dir.z);
+
+                        // Legs swing walk animation
+                        const swing = Math.sin(clock.getElapsedTime() * 12) * 0.45;
+                        goon.userData.lLeg.rotation.x = swing;
+                        goon.userData.lLeg.position.y = 0.75 + Math.abs(swing)*0.15;
+                    } else {
+                        // Attack close range
+                        if (Math.random() < 0.04) {
+                            takeDamage();
+                        }
+                    }
+                }
+
+                // Update Joker Mech Boss Attack behavior
+                if (bossActive && bossMech) {
+                    bossTimer += dt;
+                    // Move slightly towards player
+                    const toPlayer = playerGroup.position.clone().sub(bossMech.position);
+                    toPlayer.y = 0;
+                    
+                    if (toPlayer.length() > 50) {
+                        toPlayer.normalize();
+                        bossMech.position.addScaledVector(toPlayer, 0.18);
+                        bossMech.rotation.y = Math.atan2(toPlayer.x, toPlayer.z);
+                    }
+
+                    // Boss weapon shooting rockets
+                    if (Math.random() < 0.015) {
+                        const targetDir = playerGroup.position.clone().sub(bossMech.position).normalize();
+                        
+                        const rocket = createLegoBox(2.2, 0.8, 0.8, 0xa855f7);
+                        rocket.position.copy(bossMech.position);
+                        rocket.position.y += 18;
+                        scene.add(rocket);
+
+                        projectiles.push({
+                            mesh: rocket,
+                            dir: targetDir,
+                            damage: 1,
+                            type: 'BOSS_ROCKET',
+                            life: 180,
+                            speed: 1.4
+                        });
+                        audioManager.playShoot();
+                    }
+                }
+
+                // Handle Character Controls / Driving Physics
+                if (!isDriving && !isDead) {
+                    // Normal player locomotion
+                    let mx = 0, mz = 0;
+
+                    if (keys['KeyW'] || keys['ArrowUp']) mz = -1;
+                    if (keys['KeyS'] || keys['ArrowDown']) mz = 1;
+                    if (keys['KeyA'] || keys['ArrowLeft']) mx = -1;
+                    if (keys['KeyD'] || keys['ArrowRight']) mx = 1;
+
+                    // Support mobile joystick values
+                    if (mobileInput.x !== 0 || mobileInput.z !== 0) {
+                        mx = mobileInput.x;
+                        mz = mobileInput.z;
+                    }
+
+                    // Gamepad (PlayStation Controller) Support for walking (check all connected gamepads)
+                    const gamepads = navigator.getGamepads();
+                    let gp = null;
+                    if (gamepads) {
+                        for (let i = 0; i < gamepads.length; i++) {
+                            if (gamepads[i]) {
+                                gp = gamepads[i];
+                                break;
+                            }
+                        }
+                    }
+
+                    if (gp) {
+                        // Left Stick Axes (Deadzone 0.20)
+                        if (Math.abs(gp.axes[0]) > 0.20) mx = gp.axes[0];
+                        if (Math.abs(gp.axes[1]) > 0.20) mz = gp.axes[1];
+
+                        // Button 2 (Square - Ability) or R1 (Button 5) / R2 (Button 7)
+                        if ((gp.buttons[2] && gp.buttons[2].pressed) || 
+                            (gp.buttons[5] && gp.buttons[5].pressed) || 
+                            (gp.buttons[7] && gp.buttons[7].pressed)) {
+                            useAbility();
+                        }
+
+                        // Button 0 (X / Cross - Jump)
+                        if (gp.buttons[0] && gp.buttons[0].pressed) {
+                            if (isGrounded) {
+                                verticalVelocity = jumpVelocity;
+                                isGrounded = false;
+                            } else if (activeChar === 'BATGIRL' || (activeChar === 'BATMAN' && activeSuit === 'GLIDE')) {
+                                isGliding = true;
+                            }
+                        } else {
+                            isGliding = false;
+                        }
+
+                        // Button 1 (Circle - Enter/Exit Batmobile) - Debounced
+                        if (gp.buttons[1] && gp.buttons[1].pressed) {
+                            if (!gpButtonsPressed.b1) {
+                                handleBatmobileButton();
+                                gpButtonsPressed.b1 = true;
+                            }
+                        } else {
+                            gpButtonsPressed.b1 = false;
+                        }
+
+                        // Button 3 (Triangle - Cycle Characters) - Debounced
+                        if (gp.buttons[3] && gp.buttons[3].pressed) {
+                            if (!gpButtonsPressed.b3) {
+                                cycleCharacters();
+                                gpButtonsPressed.b3 = true;
+                            }
+                        } else {
+                            gpButtonsPressed.b3 = false;
+                        }
+                    }
+
+                    if (keys['KeyF'] || mobileInput.special) {
+                        useAbility();
+                    }
+
+                    // Move character
+                    if (mx !== 0 || mz !== 0) {
+                        const moveVec = new THREE.Vector3(mx, 0, mz).normalize().multiplyScalar(playerSpeed);
+                        playerGroup.position.add(moveVec);
+                        playerGroup.rotation.y = Math.atan2(mx, mz);
+
+                        // Leg swing animations
+                        const activeM = charMeshes[activeChar];
+                        const speedFactor = activeChar === 'FLASH' ? 24 : 10;
+                        const swing = Math.sin(clock.getElapsedTime() * speedFactor) * 0.55;
+                        
+                        activeM.userData.lLeg.rotation.x = swing;
+                        activeM.userData.lLeg.position.y = 0.8 + Math.abs(swing)*0.15;
+                        activeM.userData.rLeg.rotation.x = -swing;
+                        activeM.userData.rLeg.position.y = 0.8 + Math.abs(swing)*0.15;
+
+                        // Arm swings
+                        activeM.userData.lArm.rotation.x = -swing * 0.7;
+                        activeM.userData.rArm.rotation.x = swing * 0.7;
+
+                        // Cape tilt backwards
+                        if (activeM.userData.cape) {
+                            activeM.userData.cape.rotation.x = 0.35 + Math.abs(swing) * 0.25;
+                        }
+                    } else {
+                        // Standing idle
+                        const activeM = charMeshes[activeChar];
+                        activeM.userData.lLeg.rotation.x = 0;
+                        activeM.userData.lLeg.position.y = 0.8;
+                        activeM.userData.rLeg.rotation.x = 0;
+                        activeM.userData.rLeg.position.y = 0;
+                        activeM.userData.lArm.rotation.x = 0;
+                        activeM.userData.rArm.rotation.x = 0;
+                        if (activeM.userData.cape) activeM.userData.cape.rotation.x = 0.05;
+                    }
+
+                    // Handle Jump / Gravity
+                    if (keys['Space'] || mobileInput.jump) {
+                        if (isGrounded) {
+                            verticalVelocity = jumpVelocity;
+                            isGrounded = false;
+                        } else if (activeChar === 'BATGIRL' || (activeChar === 'BATMAN' && activeSuit === 'GLIDE')) {
+                            // Glide feature (falling slower)
+                            isGliding = true;
+                        }
+                    } else {
+                        isGliding = false;
+                    }
+
+                    // Gravity logic
+                    if (!isGrounded) {
+                        const grav = isGliding ? 0.025 : 0.045; // lower gravity when gliding
+                        verticalVelocity -= grav;
+                        playerGroup.position.y += verticalVelocity;
+
+                        if (playerGroup.position.y <= 0.1) {
+                            playerGroup.position.y = 0.1;
+                            verticalVelocity = 0;
+                            isGrounded = true;
+                            isGliding = false;
+                        }
+                    }
+
+                    // Collision bounds checking with obstacles
+                    obstacles.forEach((prop, pIdx) => {
+                        const dist = playerGroup.position.distanceTo(prop.position);
+                        const radius = prop.userData.baseRadius;
+                        if (dist < radius + 1.1) {
+                            // Simple push back
+                            const pushDir = playerGroup.position.clone().sub(prop.position).normalize();
+                            pushDir.y = 0;
+                            playerGroup.position.addScaledVector(pushDir, 0.4);
+                        }
+                    });
+
+                } else if (isDriving) {
+                    // Batmobile Driving Physics
+                    let throttle = 0;
+                    let steering = 0;
+
+                    if (keys['KeyW'] || keys['ArrowUp']) throttle = 1;
+                    if (keys['KeyS'] || keys['ArrowDown']) throttle = -0.5;
+                    if (keys['KeyA'] || keys['ArrowLeft']) steering = 1;
+                    if (keys['KeyD'] || keys['ArrowRight']) steering = -1;
+
+                    // Gamepad driving controls (check all connected gamepads)
+                    const gamepads = navigator.getGamepads();
+                    let gp = null;
+                    if (gamepads) {
+                        for (let i = 0; i < gamepads.length; i++) {
+                            if (gamepads[i]) {
+                                gp = gamepads[i];
+                                break;
+                            }
+                        }
+                    }
+
+                    if (gp) {
+                        // Left Stick steering
+                        if (Math.abs(gp.axes[0]) > 0.15) steering = -gp.axes[0]; // steering direction
+                        
+                        // Right Trigger (Button 7) or X (Button 0) for throttle forward
+                        if ((gp.buttons[7] && gp.buttons[7].pressed) || (gp.buttons[0] && gp.buttons[0].pressed)) {
+                            throttle = 1;
+                        }
+                        // Left Trigger (Button 6) or Square (Button 2) for throttle reverse
+                        else if ((gp.buttons[6] && gp.buttons[6].pressed) || (gp.buttons[2] && gp.buttons[2].pressed)) {
+                            throttle = -0.5;
+                        }
+
+                        // Button 1 (Circle - Exit Batmobile) - Debounced
+                        if (gp.buttons[1] && gp.buttons[1].pressed) {
+                            if (!gpButtonsPressed.b1) {
+                                exitBatmobile();
+                                gpButtonsPressed.b1 = true;
+                            }
+                        } else {
+                            gpButtonsPressed.b1 = false;
+                        }
+                    }
+
+                    // Steering heading angle calculation
+                    batmobileHeading += steering * 0.04 * (batmobileSpeed > 0 ? 1 : (batmobileSpeed < 0 ? -1 : 0));
+                    batmobile.rotation.y = batmobileHeading;
+
+                    // Acceleration
+                    batmobileSpeed += throttle * 0.075;
+                    batmobileSpeed *= 0.965; // drag/friction
+
+                    // Move vehicle
+                    const fwd = new THREE.Vector3(Math.sin(batmobileHeading), 0, Math.cos(batmobileHeading)).normalize();
+                    batmobile.position.addScaledVector(fwd, batmobileSpeed);
+
+                    // Sync player group position with car
+                    playerGroup.position.copy(batmobile.position);
+
+                    // Rotate tires based on speed
+                    batmobile.userData.wheels.forEach(wh => {
+                        wh.rotation.x += batmobileSpeed * 0.55;
+                    });
+
+                    // Audio
+                    audioManager.updateEngine(Math.abs(batmobileSpeed) / 2.5);
+
+                    // Collision with obstacles while driving (Ramming = Smashing!)
+                    for (let i = obstacles.length - 1; i >= 0; i--) {
+                        const prop = obstacles[i];
+                        const d = batmobile.position.distanceTo(prop.position);
+                        if (d < prop.userData.baseRadius + 3.2) {
+                            if (Math.abs(batmobileSpeed) > 0.45) {
+                                // RAM AND SMASH!
+                                smashLegoProp(prop, i);
+                                batmobileSpeed *= 0.7; // slight slow down
+                            } else {
+                                // block vehicle movement
+                                const push = batmobile.position.clone().sub(prop.position).normalize();
+                                push.y = 0;
+                                batmobile.position.addScaledVector(push, 0.5);
+                                batmobileSpeed = 0;
+                            }
+                        }
+                    }
+
+                    // Ramming goons
+                    enemies.forEach((goon, gIdx) => {
+                        const d = batmobile.position.distanceTo(goon.position);
+                        if (d < 4.2) {
+                            if (Math.abs(batmobileSpeed) > 0.3) {
+                                // Goon dies instantly
+                                goon.userData.hp = 0;
+                                spawnSparks(goon.position, 0xef4444);
+                                cameraShake(0.8);
+                            }
+                        }
+                    });
+
+                    // Hit Boss with Batmobile
+                    if (bossActive && batmobile.position.distanceTo(bossMech.position) < 25) {
+                        damageBoss(1.8);
+                        batmobileSpeed = -Math.sign(batmobileSpeed) * 0.8;
+                    }
+                }
+
+                // Camera follow logic
+                let camTarget;
+                if (isDriving) {
+                    camTarget = batmobile.position.clone().add(new THREE.Vector3(-Math.sin(batmobileHeading)*65, 45, -Math.cos(batmobileHeading)*65));
+                } else {
+                    camTarget = playerGroup.position.clone().add(new THREE.Vector3(0, 40, 75));
+                }
+                camera.position.lerp(camTarget, 0.08);
+                camera.lookAt(playerGroup.position.x, playerGroup.position.y + 2.5, playerGroup.position.z - 15);
+
+                renderer.render(scene, camera);
+            }
+
+            function onResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            function spawnBossManually() {
+                spawnBossMech();
+            }
+
+            return {
+                init,
+                handleBatmobileButton,
+                spawnBossManually
+            };
+        })();
+
+        // Start game on load
+        window.addEventListener('load', () => {
+            game.init();
+        });
+    </script>
+</body>
+</html>
