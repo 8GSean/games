@@ -634,6 +634,9 @@
 
         /* Player name labels in 3D */
         .player-label-3d {
+            position: absolute;
+            top: 0; left: 0;
+            will-change: transform, opacity;
             font-size: 12px;
             font-weight: bold;
             color: white;
@@ -767,16 +770,17 @@
                 <!-- Gamepad Column -->
                 <div style="min-width: 210px; border-right: 1px dashed rgba(255,255,255,0.15); padding-right: 20px;">
                     <h4 style="margin: 0 0 8px 0; color: var(--dbz-blue); font-size: 0.85rem; text-align: center; border-bottom: 1px solid rgba(0,136,255,0.3); padding-bottom: 4px; font-weight: 800;">🎮 שלט (Gamepad)</h4>
-                    <div class="help-item"><span class="key-badge">ג'ויסטיק שמאל</span> תנועה אנלוגית</div>
-                    <div class="help-item"><span class="key-badge">L1 / LB</span> הפעלת/ביטול מעוף</div>
-                    <div class="help-item"><span class="key-badge">R2 / RT / Square</span> מעוף למעלה ⬆️</div>
-                    <div class="help-item"><span class="key-badge">L2 / LT / Cross</span> מעוף למטה ⬇️ / קפיצה</div>
-                    <div class="help-item"><span class="key-badge">R1 / RB</span> מכת אגרוף 👊</div>
-                    <div class="help-item"><span class="key-badge">B / Circle</span> יריית קי ☄️</div>
-                    <div class="help-item"><span class="key-badge">L3 (לחיצת ג'ויסטיק שמאל)</span> ריצה מהירה ⚡</div>
-                    <div class="help-item"><span class="key-badge">R3 (לחיצת ג'ויסטיק ימין)</span> השתגרות (Vanish) 💨</div>
-                    <div class="help-item"><span class="key-badge">Y / Triangle</span> קאמהאמהה 🌊</div>
-                    <div class="help-item"><span class="key-badge">D-Pad למעלה</span> פצצת רוח 🔮</div>
+                    <div class="help-item"><span class="key-badge">ג'ויסטיק שמאל</span> תנועה (דחיפה מלאה = ריצה מהירה ⚡)</div>
+                    <div class="help-item"><span class="key-badge">R2 / RT / Triangle</span> מעוף למעלה ⬆️ (המראה אוטומטית)</div>
+                    <div class="help-item"><span class="key-badge">L2 / LT / Cross</span> מעוף למטה ⬇️ / נחיתה אוטומטית</div>
+                    <div class="help-item"><span class="key-badge">Cross / A</span> קפיצה (על הקרקע) 🦘</div>
+                    <div class="help-item"><span class="key-badge">Square</span> אגרוף 👊 (עם רעידת מסך וגל הדף)</div>
+                    <div class="help-item"><span class="key-badge">Circle</span> יריית קי ☄️</div>
+                    <div class="help-item"><span class="key-badge">R1 / RB</span> קאמהאמהה 🌊</div>
+                    <div class="help-item"><span class="key-badge">L1 / LB</span> פצצת רוח 🔮</div>
+                    <div class="help-item"><span class="key-badge">D-pad למעלה</span> סופר סייאן למעלה ⚡ (עד 4)</div>
+                    <div class="help-item"><span class="key-badge">D-pad למטה</span> סופר סייאן למטה ⬇️</div>
+                    <div class="help-item"><span class="key-badge">D-pad ימין / שמאל</span> השתגרות (Vanish) 💨</div>
                 </div>
             </div>
         </div>
@@ -825,12 +829,12 @@
         // Game Settings
         const DB_LOCATIONS = [
             new THREE.Vector3(0, 1.55, 0),        
-            new THREE.Vector3(50, 10.35, 50),       
-            new THREE.Vector3(-60, 12.35, -40),   
-            new THREE.Vector3(50, 1.55, -50),     
-            new THREE.Vector3(-50, 8.35, 60),     
-            new THREE.Vector3(130, 1.55, 0),      
-            new THREE.Vector3(-110, 18.35, -110)       
+            new THREE.Vector3(90, 10.35, 90),       
+            new THREE.Vector3(-110, 12.35, -80),   
+            new THREE.Vector3(70, 1.55, -70),     
+            new THREE.Vector3(-90, 8.35, 110),     
+            new THREE.Vector3(170, 1.55, 0),      
+            new THREE.Vector3(-160, 18.35, -160)       
         ];
 
         const CHAR_CONFIG = {
@@ -842,11 +846,11 @@
                 beltColor: 0x0000ff,
                 maxSSJ: 4,
                 forms: [
-                    { name: "בסיס (Base)", hairColor: 0x111111, auraColor: 0x00ffff, speed: 0.25, jump: 0.31, fly: false, scale: 1.0 },
-                    { name: "סופר סייאן 1", hairColor: 0xffe200, auraColor: 0xffdd00, speed: 0.35, jump: 0.35, fly: true, scale: 1.0 },
-                    { name: "סופר סייאן 2", hairColor: 0xffea00, auraColor: 0xffea00, speed: 0.45, jump: 0.40, fly: true, electric: true, scale: 1.0 },
-                    { name: "סופר סייאן 3", hairColor: 0xfff000, auraColor: 0xfff300, speed: 0.58, jump: 0.46, fly: true, electric: true, longHair: true, scale: 1.0 },
-                    { name: "סופר סייאן 4", hairColor: 0x221111, auraColor: 0xff2200, speed: 0.75, jump: 0.52, fly: true, redFur: true, scale: 1.0 }
+                    { name: "בסיס (Base)", hairColor: 0x111111, auraColor: 0x00ffff, speed: 0.17, jump: 0.31, fly: false, scale: 1.0 },
+                    { name: "סופר סייאן 1", hairColor: 0xffe200, auraColor: 0xffdd00, speed: 0.24, jump: 0.35, fly: true, scale: 1.0 },
+                    { name: "סופר סייאן 2", hairColor: 0xffea00, auraColor: 0xffea00, speed: 0.30, jump: 0.40, fly: true, electric: true, scale: 1.0 },
+                    { name: "סופר סייאן 3", hairColor: 0xfff000, auraColor: 0xfff300, speed: 0.38, jump: 0.46, fly: true, electric: true, longHair: true, scale: 1.0 },
+                    { name: "סופר סייאן 4", hairColor: 0x221111, auraColor: 0xff2200, speed: 0.48, jump: 0.52, fly: true, redFur: true, scale: 1.0 }
                 ]
             },
             vegeta: {
@@ -857,9 +861,9 @@
                 beltColor: 0xdddddd,
                 maxSSJ: 2,
                 forms: [
-                    { name: "בסיס (Base)", hairColor: 0x111111, auraColor: 0x00ffff, speed: 0.24, jump: 0.30, fly: false, scale: 0.95 },
-                    { name: "סופר סייאן 1", hairColor: 0xffe200, auraColor: 0xffdd00, speed: 0.34, jump: 0.34, fly: true, scale: 0.95 },
-                    { name: "סופר סייאן 2", hairColor: 0xffea00, auraColor: 0xffea00, speed: 0.44, jump: 0.39, fly: true, electric: true, scale: 0.95 }
+                    { name: "בסיס (Base)", hairColor: 0x111111, auraColor: 0x00ffff, speed: 0.16, jump: 0.30, fly: false, scale: 0.95 },
+                    { name: "סופר סייאן 1", hairColor: 0xffe200, auraColor: 0xffdd00, speed: 0.23, jump: 0.34, fly: true, scale: 0.95 },
+                    { name: "סופר סייאן 2", hairColor: 0xffea00, auraColor: 0xffea00, speed: 0.29, jump: 0.39, fly: true, electric: true, scale: 0.95 }
                 ]
             },
             gohan: {
@@ -870,8 +874,8 @@
                 beltColor: 0x00a8ff,
                 maxSSJ: 1,
                 forms: [
-                    { name: "בסיס (Base)", hairColor: 0x111111, auraColor: 0x00ffff, speed: 0.26, jump: 0.32, fly: false, scale: 0.92 },
-                    { name: "סופר סייאן 1", hairColor: 0xffe200, auraColor: 0xffdd00, speed: 0.38, jump: 0.37, fly: true, scale: 0.92 }
+                    { name: "בסיס (Base)", hairColor: 0x111111, auraColor: 0x00ffff, speed: 0.18, jump: 0.32, fly: false, scale: 0.92 },
+                    { name: "סופר סייאן 1", hairColor: 0xffe200, auraColor: 0xffdd00, speed: 0.25, jump: 0.37, fly: true, scale: 0.92 }
                 ]
             },
             piccolo: {
@@ -882,11 +886,11 @@
                 beltColor: 0x00a8ff,
                 maxSSJ: 0,
                 forms: [
-                    { name: "נאמקי", hairColor: 0x000000, auraColor: 0x39ff14, speed: 0.25, jump: 0.32, fly: true, turban: true, scale: 1.0 },
-                    { name: "נאמקי ענק 2", hairColor: 0x000000, auraColor: 0x39ff14, speed: 0.33, jump: 0.36, fly: true, turban: true, scale: 1.3 },
-                    { name: "נאמקי ענק 3", hairColor: 0x000000, auraColor: 0x39ff14, speed: 0.42, jump: 0.40, fly: true, turban: true, scale: 1.6 },
-                    { name: "נאמקי ענק 4", hairColor: 0x000000, auraColor: 0x39ff14, speed: 0.52, jump: 0.45, fly: true, turban: true, scale: 1.9 },
-                    { name: "נאמקי ענק אולטימטיבי", hairColor: 0x000000, auraColor: 0x39ff14, speed: 0.65, jump: 0.50, fly: true, turban: true, scale: 2.2 }
+                    { name: "נאמקי", hairColor: 0x000000, auraColor: 0x39ff14, speed: 0.17, jump: 0.32, fly: true, turban: true, scale: 1.0 },
+                    { name: "נאמקי ענק 2", hairColor: 0x000000, auraColor: 0x39ff14, speed: 0.22, jump: 0.36, fly: true, turban: true, scale: 1.3 },
+                    { name: "נאמקי ענק 3", hairColor: 0x000000, auraColor: 0x39ff14, speed: 0.28, jump: 0.40, fly: true, turban: true, scale: 1.6 },
+                    { name: "נאמקי ענק 4", hairColor: 0x000000, auraColor: 0x39ff14, speed: 0.35, jump: 0.45, fly: true, turban: true, scale: 1.9 },
+                    { name: "נאמקי ענק אולטימטיבי", hairColor: 0x000000, auraColor: 0x39ff14, speed: 0.44, jump: 0.50, fly: true, turban: true, scale: 2.2 }
                 ]
             }
         };
@@ -1170,9 +1174,10 @@
                 this.gpBlastPrev = false;
                 this.gpKamPrev = false;
                 this.gpBombPrev = false;
+                this.gpDpadUpPrev = false;
+                this.gpDpadDownPrev = false;
                 this.gpDpadLeftPrev = false;
                 this.gpDpadRightPrev = false;
-                this.gpR3Prev = false;
 
                 // Player physics
                 this.playerGroup = null;
@@ -1190,7 +1195,8 @@
                     width: 1.2,
                     isCharging: false,
                     isStriking: 0, 
-                    lastSpecialTime: 0
+                    lastSpecialTime: 0,
+                    sprintTimer: 0
                 };
 
                 // Network
@@ -1309,7 +1315,7 @@
                 this.scene.add(grid);
 
                 // Helper to create grass-topped tropical islands
-                const createGrassIsland = (x, y, z, w, h, d) => {
+                const createGrassIsland = (x, y, z, w, h, d, isFloating = false) => {
                     const islandGroup = new THREE.Group();
                     islandGroup.position.set(x, y - h/2, z);
 
@@ -1328,7 +1334,8 @@
 
                     // Spawn Lego Trees
                     if (w >= 10) {
-                        const treesCount = Math.floor(w / 6);
+                        const divisor = isFloating ? 3.2 : 5.5; // denser trees on floating rocks!
+                        const treesCount = Math.floor(w / divisor);
                         for(let i=0; i<treesCount; i++) {
                             this.spawnLegoTree(
                                 x + (Math.random()-0.5)*(w-3), 
@@ -1339,16 +1346,16 @@
                     }
                 };
 
-                // MAIN ISLAND - MASSIVE starting ground Y=1.2 (160x160)
-                createGrassIsland(0, 1.2, 0, 160, 1.2, 160);
+                // MAIN ISLAND - MASSIVE starting ground Y=1.2 (220x220)
+                createGrassIsland(0, 1.2, 0, 220, 1.2, 220);
 
-                // FOUR CONNECTED LARGE ISLANDS - 70x70 each, placed further at offset 130
-                createGrassIsland(130, 1.2, 0, 70, 1.2, 70);   // East
-                createGrassIsland(-130, 1.2, 0, 70, 1.2, 70);  // West
-                createGrassIsland(0, 1.2, 130, 70, 1.2, 70);   // South
-                createGrassIsland(0, 1.2, -130, 70, 1.2, 70);  // North
+                // FOUR CONNECTED LARGE ISLANDS - 90x90 each, placed further at offset 170
+                createGrassIsland(170, 1.2, 0, 90, 1.2, 90);   // East
+                createGrassIsland(-170, 1.2, 0, 90, 1.2, 90);  // West
+                createGrassIsland(0, 1.2, 170, 90, 1.2, 90);   // South
+                createGrassIsland(0, 1.2, -170, 90, 1.2, 90);  // North
 
-                // BRIDGES (arches) connecting center to large islands - width 12, length 20
+                // BRIDGES (arches) connecting center to large islands - width 12, length 30 at 122.5
                 const createBridge = (x, y, z, w, h, d, rotY = 0) => {
                     const bBody = this.createLegoBox(w, h, d, 0x8b5a2b);
                     bBody.position.set(x, y, z);
@@ -1359,22 +1366,22 @@
                     this.scene.add(bBody, bGrass);
                 };
 
-                createBridge(87.5, 1.2, 0, 20, 0.8, 12);      // East bridge
-                createBridge(-87.5, 1.2, 0, 20, 0.8, 12);     // West bridge
-                createBridge(0, 1.2, 87.5, 12, 0.8, 20);      // South bridge
-                createBridge(0, 1.2, -87.5, 12, 0.8, 20);     // North bridge
+                createBridge(122.5, 1.2, 0, 30, 0.8, 12);      // East bridge
+                createBridge(-122.5, 1.2, 0, 30, 0.8, 12);     // West bridge
+                createBridge(0, 1.2, 122.5, 12, 0.8, 30);      // South bridge
+                createBridge(0, 1.2, -122.5, 12, 0.8, 30);     // North bridge
 
-                // 7 High Floating Islands (above the archipelago) - lowered and spaced out
-                createGrassIsland(50, 10.0, 50, 9, 2.0, 9);      // Platform 1 (floor ~10.35)
-                createGrassIsland(-60, 12.0, -40, 11, 2.5, 7);  // Platform 2 (floor ~12.35)
-                createGrassIsland(-50, 8.0, 60, 8, 1.8, 8);     // Platform 3 (floor ~8.35)
-                createGrassIsland(80, 16.0, -40, 14, 3.2, 14);  // Platform 4 (floor ~16.35)
-                createGrassIsland(-90, 15.0, 90, 10, 2.6, 10);  // Platform 5 (floor ~15.35)
-                createGrassIsland(100, 14.0, 100, 9, 2.0, 9);   // Platform 6 (floor ~14.35)
-                createGrassIsland(-110, 18.0, -110, 10, 2.6, 10); // Platform 7 (floor ~18.35)
+                // 7 High Floating Islands (above the archipelago) - enlarged and moved to the side
+                createGrassIsland(90, 10.0, 90, 18, 3.0, 18, true);      // Platform 1 (floor ~10.35)
+                createGrassIsland(-110, 12.0, -80, 22, 3.5, 18, true);  // Platform 2 (floor ~12.35)
+                createGrassIsland(-90, 8.0, 110, 16, 2.5, 16, true);     // Platform 3 (floor ~8.35)
+                createGrassIsland(130, 16.0, -90, 24, 4.0, 24, true);  // Platform 4 (floor ~16.35)
+                createGrassIsland(-140, 15.0, 140, 20, 3.5, 20, true);  // Platform 5 (floor ~15.35)
+                createGrassIsland(150, 14.0, 150, 18, 3.0, 18, true);   // Platform 6 (floor ~14.35)
+                createGrassIsland(-160, 18.0, -160, 20, 3.5, 20, true); // Platform 7 (floor ~18.35)
 
-                // High stone arch spanning in the sky - lowered
-                createBridge(-45, 10.0, -32.5, 35, 2.5, 4.5, Math.PI / 4);
+                // High stone arch spanning in the sky - shifted and enlarged
+                createBridge(-75, 10.0, -52.5, 45, 2.5, 6.5, Math.PI / 4);
             }
 
             spawnLegoTree(x, y, z) {
@@ -1399,42 +1406,42 @@
 
             getGamePlatforms() {
                 return [
-                    // 7 High Floating Islands - updated heights
-                    { x: 50, y: 10.35, z: 50 },
-                    { x: -60, y: 12.35, z: -40 },
-                    { x: -50, y: 8.35, z: 60 },
-                    { x: 80, y: 16.35, z: -40 },
-                    { x: -90, y: 15.35, z: 90 },
-                    { x: 100, y: 14.35, z: 100 },
-                    { x: -110, y: 18.35, z: -110 },
-                    // Main Center Island (dispersed points on 160x160)
+                    // 7 High Floating Islands - updated heights & coords
+                    { x: 90, y: 10.35, z: 90 },
+                    { x: -110, y: 12.35, z: -80 },
+                    { x: -90, y: 8.35, z: 110 },
+                    { x: 130, y: 16.35, z: -90 },
+                    { x: -140, y: 15.35, z: 140 },
+                    { x: 150, y: 14.35, z: 150 },
+                    { x: -160, y: 18.35, z: -160 },
+                    // Main Center Island (dispersed points on 220x220)
                     { x: 0, y: 1.55, z: 0 },
-                    { x: 35, y: 1.55, z: 35 },
-                    { x: -35, y: 1.55, z: -35 },
-                    { x: 35, y: 1.55, z: -35 },
-                    { x: -35, y: 1.55, z: 35 },
-                    { x: 60, y: 1.55, z: 0 },
-                    { x: -60, y: 1.55, z: 0 },
-                    { x: 0, y: 1.55, z: 60 },
-                    { x: 0, y: 1.55, z: -60 },
-                    // Outer Islands (70x70 at offset 130)
-                    { x: 130, y: 1.55, z: 0 },
-                    { x: 130, y: 1.55, z: 20 },
-                    { x: 130, y: 1.55, z: -20 },
-                    { x: -130, y: 1.55, z: 0 },
-                    { x: -130, y: 1.55, z: 20 },
-                    { x: -130, y: 1.55, z: -20 },
-                    { x: 0, y: 1.55, z: 130 },
-                    { x: 20, y: 1.55, z: 130 },
-                    { x: -20, y: 1.55, z: 130 },
-                    { x: 0, y: 1.55, z: -130 },
-                    { x: 20, y: 1.55, z: -130 },
-                    { x: -20, y: 1.55, z: -130 },
-                    // Bridges
-                    { x: 87.5, y: 1.85, z: 0 },
-                    { x: -87.5, y: 1.85, z: 0 },
-                    { x: 0, y: 1.85, z: 87.5 },
-                    { x: 0, y: 1.85, z: -87.5 }
+                    { x: 50, y: 1.55, z: 50 },
+                    { x: -50, y: 1.55, z: -50 },
+                    { x: 50, y: 1.55, z: -50 },
+                    { x: -50, y: 1.55, z: 50 },
+                    { x: 90, y: 1.55, z: 0 },
+                    { x: -90, y: 1.55, z: 0 },
+                    { x: 0, y: 1.55, z: 90 },
+                    { x: 0, y: 1.55, z: -90 },
+                    // Outer Islands (90x90 at offset 170)
+                    { x: 170, y: 1.55, z: 0 },
+                    { x: 170, y: 1.55, z: 30 },
+                    { x: 170, y: 1.55, z: -30 },
+                    { x: -170, y: 1.55, z: 0 },
+                    { x: -170, y: 1.55, z: 30 },
+                    { x: -170, y: 1.55, z: -30 },
+                    { x: 0, y: 1.55, z: 170 },
+                    { x: 30, y: 1.55, z: 170 },
+                    { x: -30, y: 1.55, z: 170 },
+                    { x: 0, y: 1.55, z: -170 },
+                    { x: 30, y: 1.55, z: -170 },
+                    { x: -30, y: 1.55, z: -170 },
+                    // Bridges at 122.5
+                    { x: 122.5, y: 1.85, z: 0 },
+                    { x: -122.5, y: 1.85, z: 0 },
+                    { x: 0, y: 1.85, z: 122.5 },
+                    { x: 0, y: 1.85, z: -122.5 }
                 ];
             }
 
@@ -1772,12 +1779,44 @@
                 aura.position.y = 1.0;
                 aura.visible = (ssj > 0);
                 group.add(aura);
+                // Super Saiyan physical light glow
+                if (ssj > 0) {
+                    const ssjLight = new THREE.PointLight(form.auraColor, 1.5, 12);
+                    ssjLight.position.set(0, 1.0, 0);
+                    group.add(ssjLight);
+                }
+
+                // Nimbus Cloud for Goku and Gohan in Base form
+                let nimbus = null;
+                if (ssj === 0 && (charId === "goku" || charId === "gohan")) {
+                    nimbus = new THREE.Group();
+                    
+                    const mainCloud = this.createLegoBox(1.6, 0.4, 2.2, 0xffdd33);
+                    nimbus.add(mainCloud);
+                    
+                    const puff1 = this.createLegoBox(0.7, 0.35, 1.4, 0xffe544);
+                    puff1.position.set(0.7, -0.05, 0.2);
+                    const puff2 = this.createLegoBox(0.7, 0.35, 1.4, 0xffe544);
+                    puff2.position.set(-0.7, -0.05, -0.2);
+                    
+                    const puff3 = this.createLegoBox(1.0, 0.35, 0.7, 0xffd222);
+                    puff3.position.set(-0.2, 0.05, 1.05);
+                    const puff4 = this.createLegoBox(1.0, 0.35, 0.7, 0xffd222);
+                    puff4.position.set(0.2, 0.05, -1.05);
+                    
+                    nimbus.add(puff1, puff2, puff3, puff4);
+                    
+                    nimbus.position.set(0, -0.2, 0);
+                    nimbus.visible = false;
+                    group.add(nimbus);
+                }
 
                 group.userData = {
                     lLeg: legL, rLeg: legR,
                     lArm: lArm, rArm: rArm,
                     aura: aura,
-                    form: form
+                    form: form,
+                    nimbus: nimbus
                 };
 
                 return group;
@@ -1924,10 +1963,18 @@
                 const config = CHAR_CONFIG[this.myCharId];
                 const form = config.forms[Math.min(this.ssjLevel, config.forms.length - 1)];
                 
-                if (form.fly || this.myCharId === "piccolo") {
+                if (form.fly || this.myCharId === "piccolo" || this.myCharId === "goku" || this.myCharId === "gohan") {
                     this.physics.flying = !this.physics.flying;
                     this.physics.vel.set(0,0,0);
-                    this.announce(this.physics.flying ? "מעוף פעיל! 💨" : "נחיתה");
+                    if (this.physics.flying) {
+                        if (this.ssjLevel === 0 && (this.myCharId === "goku" || this.myCharId === "gohan")) {
+                            this.announce("ענן הנימבוס זומן! ☁️");
+                        } else {
+                            this.announce("מעוף פעיל! 💨");
+                        }
+                    } else {
+                        this.announce("נחיתה");
+                    }
                     sound.playWhoosh();
                 } else {
                     this.announce("צריך רמת סייאן למעוף! ⚡");
@@ -2187,6 +2234,8 @@
                         player.targetPos.set(msg.pos.x, msg.pos.y, msg.pos.z);
                         player.targetRotY = msg.rotY;
                         player.lastUpdateTime = performance.now();
+                        player.flying = msg.flying || false;
+                        player.isMoving = msg.isMoving || false;
                         
                         if (player.mesh.userData && player.mesh.userData.aura) {
                             player.mesh.userData.aura.visible = (msg.ssj > 0);
@@ -2244,6 +2293,34 @@
                 if (this.physics.isCharging) return;
                 this.physics.isStriking = 10; 
                 sound.playWhoosh();
+                this.cameraShake(2.5); // subtle shake on punch!
+
+                // Create Lego Marvel style shockwave ring in front of fist
+                const dir = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.physics.rotY).normalize();
+                const punchPos = this.physics.pos.clone().addScaledVector(dir, 1.2);
+                punchPos.y += 1.2;
+
+                const punchGeom = new THREE.RingGeometry(0.1, 1.0, 16);
+                const punchMat = new THREE.MeshBasicMaterial({ 
+                    color: 0xffcc00, 
+                    transparent: true, 
+                    opacity: 0.85,
+                    side: THREE.DoubleSide,
+                    blending: THREE.AdditiveBlending
+                });
+                const punchMesh = new THREE.Mesh(punchGeom, punchMat);
+                punchMesh.position.copy(punchPos);
+                punchMesh.lookAt(punchPos.clone().add(dir));
+                this.scene.add(punchMesh);
+
+                this.particles.push({
+                    type: 'mesh',
+                    mesh: punchMesh,
+                    vel: new THREE.Vector3(0,0,0),
+                    scaleSpeed: 0.22,
+                    life: 1.0,
+                    decay: 0.15
+                });
 
                 if (this.playerGroup && this.playerGroup.userData.rArm) {
                     this.playerGroup.userData.rArm.rotation.x = -Math.PI / 2;
@@ -2254,6 +2331,7 @@
                         const dist = this.physics.pos.distanceTo(saiba.position);
                         if (dist < 2.5) {
                             this.damageTarget(saiba, 20 + this.ssjLevel * 10);
+                            this.cameraShake(4.5); // extra screen shake on hit!
                         }
                     });
                 }
@@ -2611,7 +2689,7 @@
                 const delta = this.clock.getDelta();
                 
                 if (this.gameStarted) {
-                    this.updatePhysics();
+                    this.updatePhysics(delta);
                     this.updateRemotePlayers(delta);
                     this.updateProjectiles();
                     this.updateCollectibles();
@@ -2625,7 +2703,7 @@
                 }
             }
 
-            updatePhysics() {
+            updatePhysics(delta) {
                 // Infinite Ki: always keep Ki at max!
                 this.ki = this.maxKi;
 
@@ -2673,6 +2751,17 @@
 
                 const isMoving = (mx !== 0 || mz !== 0 || Math.abs(mx) > 0.01 || Math.abs(mz) > 0.01);
 
+                // Auto-sprint after walking continuously for 1.0 second
+                if (isMoving && !this.physics.isCharging) {
+                    this.physics.sprintTimer += delta;
+                    if (this.physics.sprintTimer > 1.0) {
+                        this.keys['shift'] = true;
+                    }
+                } else {
+                    this.physics.sprintTimer = 0;
+                    this.keys['shift'] = false;
+                }
+
                 // Auto-fade controls overlay when moving to keep screen clean!
                 if (this.showHelp) {
                     const helpOverlay = document.getElementById('help-overlay');
@@ -2686,7 +2775,7 @@
                 let currentMoveSpeed = moveSpeed;
                 const isBoosting = this.keys['shift'];
                 if (isBoosting && isMoving && !this.physics.isCharging) {
-                    currentMoveSpeed *= 2.0;
+                    currentMoveSpeed *= 1.4; // reduced from 2.0 to 1.4 for precise control!
                     
                     // Spawn aura trailing particles behind the player
                     if (Math.random() < 0.4) {
@@ -2712,13 +2801,70 @@
                     }
                 }
 
+                // Store candidate positions before horizontal movement to resolve collisions
+                const prevX = this.physics.pos.x;
+                const prevZ = this.physics.pos.z;
+
+                // Animate local Saiyan aura pulse
+                if (this.playerGroup && this.playerGroup.userData.aura) {
+                    const aura = this.playerGroup.userData.aura;
+                    if (aura.visible) {
+                        const time = performance.now() * 0.005;
+                        aura.rotation.y += 0.02;
+                        aura.scale.set(1.0 + Math.sin(time) * 0.1, 1.0 + Math.cos(time) * 0.05, 1.0 + Math.sin(time) * 0.1);
+                    }
+                }
+
                 if (isMoving && !this.physics.isCharging) {
                     let moveVec = new THREE.Vector3(mx, 0, mz);
                     const length = moveVec.length();
                     if (length > 1.0) {
                         moveVec.normalize();
                     }
-                    this.physics.pos.addScaledVector(moveVec, currentMoveSpeed);
+                    
+                    let nextX = this.physics.pos.x + moveVec.x * currentMoveSpeed;
+                    let nextZ = this.physics.pos.z + moveVec.z * currentMoveSpeed;
+
+                    // Enforce AABB boundaries for the 7 High Floating Platforms
+                    const checkPlatforms = [
+                        { x: 90, y: 10.35, z: 90, w: 18, d: 18, h: 3.0 },
+                        { x: -110, y: 12.35, z: -80, w: 22, d: 18, h: 3.5 },
+                        { x: -90, y: 8.35, z: 110, w: 16, d: 16, h: 2.5 },
+                        { x: 130, y: 16.35, z: -90, w: 24, d: 24, h: 4.0 },
+                        { x: -140, y: 15.35, z: 140, w: 20, d: 20, h: 3.5 },
+                        { x: 150, y: 14.35, z: 150, w: 18, d: 18, h: 3.0 },
+                        { x: -160, y: 18.35, z: -160, w: 20, d: 20, h: 3.5 }
+                    ];
+
+                    const playerMinY = this.physics.pos.y;
+                    const playerMaxY = this.physics.pos.y + this.physics.height;
+
+                    checkPlatforms.forEach(plat => {
+                        const platMinY = plat.y - plat.h;
+                        const platMaxY = plat.y;
+
+                        // If player is vertically inside the platform's bounding box height
+                        if (playerMinY < platMaxY - 0.1 && playerMaxY > platMinY + 0.1) {
+                            const border = 0.55; 
+                            const minX = plat.x - plat.w/2 - border;
+                            const maxX = plat.x + plat.w/2 + border;
+                            const minZ = plat.z - plat.d/2 - border;
+                            const maxZ = plat.z + plat.d/2 + border;
+
+                            if (nextX > minX && nextX < maxX && nextZ > minZ && nextZ < maxZ) {
+                                // Revert X and Z separately to enable sliding along rock walls!
+                                if (prevX <= minX || prevX >= maxX) {
+                                    nextX = prevX;
+                                }
+                                if (prevZ <= minZ || prevZ >= maxZ) {
+                                    nextZ = prevZ;
+                                }
+                            }
+                        }
+                    });
+
+                    this.physics.pos.x = nextX;
+                    this.physics.pos.z = nextZ;
 
                     const targetRot = Math.atan2(moveVec.x, moveVec.z);
                     this.physics.rotY = targetRot;
@@ -2735,17 +2881,123 @@
                     }
                 }
 
+                // Apply flight posture
+                if (this.physics.flying) {
+                    if (this.playerGroup) {
+                        const isOnNimbus = (this.ssjLevel === 0 && (this.myCharId === "goku" || this.myCharId === "gohan"));
+                        
+                        if (isOnNimbus) {
+                            // Standing posture on Nimbus
+                            this.playerGroup.rotation.x = THREE.MathUtils.lerp(this.playerGroup.rotation.x, isMoving ? 0.25 : 0.0, 0.1);
+                            if (this.playerGroup.userData.lLeg) this.playerGroup.userData.lLeg.rotation.x = THREE.MathUtils.lerp(this.playerGroup.userData.lLeg.rotation.x, 0, 0.1);
+                            if (this.playerGroup.userData.rLeg) this.playerGroup.userData.rLeg.rotation.x = THREE.MathUtils.lerp(this.playerGroup.userData.rLeg.rotation.x, 0, 0.1);
+                            if (this.playerGroup.userData.lArm) this.playerGroup.userData.lArm.rotation.x = THREE.MathUtils.lerp(this.playerGroup.userData.lArm.rotation.x, 0, 0.1);
+                            if (this.playerGroup.userData.rArm && this.physics.isStriking === 0) {
+                                this.playerGroup.userData.rArm.rotation.x = THREE.MathUtils.lerp(this.playerGroup.userData.rArm.rotation.x, 0, 0.1);
+                            }
+                        } else {
+                            // Standard flight posture (superman style)
+                            const targetTilt = isMoving ? 0.45 : 0.15;
+                            this.playerGroup.rotation.x = THREE.MathUtils.lerp(this.playerGroup.rotation.x, targetTilt, 0.1);
+                            if (this.playerGroup.userData.lLeg) this.playerGroup.userData.lLeg.rotation.x = THREE.MathUtils.lerp(this.playerGroup.userData.lLeg.rotation.x, 0.3, 0.1);
+                            if (this.playerGroup.userData.rLeg) this.playerGroup.userData.rLeg.rotation.x = THREE.MathUtils.lerp(this.playerGroup.userData.rLeg.rotation.x, 0.3, 0.1);
+                            if (this.playerGroup.userData.lArm) this.playerGroup.userData.lArm.rotation.x = THREE.MathUtils.lerp(this.playerGroup.userData.lArm.rotation.x, 0.4, 0.1);
+                            if (this.playerGroup.userData.rArm && this.physics.isStriking === 0) {
+                                this.playerGroup.userData.rArm.rotation.x = THREE.MathUtils.lerp(this.playerGroup.userData.rArm.rotation.x, 0.4, 0.1);
+                            }
+                        }
+                    }
+                } else {
+                    if (this.playerGroup) {
+                        this.playerGroup.rotation.x = THREE.MathUtils.lerp(this.playerGroup.rotation.x, 0, 0.1);
+                        if (!isMoving) {
+                            if (this.playerGroup.userData.lLeg) this.playerGroup.userData.lLeg.rotation.x = THREE.MathUtils.lerp(this.playerGroup.userData.lLeg.rotation.x, 0, 0.1);
+                            if (this.playerGroup.userData.rLeg) this.playerGroup.userData.rLeg.rotation.x = THREE.MathUtils.lerp(this.playerGroup.userData.rLeg.rotation.x, 0, 0.1);
+                            if (this.playerGroup.userData.lArm) this.playerGroup.userData.lArm.rotation.x = THREE.MathUtils.lerp(this.playerGroup.userData.lArm.rotation.x, 0, 0.1);
+                            if (this.playerGroup.userData.rArm && this.physics.isStriking === 0) {
+                                this.playerGroup.userData.rArm.rotation.x = THREE.MathUtils.lerp(this.playerGroup.userData.rArm.rotation.x, 0, 0.1);
+                            }
+                        }
+                    }
+                }
+
                 if (this.physics.flying && !this.physics.isCharging) {
                     if (this.keys[' '] || this.keys['e']) {
-                        this.physics.pos.y += moveSpeed * 0.85; 
+                        const nextY = this.physics.pos.y + moveSpeed * 0.85;
+                        let blocked = false;
+                        
+                        const checkPlatforms = [
+                            { x: 90, y: 10.35, z: 90, w: 18, d: 18, h: 3.0 },
+                            { x: -110, y: 12.35, z: -80, w: 22, d: 18, h: 3.5 },
+                            { x: -90, y: 8.35, z: 110, w: 16, d: 16, h: 2.5 },
+                            { x: 130, y: 16.35, z: -90, w: 24, d: 24, h: 4.0 },
+                            { x: -140, y: 15.35, z: 140, w: 20, d: 20, h: 3.5 },
+                            { x: 150, y: 14.35, z: 150, w: 18, d: 18, h: 3.0 },
+                            { x: -160, y: 18.35, z: -160, w: 20, d: 20, h: 3.5 }
+                        ];
+
+                        checkPlatforms.forEach(plat => {
+                            if (this.physics.pos.x > plat.x - plat.w/2 - 0.4 && this.physics.pos.x < plat.x + plat.w/2 + 0.4 &&
+                                this.physics.pos.z > plat.z - plat.d/2 - 0.4 && this.physics.pos.z < plat.z + plat.d/2 + 0.4) {
+                                const platBottom = plat.y - plat.h;
+                                if (this.physics.pos.y <= platBottom && nextY > platBottom - 0.1) {
+                                    blocked = true;
+                                }
+                            }
+                        });
+
+                        if (!blocked) {
+                            this.physics.pos.y = nextY;
+                        }
                     }
                     if (this.keys['f']) {
-                        this.physics.pos.y -= moveSpeed * 0.85; 
+                        const nextY = this.physics.pos.y - moveSpeed * 0.85;
+                        
+                        // Check if they land on any platform below them
+                        let landedPlatY = null;
+                        const checkPlatforms = [
+                            { x: 90, y: 10.35, z: 90, w: 18, d: 18, h: 3.0 },
+                            { x: -110, y: 12.35, z: -80, w: 22, d: 18, h: 3.5 },
+                            { x: -90, y: 8.35, z: 110, w: 16, d: 16, h: 2.5 },
+                            { x: 130, y: 16.35, z: -90, w: 24, d: 24, h: 4.0 },
+                            { x: -140, y: 15.35, z: 140, w: 20, d: 20, h: 3.5 },
+                            { x: 150, y: 14.35, z: 150, w: 18, d: 18, h: 3.0 },
+                            { x: -160, y: 18.35, z: -160, w: 20, d: 20, h: 3.5 },
+                            { x: 0, y: 1.55, z: 0, w: 220, d: 220 },
+                            { x: 170, y: 1.55, z: 0, w: 90, d: 90 },
+                            { x: -170, y: 1.55, z: 0, w: 90, d: 90 },
+                            { x: 0, y: 1.55, z: 170, w: 90, d: 90 },
+                            { x: 0, y: 1.55, z: -170, w: 90, d: 90 },
+                            { x: 122.5, y: 1.85, z: 0, w: 30, d: 12 },
+                            { x: -122.5, y: 1.85, z: 0, w: 30, d: 12 },
+                            { x: 0, y: 1.85, z: 122.5, w: 12, d: 30 },
+                            { x: 0, y: 1.85, z: -122.5, w: 12, d: 30 }
+                        ];
+
+                        checkPlatforms.forEach(plat => {
+                            if (this.physics.pos.x > plat.x - plat.w/2 - 0.4 && this.physics.pos.x < plat.x + plat.w/2 + 0.4 &&
+                                this.physics.pos.z > plat.z - plat.d/2 - 0.4 && this.physics.pos.z < plat.z + plat.d/2 + 0.4) {
+                                if (this.physics.pos.y >= plat.y && nextY <= plat.y + 0.1) {
+                                    landedPlatY = plat.y;
+                                }
+                            }
+                        });
+
+                        if (landedPlatY !== null) {
+                            this.physics.pos.y = landedPlatY;
+                            this.physics.flying = false; // Land!
+                            this.physics.vel.set(0, 0, 0);
+                            this.announce("נחיתה");
+                            sound.playWhoosh();
+                        } else {
+                            this.physics.pos.y = nextY;
+                        }
                     }
                     this.physics.pos.y = Math.max(1.2, Math.min(50, this.physics.pos.y));
                 }
 
                 if (!this.physics.flying) {
+                    const prevY = this.physics.pos.y;
                     this.physics.vel.y -= this.physics.gravity;
                     this.physics.pos.y += this.physics.vel.y;
 
@@ -2753,30 +3005,30 @@
 
                     const checkPlatforms = [
                         // 7 High Floating Islands
-                        { x: 50, y: 10.35, z: 50, w: 9, d: 9 },
-                        { x: -60, y: 12.35, z: -40, w: 11, d: 7 },
-                        { x: -50, y: 8.35, z: 60, w: 8, d: 8 },
-                        { x: 80, y: 16.35, z: -40, w: 14, d: 14 },
-                        { x: -90, y: 15.35, z: 90, w: 10, d: 10 },
-                        { x: 100, y: 14.35, z: 100, w: 9, d: 9 },
-                        { x: -110, y: 18.35, z: -110, w: 10, d: 10 },
+                        { x: 90, y: 10.35, z: 90, w: 18, d: 18, h: 3.0 },
+                        { x: -110, y: 12.35, z: -80, w: 22, d: 18, h: 3.5 },
+                        { x: -90, y: 8.35, z: 110, w: 16, d: 16, h: 2.5 },
+                        { x: 130, y: 16.35, z: -90, w: 24, d: 24, h: 4.0 },
+                        { x: -140, y: 15.35, z: 140, w: 20, d: 20, h: 3.5 },
+                        { x: 150, y: 14.35, z: 150, w: 18, d: 18, h: 3.0 },
+                        { x: -160, y: 18.35, z: -160, w: 20, d: 20, h: 3.5 },
                         // Main archipelago points
-                        { x: 0, y: 1.55, z: 0, w: 160, d: 160 },
-                        { x: 130, y: 1.55, z: 0, w: 70, d: 70 },
-                        { x: -130, y: 1.55, z: 0, w: 70, d: 70 },
-                        { x: 0, y: 1.55, z: 130, w: 70, d: 70 },
-                        { x: 0, y: 1.55, z: -130, w: 70, d: 70 },
+                        { x: 0, y: 1.55, z: 0, w: 220, d: 220 },
+                        { x: 170, y: 1.55, z: 0, w: 90, d: 90 },
+                        { x: -170, y: 1.55, z: 0, w: 90, d: 90 },
+                        { x: 0, y: 1.55, z: 170, w: 90, d: 90 },
+                        { x: 0, y: 1.55, z: -170, w: 90, d: 90 },
                         // Bridges
-                        { x: 87.5, y: 1.85, z: 0, w: 20, d: 12 },
-                        { x: -87.5, y: 1.85, z: 0, w: 20, d: 12 },
-                        { x: 0, y: 1.85, z: 87.5, w: 12, d: 20 },
-                        { x: 0, y: 1.85, z: -87.5, w: 12, d: 20 }
+                        { x: 122.5, y: 1.85, z: 0, w: 30, d: 12 },
+                        { x: -122.5, y: 1.85, z: 0, w: 30, d: 12 },
+                        { x: 0, y: 1.85, z: 122.5, w: 12, d: 30 },
+                        { x: 0, y: 1.85, z: -122.5, w: 12, d: 30 }
                     ];
 
                     checkPlatforms.forEach(plat => {
                         if (this.physics.pos.x > plat.x - plat.w/2 - 0.4 && this.physics.pos.x < plat.x + plat.w/2 + 0.4 &&
                             this.physics.pos.z > plat.z - plat.d/2 - 0.4 && this.physics.pos.z < plat.z + plat.d/2 + 0.4) {
-                            if (this.physics.pos.y >= plat.y - 0.5 && this.physics.pos.y <= plat.y + 0.5 && this.physics.vel.y <= 0) {
+                            if (prevY >= plat.y - 0.1 && this.physics.pos.y <= plat.y + 0.3 && this.physics.vel.y <= 0) {
                                 currentFloor = plat.y;
                             }
                         }
@@ -2802,6 +3054,9 @@
                 if (this.playerGroup) {
                     this.playerGroup.position.copy(this.physics.pos);
                     this.playerGroup.rotation.y = this.physics.rotY;
+                    if (this.playerGroup.userData.nimbus) {
+                        this.playerGroup.userData.nimbus.visible = this.physics.flying;
+                    }
                 }
 
                 const percent = (this.ki / this.maxKi) * 100;
@@ -2821,14 +3076,15 @@
 
                 const gpStatus = document.getElementById('gp-hud-status');
                 if (pad) {
-                    gpStatus.innerHTML = "<span style='color: var(--dbz-green)'>🎮 שלט מחובר! לחצו L1 למעוף, ◼️/RT למעלה, ❌/LT למטה</span>";
+                    gpStatus.innerHTML = "<span style='color: var(--dbz-green)'>🎮 שלט מחובר!</span>";
                     
                     // Left Stick Movement
                     const stickX = pad.axes[0] || 0;
                     const stickZ = pad.axes[1] || 0;
                     const deadzone = 0.15;
+                    const magnitude = Math.hypot(stickX, stickZ);
                     
-                    if (Math.hypot(stickX, stickZ) > deadzone) {
+                    if (magnitude > deadzone) {
                         this.gamepadInput = { x: stickX, z: stickZ };
                         
                         // Clear keyboard keys to avoid conflicts
@@ -2844,86 +3100,100 @@
                         this.gamepadInput = null;
                     }
 
-                    // A / Cross (Button 0) - Jump (on ground only)
-                    const jumpPressed = !!pad.buttons[0]?.pressed;
-                    if (jumpPressed && !this.gpJumpPrev && !this.physics.flying) {
-                        this.keys[' '] = true;
-                    } else if (!jumpPressed) {
-                        this.keys[' '] = false;
-                    }
-                    this.gpJumpPrev = jumpPressed;
+                    // Automatic sprint when Left Stick pushed fully (> 0.88)
+                    this.keys['shift'] = (magnitude > 0.88);
 
-                    // L1 / LB (Button 4) - Toggle Flight directly
-                    const flyPressed = !!pad.buttons[4]?.pressed;
-                    if (flyPressed && !this.gpFlyPrev) {
-                        this.toggleFlight();
-                    }
-                    this.gpFlyPrev = flyPressed;
-
-                    // Vertical flight controls - Square (2) or RT (7) to Fly Up, Cross (0) or LT (6) to Fly Down
-                    if (this.physics.flying) {
-                        this.keys['e'] = !!pad.buttons[2]?.pressed || !!pad.buttons[7]?.pressed; // Square/RT
-                        this.keys['f'] = !!pad.buttons[0]?.pressed || !!pad.buttons[6]?.pressed; // Cross/LT
+                    // A / Cross (Button 0) - Jump on ground, Fly Down in air
+                    const crossPressed = !!pad.buttons[0]?.pressed;
+                    
+                    // Triangle (Button 3) or RT (Button 7) - Fly Up / Automatic Takeoff
+                    const flyUpPressed = !!pad.buttons[3]?.pressed || !!pad.buttons[7]?.pressed;
+                    if (flyUpPressed) {
+                        if (!this.physics.flying) {
+                            this.physics.flying = true;
+                            this.physics.vel.set(0, 0, 0);
+                            this.announce("מעוף פעיל! 💨");
+                            sound.playWhoosh();
+                        }
+                        this.keys['e'] = true;
                     } else {
                         this.keys['e'] = false;
-                        this.keys['f'] = false;
                     }
 
-                    // Charge Ki - Disabled (infinite Ki)
-                    this.physics.isCharging = false;
+                    // Cross/A (Button 0) or LT (Button 6) - Fly Down / Automatic Land
+                    const flyDownPressed = !!pad.buttons[0]?.pressed || !!pad.buttons[6]?.pressed;
+                    if (flyDownPressed) {
+                        if (this.physics.flying) {
+                            this.keys['f'] = true;
+                        } else {
+                            if (crossPressed && !this.gpJumpPrev && this.physics.grounded) {
+                                this.keys[' '] = true;
+                            } else if (!crossPressed) {
+                                this.keys[' '] = false;
+                            }
+                            this.gpJumpPrev = crossPressed;
+                        }
+                    } else {
+                        this.keys['f'] = false;
+                        this.keys[' '] = false;
+                        this.gpJumpPrev = false;
+                    }
 
-                    // R1 / RB (Button 5) - Punch
-                    const punchPressed = !!pad.buttons[5]?.pressed;
+                    // Square (Button 2) - Punch
+                    const punchPressed = !!pad.buttons[2]?.pressed;
                     if (punchPressed && !this.gpPunchPrev) {
                         this.performMelee();
                     }
                     this.gpPunchPrev = punchPressed;
 
-                    // B / Circle (Button 1) - Ki Blast
+                    // Circle (Button 1) - Ki Blast
                     const blastPressed = !!pad.buttons[1]?.pressed;
                     if (blastPressed && !this.gpBlastPrev) {
                         this.performKiBlast();
                     }
                     this.gpBlastPrev = blastPressed;
 
-                    // Y / Triangle (Button 3) - Kamehameha
-                    const kamPressed = !!pad.buttons[3]?.pressed;
+                    // R1/RB (Button 5) - Kamehameha
+                    const kamPressed = !!pad.buttons[5]?.pressed;
                     if (kamPressed && !this.gpKamPrev) {
                         this.performKamehameha();
                     }
                     this.gpKamPrev = kamPressed;
 
-                    // D-pad Up (Button 12) - Spirit Bomb
-                    const bombPressed = !!pad.buttons[12]?.pressed;
+                    // L1/LB (Button 4) - Spirit Bomb
+                    const bombPressed = !!pad.buttons[4]?.pressed;
                     if (bombPressed && !this.gpBombPrev) {
                         this.performSpiritBomb();
                     }
                     this.gpBombPrev = bombPressed;
 
-                    // D-pad Left (Button 14) - Power Down Saiyan level
+                    // D-pad Up (Button 12) - Power Up Saiyan level
+                    const dpadUpPressed = !!pad.buttons[12]?.pressed;
+                    if (dpadUpPressed && !this.gpDpadUpPrev) {
+                        this.changeSSJLevel(1);
+                    }
+                    this.gpDpadUpPrev = dpadUpPressed;
+
+                    // D-pad Down (Button 13) - Power Down Saiyan level
+                    const dpadDownPressed = !!pad.buttons[13]?.pressed;
+                    if (dpadDownPressed && !this.gpDpadDownPrev) {
+                        this.changeSSJLevel(-1);
+                    }
+                    this.gpDpadDownPrev = dpadDownPressed;
+
+                    // D-pad Left (Button 14) - Vanish Teleport
                     const dpadLeftPressed = !!pad.buttons[14]?.pressed;
                     if (dpadLeftPressed && !this.gpDpadLeftPrev) {
-                        this.changeSSJLevel(-1);
+                        this.performVanish();
                     }
                     this.gpDpadLeftPrev = dpadLeftPressed;
 
-                    // D-pad Right (Button 15) - Power Up Saiyan level
+                    // D-pad Right (Button 15) - Vanish Teleport
                     const dpadRightPressed = !!pad.buttons[15]?.pressed;
                     if (dpadRightPressed && !this.gpDpadRightPrev) {
-                        this.changeSSJLevel(1);
-                    }
-                    this.gpDpadRightPrev = dpadRightPressed;
-
-                    // L3 (Button 10) - Sprint Boost
-                    const l3Pressed = !!pad.buttons[10]?.pressed;
-                    this.keys['shift'] = l3Pressed;
-
-                    // R3 (Button 11) - Vanish Teleport
-                    const r3Pressed = !!pad.buttons[11]?.pressed;
-                    if (r3Pressed && !this.gpR3Prev) {
                         this.performVanish();
                     }
-                    this.gpR3Prev = r3Pressed;
+                    this.gpDpadRightPrev = dpadRightPressed;
                 } else {
                     gpStatus.innerHTML = "<span>🎮 שלט לא מחובר</span>";
                     this.gamepadInput = null;
@@ -2941,6 +3211,62 @@
                     while (diffRot < -Math.PI) diffRot += Math.PI * 2;
                     while (diffRot > Math.PI) diffRot -= Math.PI * 2;
                     p.mesh.rotation.y += diffRot * 0.15;
+
+                    // Apply flight posture to remote players
+                    if (p.mesh.userData) {
+                        const lLeg = p.mesh.userData.lLeg;
+                        const rLeg = p.mesh.userData.rLeg;
+                        const lArm = p.mesh.userData.lArm;
+                        const rArm = p.mesh.userData.rArm;
+                        const nimbus = p.mesh.userData.nimbus;
+                        
+                        if (nimbus) {
+                            nimbus.visible = p.flying;
+                        }
+                        
+                        if (p.flying) {
+                            const isOnNimbus = (p.ssj === 0 && (p.charId === "goku" || p.charId === "gohan"));
+                            
+                            if (isOnNimbus) {
+                                // Standing posture on Nimbus
+                                p.mesh.rotation.x = THREE.MathUtils.lerp(p.mesh.rotation.x, p.isMoving ? 0.25 : 0.0, 0.1);
+                                if (lLeg) lLeg.rotation.x = THREE.MathUtils.lerp(lLeg.rotation.x, 0, 0.1);
+                                if (rLeg) rLeg.rotation.x = THREE.MathUtils.lerp(rLeg.rotation.x, 0, 0.1);
+                                if (lArm) lArm.rotation.x = THREE.MathUtils.lerp(lArm.rotation.x, 0, 0.1);
+                                if (rArm) rArm.rotation.x = THREE.MathUtils.lerp(rArm.rotation.x, 0, 0.1);
+                            } else {
+                                // Standard flight posture (superman style)
+                                const targetTilt = p.isMoving ? 0.45 : 0.15;
+                                p.mesh.rotation.x = THREE.MathUtils.lerp(p.mesh.rotation.x, targetTilt, 0.1);
+                                if (lLeg) lLeg.rotation.x = THREE.MathUtils.lerp(lLeg.rotation.x, 0.3, 0.1);
+                                if (rLeg) rLeg.rotation.x = THREE.MathUtils.lerp(rLeg.rotation.x, 0.3, 0.1);
+                                if (lArm) lArm.rotation.x = THREE.MathUtils.lerp(lArm.rotation.x, 0.4, 0.1);
+                                if (rArm) rArm.rotation.x = THREE.MathUtils.lerp(rArm.rotation.x, 0.4, 0.1);
+                            }
+                        } else {
+                            p.mesh.rotation.x = THREE.MathUtils.lerp(p.mesh.rotation.x, 0, 0.1);
+                            if (p.isMoving) {
+                                const time = (now + p.mesh.position.x * 10) * 0.012;
+                                if (lLeg) lLeg.rotation.x = Math.sin(time) * 0.6;
+                                if (rLeg) rLeg.rotation.x = -Math.sin(time) * 0.6;
+                            } else {
+                                if (lLeg) lLeg.rotation.x = THREE.MathUtils.lerp(lLeg.rotation.x, 0, 0.1);
+                                if (rLeg) rLeg.rotation.x = THREE.MathUtils.lerp(rLeg.rotation.x, 0, 0.1);
+                                if (lArm) lArm.rotation.x = THREE.MathUtils.lerp(lArm.rotation.x, 0, 0.1);
+                                if (rArm) rArm.rotation.x = THREE.MathUtils.lerp(rArm.rotation.x, 0, 0.1);
+                            }
+                        }
+                    }
+
+                    // Animate remote aura pulse
+                    if (p.mesh && p.mesh.userData && p.mesh.userData.aura) {
+                        const aura = p.mesh.userData.aura;
+                        if (aura.visible) {
+                            const time = (now + p.mesh.position.x * 10) * 0.005;
+                            aura.rotation.y += 0.02;
+                            aura.scale.set(1.0 + Math.sin(time) * 0.1, 1.0 + Math.cos(time) * 0.05, 1.0 + Math.sin(time) * 0.1);
+                        }
+                    }
 
                     if (now - p.lastUpdateTime > 10000) {
                         this.scene.remove(p.mesh);
@@ -3115,6 +3441,13 @@
                         p.mesh.position.add(p.vel);
                         p.life -= p.decay;
                         
+                        if (p.scaleSpeed) {
+                            p.mesh.scale.addScalar(p.scaleSpeed);
+                        }
+                        if (p.mesh.material && p.mesh.material.opacity !== undefined) {
+                            p.mesh.material.opacity = p.life;
+                        }
+
                         if (p.life <= 0) {
                             this.scene.remove(p.mesh);
                             this.particles.splice(i, 1);
@@ -3130,8 +3463,7 @@
                         const x = (vector.x * .5 + .5) * window.innerWidth;
                         const y = (-(vector.y * .5) + .5) * window.innerHeight;
 
-                        p.element.style.left = `${x}px`;
-                        p.element.style.top = `${y}px`;
+                        p.element.style.transform = `translate3d(${x - p.element.offsetWidth / 2}px, ${y}px, 0)`;
                         p.element.style.opacity = `${p.life}`;
 
                         if (p.life <= 0) {
@@ -3200,6 +3532,15 @@
             networkSync() {
                 const now = performance.now();
                 if (now - this.lastSendTime > 33 && this.isMultiplayer) {
+                    let mx = 0; let mz = 0;
+                    if (this.keys['w'] || this.keys['arrowup']) mz = -1;
+                    if (this.keys['s'] || this.keys['arrowdown']) mz = 1;
+                    if (this.keys['a'] || this.keys['arrowleft']) mx = -1;
+                    if (this.keys['d'] || this.keys['arrowright']) mx = 1;
+                    if (this.gamepadInput) { mx = this.gamepadInput.x; mz = this.gamepadInput.z; }
+                    if (this.isJoystickDragging) { mx = this.joystickInput.x; mz = this.joystickInput.z; }
+                    const isMoving = (mx !== 0 || mz !== 0 || Math.abs(mx) > 0.01 || Math.abs(mz) > 0.01);
+
                     this.sendNetworkMessage({
                         type: "move",
                         pos: {
@@ -3208,7 +3549,9 @@
                             z: parseFloat(this.physics.pos.z.toFixed(2))
                         },
                         rotY: parseFloat(this.physics.rotY.toFixed(2)),
-                        ssj: this.ssjLevel
+                        ssj: this.ssjLevel,
+                        flying: this.physics.flying,
+                        isMoving: isMoving
                     });
                     this.lastSendTime = now;
                 }
