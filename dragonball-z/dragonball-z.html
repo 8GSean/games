@@ -1,0 +1,3223 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
+    <title>דרגון בול זי: אימון הסופר סייאן 3D - מולטיפלייר</title>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700;800&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dbz-orange: #ff5500;
+            --dbz-yellow: #ffcc00;
+            --dbz-blue: #0088ff;
+            --dbz-purple: #8a2be2;
+            --dbz-green: #39ff14;
+            --dark-bg: #050d18;
+            --glass: rgba(10, 18, 30, 0.88);
+            --glow-orange: 0 0 15px rgba(255, 85, 0, 0.6);
+            --glow-yellow: 0 0 15px rgba(255, 204, 0, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--dark-bg);
+            font-family: 'Assistant', 'Outfit', sans-serif;
+            color: #fff;
+            user-select: none;
+            touch-action: none;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Lobby & Selection Screen */
+        #lobby-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, rgba(10, 25, 45, 0.97) 0%, rgba(2, 6, 12, 0.99) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .title-glow {
+            font-family: 'Outfit', 'Assistant', sans-serif;
+            font-size: 3.8rem;
+            font-weight: 900;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px var(--dbz-orange), 0 0 25px rgba(255, 85, 0, 0.7);
+            letter-spacing: 2px;
+            animation: titlePulse 2s infinite alternate;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: var(--dbz-yellow);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px rgba(255, 204, 0, 0.5);
+            text-align: center;
+        }
+
+        @keyframes titlePulse {
+            0% { text-shadow: 0 0 10px var(--dbz-orange), 0 0 20px rgba(255, 85, 0, 0.5); }
+            100% { text-shadow: 0 0 20px var(--dbz-orange), 0 0 40px rgba(255, 85, 0, 0.9), 0 0 60px rgba(255, 204, 0, 0.4); }
+        }
+
+        .input-panel {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px 25px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .input-row {
+            display: flex;
+            width: 100%;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .input-panel label {
+            font-weight: bold;
+            color: var(--dbz-yellow);
+            min-width: 80px;
+        }
+
+        .input-panel input {
+            background: rgba(0,0,0,0.6);
+            border: 2px solid var(--dbz-orange);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-family: inherit;
+            flex: 1;
+            text-align: center;
+            outline: none;
+        }
+
+        .input-panel input:focus {
+            box-shadow: var(--glow-orange);
+        }
+
+        /* Server Settings Collapsible */
+        .advanced-settings-btn {
+            background: none;
+            border: none;
+            color: #88aadd;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: underline;
+            align-self: flex-end;
+            padding: 0;
+            margin-top: 4px;
+        }
+
+        .server-settings-box {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            margin-top: 8px;
+            border-top: 1px dashed rgba(255,255,255,0.15);
+            padding-top: 10px;
+        }
+
+        /* Characters Grid */
+        .roster-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            max-width: 950px;
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .roster-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .title-glow { font-size: 2.3rem; }
+        }
+
+        .char-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .char-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            transition: background 0.3s;
+        }
+
+        .char-card[data-char="goku"]::before { background: var(--dbz-orange); }
+        .char-card[data-char="vegeta"]::before { background: var(--dbz-blue); }
+        .char-card[data-char="gohan"]::before { background: var(--dbz-purple); }
+        .char-card[data-char="piccolo"]::before { background: var(--dbz-green); }
+
+        .char-card:hover, .char-card.selected {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.07);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .char-card.selected[data-char="goku"] { border-color: var(--dbz-orange); box-shadow: 0 0 20px rgba(255, 85, 0, 0.4); }
+        .char-card.selected[data-char="vegeta"] { border-color: var(--dbz-blue); box-shadow: 0 0 20px rgba(0, 136, 255, 0.4); }
+        .char-card.selected[data-char="gohan"] { border-color: var(--dbz-purple); box-shadow: 0 0 20px rgba(138, 43, 226, 0.4); }
+        .char-card.selected[data-char="piccolo"] { border-color: var(--dbz-green); box-shadow: 0 0 20px rgba(57, 255, 20, 0.4); }
+
+        .char-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            color: #fff;
+            border: 2px solid rgba(255,255,255,0.15);
+        }
+
+        .char-card[data-char="goku"] .char-avatar { background: rgba(255, 85, 0, 0.15); border-color: var(--dbz-orange); }
+        .char-card[data-char="vegeta"] .char-avatar { background: rgba(0, 136, 255, 0.15); border-color: var(--dbz-blue); }
+        .char-card[data-char="gohan"] .char-avatar { background: rgba(138, 43, 226, 0.15); border-color: var(--dbz-purple); }
+        .char-card[data-char="piccolo"] .char-avatar { background: rgba(57, 255, 20, 0.15); border-color: var(--dbz-green); }
+
+        .char-name {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .char-weapon {
+            font-size: 0.85rem;
+            color: var(--dbz-yellow);
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .char-ability-desc {
+            font-size: 0.8rem;
+            color: #bbb;
+            line-height: 1.35;
+        }
+
+        .play-btn {
+            background: linear-gradient(135deg, var(--dbz-orange) 0%, #cc3300 100%);
+            border: none;
+            color: #fff;
+            padding: 16px 55px;
+            font-size: 1.35rem;
+            font-weight: 800;
+            border-radius: 35px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 85, 0, 0.4);
+            transition: all 0.2s ease;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(255, 85, 0, 0.6);
+        }
+
+        /* In-Game HUD */
+        #hud {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .hud-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .hud-panel {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 15px 20px;
+            pointer-events: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-right: 4px solid var(--dbz-orange);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .ki-bar-container {
+            width: 160px;
+            height: 16px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 9px;
+            overflow: hidden;
+            position: relative;
+            margin-top: 5px;
+        }
+
+        .ki-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to left, var(--dbz-blue), #00ffff);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+            transition: width 0.1s ease;
+        }
+
+        .ki-bar-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .hud-stats {
+            text-align: right;
+        }
+
+        .hud-title-char {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+
+        .hud-ability-tip {
+            font-size: 0.75rem;
+            color: var(--dbz-yellow);
+        }
+
+        /* Dragon Balls HUD */
+        .dragon-balls-hud {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .db-hud-slot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px dashed rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s;
+        }
+
+        .db-hud-slot.active {
+            background: radial-gradient(circle at 35% 35%, #ffcc00 0%, #ff5500 80%);
+            border: 1px solid #ffcc00;
+            box-shadow: 0 0 12px rgba(255, 85, 0, 0.8);
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            transform: scale(1.1);
+        }
+
+        .status-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            min-width: 170px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--dbz-yellow);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--dbz-orange);
+            text-shadow: 0 0 10px rgba(255,85,0,0.3);
+        }
+
+        .multiplayer-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 5px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ff3b30;
+        }
+
+        .status-dot.online { background-color: var(--dbz-green); box-shadow: 0 0 8px var(--dbz-green); }
+        .status-dot.local { background-color: var(--dbz-yellow); box-shadow: 0 0 8px var(--dbz-yellow); }
+
+        /* Sound & Controls HUD Button */
+        .hud-top-buttons {
+            position: absolute;
+            top: 20px; left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            pointer-events: auto;
+            z-index: 150;
+        }
+
+        .sound-toggle, .help-toggle-btn {
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+            transition: all 0.2s;
+        }
+
+        .sound-toggle:hover, .help-toggle-btn:hover {
+            border-color: var(--dbz-orange);
+            box-shadow: 0 0 10px rgba(255, 85, 0, 0.3);
+        }
+
+        /* Mobile Controls */
+        #mobile-controls {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            display: none;
+            z-index: 200;
+        }
+
+        .joystick-zone {
+            position: absolute;
+            bottom: 25px; right: 25px;
+            width: 150px; height: 150px;
+            pointer-events: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            border: 2px dashed rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .joystick-knob {
+            width: 60px; height: 60px;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+            border: 2px solid var(--dbz-orange);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(255, 85, 0, 0.4);
+            position: absolute;
+            transition: transform 0.05s ease;
+        }
+
+        .action-buttons {
+            position: absolute;
+            bottom: 25px; left: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: auto;
+        }
+
+        .row-btns {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-btn {
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: var(--glass);
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 800;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+            transition: all 0.15s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .action-btn:active {
+            transform: scale(0.9);
+        }
+
+        .btn-fly { border-color: var(--dbz-blue); color: var(--dbz-blue); box-shadow: 0 0 10px rgba(0, 136, 255, 0.2); }
+        .btn-fly:active { background: var(--dbz-blue); color: #000; }
+        
+        .btn-charge { border-color: var(--dbz-yellow); color: var(--dbz-yellow); box-shadow: 0 0 10px rgba(255, 204, 0, 0.2); width: 85px; height: 85px; font-size: 1.15rem; }
+        
+        .btn-attack { border-color: var(--dbz-orange); color: var(--dbz-orange); }
+        .btn-attack:active { background: var(--dbz-orange); color: #fff; }
+
+        .btn-special { border-color: #ff3355; color: #ff3355; }
+        .btn-special:active { background: #ff3355; color: #fff; }
+
+        /* Help Overlay in Hebrew - support fade out when moving */
+        #help-overlay {
+            position: absolute;
+            bottom: 20px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            font-size: 0.8rem;
+            opacity: 0.85;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .help-toggle-btn.active {
+            border-color: var(--dbz-green) !important;
+            box-shadow: 0 0 12px rgba(57, 255, 20, 0.4) !important;
+            background: rgba(10, 30, 20, 0.9) !important;
+        }
+
+        .help-item { display: flex; align-items: center; gap: 8px; margin: 3px 0; }
+        .key-badge {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-weight: bold;
+            color: var(--dbz-yellow);
+        }
+
+        /* Screen overlays */
+        .overlay-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 12, 22, 0.94);
+            backdrop-filter: blur(15px);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .screen-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-shadow: 0 0 25px currentColor;
+        }
+
+        .screen-text {
+            font-size: 1.25rem;
+            color: #ccc;
+            margin-bottom: 30px;
+            max-width: 550px;
+            line-height: 1.6;
+        }
+
+        .btn-restart {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 15px 45px;
+            border-radius: 30px;
+            font-size: 1.15rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.3);
+        }
+
+        .btn-restart:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255,255,255,0.5);
+        }
+
+        /* Announcer log for moves */
+        #announcer-log {
+            position: absolute;
+            top: 130px; left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.8rem;
+            font-weight: 900;
+            text-shadow: 0 0 15px rgba(0,0,0,0.9);
+            pointer-events: none;
+            z-index: 90;
+            opacity: 0;
+            transition: all 0.3s ease;
+            text-align: center;
+            color: var(--dbz-yellow);
+        }
+
+        /* Player name labels in 3D */
+        .player-label-3d {
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid var(--dbz-orange);
+            border-radius: 3px;
+            padding: 2px 6px;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 900px) {
+            #mobile-controls { display: block; }
+            #help-overlay { display: none; }
+            .hud-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .status-panel { align-items: flex-start; min-width: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Lobby/Selection Screen -->
+    <div id="lobby-container">
+        <h1 class="title-glow">דרגון בול זי: אימון סייאן</h1>
+        <p class="subtitle">זירת לחימה וחקירה תלת-מימדית רבת משתתפים</p>
+        
+        <div class="input-panel">
+            <div class="input-row">
+                <label for="nickname-input">כינוי לוחם:</label>
+                <input type="text" id="nickname-input" maxlength="12" placeholder="הכנס שם...">
+            </div>
+            
+            <button class="advanced-settings-btn" id="toggle-server-settings">⚙️ הגדרות שרת (מתקדם)</button>
+            <div class="server-settings-box" id="server-settings-panel">
+                <div class="input-row">
+                    <label for="server-input" style="font-size: 0.9rem;">שרת MQTT:</label>
+                    <input type="text" id="server-input" value="wss://broker.hivemq.com:8884/mqtt" placeholder="wss://broker.hivemq.com:8884/mqtt">
+                </div>
+            </div>
+        </div>
+        
+        <div class="roster-grid">
+            <!-- Goku -->
+            <div class="char-card selected" data-char="goku">
+                <div class="char-avatar">🐉</div>
+                <div class="char-name">גוקו</div>
+                <div class="char-weapon">דרגות סופר סייאן 1-4</div>
+                <div class="char-ability-desc">לוחם הסייאן האגדי. אספו נקודות כדי לעלות רמות ולהשתנות אוטומטית עד סופר סייאן 4.</div>
+            </div>
+            <!-- Vegeta -->
+            <div class="char-card" data-char="vegeta">
+                <div class="char-avatar">⚡</div>
+                <div class="char-name">וג'יטה</div>
+                <div class="char-weapon">סופר סייאן 1-2</div>
+                <div class="char-ability-desc">נסיך הסייאנים הגאה. מהיר מאוד. רמת סייאן עולה יחד עם צבירת נקודות עד סופר סייאן 2.</div>
+            </div>
+            <!-- Gohan -->
+            <div class="char-card" data-char="gohan">
+                <div class="char-avatar">✨</div>
+                <div class="char-name">גוהאן</div>
+                <div class="char-weapon">סופר סייאן 1</div>
+                <div class="char-ability-desc">גוהאן הצעיר. מהיר להפליא, משתנה לסופר סייאן 1 ברמה הנדרשת ומזנק גבוה.</div>
+            </div>
+            <!-- Piccolo -->
+            <div class="char-card" data-char="piccolo">
+                <div class="char-avatar">🪐</div>
+                <div class="char-name">פיקולו</div>
+                <div class="char-weapon">לוחם נאמק ענק</div>
+                <div class="char-ability-desc">לוחם הנאמק המיומן. ככל שעולה רמות כך הוא גדל פיזית (עד פי 2.2!) ומכה בעוצמה רבה.</div>
+            </div>
+        </div>
+
+        <button class="play-btn" id="start-btn">היכנס לזירת האימונים 🚀</button>
+    </div>
+
+    <!-- HUD Overlay -->
+    <div id="hud">
+        <div class="hud-header">
+            <div class="hud-panel player-info">
+                <div class="hud-stats">
+                    <div class="hud-title-char" id="hud-char-name">גוקו</div>
+                    <div class="hud-ability-tip" id="hud-char-form">מצב: בסיס (Base) · רמה 1</div>
+                    <div class="ki-bar-container">
+                        <div class="ki-bar-fill" id="hud-ki-fill"></div>
+                        <div class="ki-bar-text" id="hud-ki-text">אנרגיית קי: 0 / 200</div>
+                    </div>
+                    <!-- Dragon Balls Slots -->
+                    <div class="dragon-balls-hud">
+                        <div class="db-hud-slot" id="db-slot-1">1★</div>
+                        <div class="db-hud-slot" id="db-slot-2">2★</div>
+                        <div class="db-hud-slot" id="db-slot-3">3★</div>
+                        <div class="db-hud-slot" id="db-slot-4">4★</div>
+                        <div class="db-hud-slot" id="db-slot-5">5★</div>
+                        <div class="db-hud-slot" id="db-slot-6">6★</div>
+                        <div class="db-hud-slot" id="db-slot-7">7★</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hud-panel status-panel">
+                <div class="stat-label">ניקוד / נקודות עוצמה</div>
+                <div class="stat-value" id="hud-score">0000 XP</div>
+                <div class="multiplayer-status">
+                    <span class="status-dot" id="net-status-dot"></span>
+                    <span id="net-status-text">מתחבר...</span>
+                    <span id="hud-players-count" style="margin-right: 8px; font-weight: normal; opacity: 0.8;"></span>
+                </div>
+                <div class="multiplayer-status" id="gp-hud-status" style="margin-top: 5px;">
+                    <span>🎮 שלט לא מחובר</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop & Gamepad Controls Help side-by-side -->
+        <div id="help-overlay">
+            <div style="display: flex; gap: 30px; text-align: right; direction: rtl;">
+                <!-- Keyboard Column -->
+                <div style="min-width: 190px;">
+                    <h4 style="margin: 0 0 8px 0; color: var(--dbz-orange); font-size: 0.85rem; text-align: center; border-bottom: 1px solid rgba(255,85,0,0.3); padding-bottom: 4px; font-weight: 800;">🎹 מקלדת ועכבר</h4>
+                    <div class="help-item"><span class="key-badge">WASD / חצים</span> תנועה חלקה</div>
+                    <div class="help-item"><span class="key-badge">רווח</span> קפיצה / הפעלת מעוף</div>
+                    <div class="help-item"><span class="key-badge">E / F</span> טיסה למעלה / למטה</div>
+                    <div class="help-item"><span class="key-badge">Z / X</span> שינוי דרגת סייאן ⚡</div>
+                    <div class="help-item"><span class="key-badge">Shift</span> ריצה/מעוף מהיר ⚡</div>
+                    <div class="help-item"><span class="key-badge">Q</span> השתגרות (Vanish) 💨</div>
+                    <div class="help-item"><span class="key-badge">קליק שמאל / R1</span> אגרוף</div>
+                    <div class="help-item"><span class="key-badge">קליק ימין / Circle</span> יריית קי</div>
+                    <div class="help-item"><span class="key-badge">C / Triangle</span> קאמהאמהה 🌊</div>
+                    <div class="help-item"><span class="key-badge">V / D-Pad Up</span> פצצת רוח 🔮</div>
+                </div>
+                <!-- Gamepad Column -->
+                <div style="min-width: 210px; border-right: 1px dashed rgba(255,255,255,0.15); padding-right: 20px;">
+                    <h4 style="margin: 0 0 8px 0; color: var(--dbz-blue); font-size: 0.85rem; text-align: center; border-bottom: 1px solid rgba(0,136,255,0.3); padding-bottom: 4px; font-weight: 800;">🎮 שלט (Gamepad)</h4>
+                    <div class="help-item"><span class="key-badge">ג'ויסטיק שמאל</span> תנועה אנלוגית</div>
+                    <div class="help-item"><span class="key-badge">L1 / LB</span> הפעלת/ביטול מעוף</div>
+                    <div class="help-item"><span class="key-badge">R2 / RT / Square</span> מעוף למעלה ⬆️</div>
+                    <div class="help-item"><span class="key-badge">L2 / LT / Cross</span> מעוף למטה ⬇️ / קפיצה</div>
+                    <div class="help-item"><span class="key-badge">R1 / RB</span> מכת אגרוף 👊</div>
+                    <div class="help-item"><span class="key-badge">B / Circle</span> יריית קי ☄️</div>
+                    <div class="help-item"><span class="key-badge">L3 (לחיצת ג'ויסטיק שמאל)</span> ריצה מהירה ⚡</div>
+                    <div class="help-item"><span class="key-badge">R3 (לחיצת ג'ויסטיק ימין)</span> השתגרות (Vanish) 💨</div>
+                    <div class="help-item"><span class="key-badge">Y / Triangle</span> קאמהאמהה 🌊</div>
+                    <div class="help-item"><span class="key-badge">D-Pad למעלה</span> פצצת רוח 🔮</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HUD top actions buttons -->
+    <div class="hud-top-buttons">
+        <button class="sound-toggle" id="sound-btn">
+            <span id="sound-icon">🔊</span> <span id="sound-text">מוזיקה דולקת</span>
+        </button>
+        <button class="help-toggle-btn" id="help-btn">
+            <span>❓ מדריך מקשים</span>
+        </button>
+    </div>
+
+    <!-- Announcer Log -->
+    <div id="announcer-log">קא-מה-הא-מה...</div>
+
+    <!-- Mobile Virtual Controls -->
+    <div id="mobile-controls">
+        <div class="joystick-zone" id="touch-joystick">
+            <div class="joystick-knob" id="touch-knob"></div>
+        </div>
+        <div class="action-buttons">
+            <button class="action-btn btn-charge" id="touch-charge">טען קי</button>
+            <div class="row-btns">
+                <button class="action-btn btn-fly" id="touch-fly">תעופה</button>
+                <button class="action-btn btn-attack" id="touch-attack">אגרוף</button>
+                <button class="action-btn btn-special" id="touch-special">קי</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Victory Screen -->
+    <div class="overlay-screen" id="victory-screen" style="color: var(--dbz-yellow);">
+        <h2 class="screen-title">זימנתם את שנרון! 🐉</h2>
+        <p class="screen-text">אספתם בהצלחה את כל 7 כדורי הדרקון! הדרקון האגדי שנרון הופיע ומילא את משאלתכם לכוח סייאן אינסופי. אימוניכם הושלמו!</p>
+        <button class="btn-restart" id="victory-restart-btn">שחק שוב ⚡</button>
+    </div>
+
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- MQTT Library for Serverless Cloud Multiplayer -->
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <script>
+        // Game Settings
+        const DB_LOCATIONS = [
+            new THREE.Vector3(0, 1.55, 0),        
+            new THREE.Vector3(50, 10.35, 50),       
+            new THREE.Vector3(-60, 12.35, -40),   
+            new THREE.Vector3(50, 1.55, -50),     
+            new THREE.Vector3(-50, 8.35, 60),     
+            new THREE.Vector3(130, 1.55, 0),      
+            new THREE.Vector3(-110, 18.35, -110)       
+        ];
+
+        const CHAR_CONFIG = {
+            goku: {
+                name: "גוקו",
+                skinColor: 0xffdbac,
+                giColor: 0xff5500,
+                bootColor: 0x0000ff,
+                beltColor: 0x0000ff,
+                maxSSJ: 4,
+                forms: [
+                    { name: "בסיס (Base)", hairColor: 0x111111, auraColor: 0x00ffff, speed: 0.25, jump: 0.31, fly: false, scale: 1.0 },
+                    { name: "סופר סייאן 1", hairColor: 0xffe200, auraColor: 0xffdd00, speed: 0.35, jump: 0.35, fly: true, scale: 1.0 },
+                    { name: "סופר סייאן 2", hairColor: 0xffea00, auraColor: 0xffea00, speed: 0.45, jump: 0.40, fly: true, electric: true, scale: 1.0 },
+                    { name: "סופר סייאן 3", hairColor: 0xfff000, auraColor: 0xfff300, speed: 0.58, jump: 0.46, fly: true, electric: true, longHair: true, scale: 1.0 },
+                    { name: "סופר סייאן 4", hairColor: 0x221111, auraColor: 0xff2200, speed: 0.75, jump: 0.52, fly: true, redFur: true, scale: 1.0 }
+                ]
+            },
+            vegeta: {
+                name: "וג'יטה",
+                skinColor: 0xffdbac,
+                giColor: 0x0000bb,
+                bootColor: 0xdddddd,
+                beltColor: 0xdddddd,
+                maxSSJ: 2,
+                forms: [
+                    { name: "בסיס (Base)", hairColor: 0x111111, auraColor: 0x00ffff, speed: 0.24, jump: 0.30, fly: false, scale: 0.95 },
+                    { name: "סופר סייאן 1", hairColor: 0xffe200, auraColor: 0xffdd00, speed: 0.34, jump: 0.34, fly: true, scale: 0.95 },
+                    { name: "סופר סייאן 2", hairColor: 0xffea00, auraColor: 0xffea00, speed: 0.44, jump: 0.39, fly: true, electric: true, scale: 0.95 }
+                ]
+            },
+            gohan: {
+                name: "גוהאן",
+                skinColor: 0xffdbac,
+                giColor: 0x4b0082,
+                bootColor: 0x8b4513,
+                beltColor: 0x00a8ff,
+                maxSSJ: 1,
+                forms: [
+                    { name: "בסיס (Base)", hairColor: 0x111111, auraColor: 0x00ffff, speed: 0.26, jump: 0.32, fly: false, scale: 0.92 },
+                    { name: "סופר סייאן 1", hairColor: 0xffe200, auraColor: 0xffdd00, speed: 0.38, jump: 0.37, fly: true, scale: 0.92 }
+                ]
+            },
+            piccolo: {
+                name: "פיקולו",
+                skinColor: 0x2e8b57,
+                giColor: 0x4b0082,
+                bootColor: 0x8b5a2b,
+                beltColor: 0x00a8ff,
+                maxSSJ: 0,
+                forms: [
+                    { name: "נאמקי", hairColor: 0x000000, auraColor: 0x39ff14, speed: 0.25, jump: 0.32, fly: true, turban: true, scale: 1.0 },
+                    { name: "נאמקי ענק 2", hairColor: 0x000000, auraColor: 0x39ff14, speed: 0.33, jump: 0.36, fly: true, turban: true, scale: 1.3 },
+                    { name: "נאמקי ענק 3", hairColor: 0x000000, auraColor: 0x39ff14, speed: 0.42, jump: 0.40, fly: true, turban: true, scale: 1.6 },
+                    { name: "נאמקי ענק 4", hairColor: 0x000000, auraColor: 0x39ff14, speed: 0.52, jump: 0.45, fly: true, turban: true, scale: 1.9 },
+                    { name: "נאמקי ענק אולטימטיבי", hairColor: 0x000000, auraColor: 0x39ff14, speed: 0.65, jump: 0.50, fly: true, turban: true, scale: 2.2 }
+                ]
+            }
+        };
+
+        // Web Audio Synth for DBZ music and actions
+        class DBZSynth {
+            constructor() {
+                this.ctx = null;
+                this.musicInterval = null;
+                this.isMuted = false;
+                this.beatIndex = 0;
+                this.tempo = 145; 
+                
+                this.melody = [
+                    // --- INTRO (16 beats) ---
+                    { note: "E4", duration: 0.25 }, { note: "REST", duration: 0.25 }, { note: "E4", duration: 0.25 }, { note: "REST", duration: 0.25 },
+                    { note: "G4", duration: 0.25 }, { note: "REST", duration: 0.25 }, { note: "F#4", duration: 0.25 }, { note: "REST", duration: 0.25 },
+                    { note: "E4", duration: 0.25 }, { note: "REST", duration: 0.25 }, { note: "E4", duration: 0.25 }, { note: "REST", duration: 0.25 },
+                    { note: "B4", duration: 0.5 }, { note: "A4", duration: 0.5 },
+                    
+                    { note: "E4", duration: 0.25 }, { note: "REST", duration: 0.25 }, { note: "E4", duration: 0.25 }, { note: "REST", duration: 0.25 },
+                    { note: "G4", duration: 0.25 }, { note: "REST", duration: 0.25 }, { note: "A4", duration: 0.25 }, { note: "REST", duration: 0.25 },
+                    { note: "B4", duration: 0.5 }, { note: "C#5", duration: 0.5 },
+                    { note: "B4", duration: 0.75 }, { note: "REST", duration: 0.25 },
+
+                    // --- VERSE (16 beats) ---
+                    { note: "E4", duration: 0.5 }, { note: "G4", duration: 0.5 },
+                    { note: "A4", duration: 0.25 }, { note: "B4", duration: 0.25 }, { note: "A4", duration: 0.25 }, { note: "G4", duration: 0.25 },
+                    { note: "E4", duration: 0.75 }, { note: "REST", duration: 0.25 },
+                    { note: "F#4", duration: 0.5 }, { note: "D4", duration: 0.5 },
+                    
+                    { note: "E4", duration: 0.5 }, { note: "G4", duration: 0.5 },
+                    { note: "A4", duration: 0.25 }, { note: "B4", duration: 0.25 }, { note: "C#5", duration: 0.25 }, { note: "E5", duration: 0.25 },
+                    { note: "D#5", duration: 0.5 }, { note: "F#5", duration: 0.5 },
+                    { note: "E5", duration: 0.75 }, { note: "REST", duration: 0.25 },
+
+                    // --- CHORUS (32 beats) ---
+                    { note: "E5", duration: 0.5 }, { note: "D#5", duration: 0.25 }, { note: "C#5", duration: 0.25 },
+                    { note: "B4", duration: 0.5 }, { note: "G4", duration: 0.5 },
+                    { note: "A4", duration: 0.25 }, { note: "B4", duration: 0.25 }, { note: "C5", duration: 0.25 }, { note: "D5", duration: 0.25 },
+                    { note: "E5", duration: 0.75 }, { note: "REST", duration: 0.25 },
+
+                    { note: "C5", duration: 0.5 }, { note: "D5", duration: 0.5 },
+                    { note: "E5", duration: 0.5 }, { note: "G5", duration: 0.5 },
+                    { note: "A5", duration: 0.5 }, { note: "G5", duration: 0.5 },
+                    { note: "F#5", duration: 0.5 }, { note: "D5", duration: 0.5 },
+
+                    { note: "E5", duration: 0.5 }, { note: "D#5", duration: 0.25 }, { note: "C#5", duration: 0.25 },
+                    { note: "B4", duration: 0.5 }, { note: "G4", duration: 0.5 },
+                    { note: "A4", duration: 0.25 }, { note: "B4", duration: 0.25 }, { note: "C5", duration: 0.25 }, { note: "D5", duration: 0.25 },
+                    { note: "E5", duration: 0.75 }, { note: "REST", duration: 0.25 },
+
+                    { note: "C#5", duration: 0.5 }, { note: "E5", duration: 0.5 },
+                    { note: "F#5", duration: 0.5 }, { note: "A5", duration: 0.5 },
+                    { note: "G#5", duration: 0.75 }, { note: "F#5", duration: 0.25 },
+                    { note: "E5", duration: 0.75 }, { note: "REST", duration: 0.25 }
+                ];
+                
+                this.notesFreq = {
+                    "E3": 82.41, "F#3": 92.50, "G#3": 103.83, "A3": 110.00, "A#3": 116.54, "B3": 123.47,
+                    "C4": 261.63, "C#4": 277.18, "D4": 293.66, "D#4": 311.13, "E4": 329.63, "F4": 349.23, "F#4": 369.99, "G4": 392.00, "G#4": 415.30, "A4": 440.00, "A#4": 466.16, "B4": 493.88,
+                    "C5": 523.25, "C#5": 554.37, "D5": 587.33, "D#5": 622.25, "E5": 659.25, "F5": 698.46, "F#5": 739.99, "G5": 783.99, "G#5": 830.61, "A5": 880.00, "A#5": 932.33, "B5": 987.77,
+                    "REST": 0
+                };
+            }
+
+            init() {
+                if (this.ctx) return;
+                try {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch(e) {
+                    console.warn("Web Audio not supported");
+                }
+            }
+
+            playTone(freq, type, duration, volume = 0.1, slideToFreq = null) {
+                if (this.isMuted || !this.ctx || freq === 0) return;
+                this.init();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                if (slideToFreq) {
+                    osc.frequency.exponentialRampToValueAtTime(slideToFreq, this.ctx.currentTime + duration);
+                }
+
+                gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            }
+
+            playNoise(duration, volume = 0.1, lowPass = false) {
+                if (this.isMuted || !this.ctx) return;
+                this.init();
+                
+                const bufferSize = this.ctx.sampleRate * duration;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+
+                if (lowPass) {
+                    const filter = this.ctx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(350, this.ctx.currentTime);
+                    noise.connect(filter);
+                    filter.connect(gain);
+                } else {
+                    noise.connect(gain);
+                }
+
+                gain.connect(this.ctx.destination);
+                noise.start();
+            }
+
+            playWhoosh() {
+                this.playTone(180, 'triangle', 0.12, 0.08, 480);
+            }
+
+            playChargeLoop() {
+                this.playTone(85, 'sawtooth', 0.15, 0.05, 130);
+                if (Math.random() < 0.3) {
+                    this.playTone(550, 'sine', 0.08, 0.03, 900);
+                }
+            }
+
+            playTransform() {
+                this.playTone(90, 'sawtooth', 0.8, 0.25, 950);
+                this.playNoise(0.75, 0.12, true);
+                setTimeout(() => {
+                    this.playTone(150, 'sawtooth', 0.6, 0.2, 1200);
+                    this.playNoise(0.5, 0.18);
+                }, 150);
+            }
+
+            playKiBlast() {
+                this.playTone(600, 'sawtooth', 0.18, 0.05, 200);
+            }
+
+            playKamehameCharge() {
+                this.playTone(120, 'sine', 0.3, 0.12, 220);
+                this.playTone(80, 'triangle', 0.3, 0.1);
+            }
+
+            playKamehameFire() {
+                this.playTone(280, 'sawtooth', 1.0, 0.3, 40);
+                this.playNoise(0.9, 0.25, true);
+            }
+
+            playSpiritBombCharge() {
+                this.playTone(350, 'sine', 0.2, 0.07, 750);
+            }
+
+            playSpiritBombExplode() {
+                this.playTone(80, 'sawtooth', 1.3, 0.45, 20);
+                this.playNoise(1.2, 0.3, true);
+            }
+
+            playCollect() {
+                this.playTone(523.25, 'sine', 0.1, 0.08); 
+                setTimeout(() => this.playTone(659.25, 'sine', 0.12, 0.08), 70); 
+                setTimeout(() => this.playTone(783.99, 'sine', 0.15, 0.08), 140); 
+                setTimeout(() => this.playTone(1046.50, 'sine', 0.25, 0.1), 210); 
+            }
+
+            startMusic() {
+                this.init();
+                if (this.musicInterval) clearInterval(this.musicInterval);
+                const noteDuration = (60 / this.tempo) * 1000;
+                
+                this.musicInterval = setInterval(() => {
+                    if (this.isMuted) return;
+                    const step = this.beatIndex % this.melody.length;
+
+                    // Bassline chord changes every 8 steps
+                    if (step % 2 === 0) {
+                        const measure = Math.floor(step / 8);
+                        let bassFreq = 82.41; // E2 (mapped to E3 here for synth)
+                        
+                        if (measure === 0 || measure === 1 || measure === 4 || measure === 5) {
+                            bassFreq = 82.41; // E3
+                        } else if (measure === 2) {
+                            bassFreq = 98.00; // G3
+                        } else if (measure === 3) {
+                            bassFreq = 73.42; // D3
+                        } else if (measure === 6) {
+                            bassFreq = 65.41; // C3
+                        } else if (measure === 7) {
+                            bassFreq = 110.00; // A3
+                        }
+                        
+                        // Alternate octaves on off-beats for rhythmic bounce
+                        const bassTone = (step % 4 === 0) ? bassFreq * 0.5 : bassFreq * 0.75;
+                        this.playTone(bassTone, 'triangle', 0.18, 0.05);
+                    }
+
+                    const melodyItem = this.melody[step];
+                    if (melodyItem && melodyItem.note !== "REST") {
+                        const freq = this.notesFreq[melodyItem.note];
+                        this.playTone(freq, 'square', melodyItem.duration * 0.95, 0.011);
+                    }
+
+                    this.beatIndex++;
+                }, noteDuration);
+            }
+
+            stopMusic() {
+                if (this.musicInterval) {
+                    clearInterval(this.musicInterval);
+                    this.musicInterval = null;
+                }
+            }
+
+            toggle() {
+                this.isMuted = !this.isMuted;
+                if (this.isMuted) this.stopMusic();
+                else this.startMusic();
+                return this.isMuted;
+            }
+        }
+
+        const sound = new DBZSynth();
+
+        // 3D Engine Class
+        class DBZGame {
+            constructor() {
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.clock = null;
+
+                // Player configurations
+                this.myName = "סייאן";
+                this.myCharId = "goku";
+                this.ssjLevel = 0;
+                this.ki = 200;
+                this.maxKi = 200;
+                
+                this.score = 0;
+                this.collectedBalls = new Set();
+                this.isWon = false;
+                this.gameStarted = false;
+
+                // Lists
+                this.remotePlayers = {}; 
+                this.projectiles = [];
+                this.particles = [];
+                this.dragonBalls = [];
+                this.crystals = [];
+                this.senzuBeans = [];
+                this.capsules = []; // New Capsule Corp items list
+                this.saibamen = [];
+                this.environmentElements = [];
+
+                // Controls
+                this.keys = {};
+                this.mouseClicks = {};
+                this.joystickInput = { x: 0, z: 0 };
+                this.isJoystickDragging = false;
+                this.lastFlyToggleTime = 0;
+                this.showHelp = true;
+                this.gamepadInput = null; // Track analog gamepad movement sticks
+                this.gpFlyPrev = false; // Track L1 flight toggle on gamepad
+                this.gpJumpPrev = false;
+                this.gpPunchPrev = false;
+                this.gpBlastPrev = false;
+                this.gpKamPrev = false;
+                this.gpBombPrev = false;
+                this.gpDpadLeftPrev = false;
+                this.gpDpadRightPrev = false;
+                this.gpR3Prev = false;
+
+                // Player physics
+                this.playerGroup = null;
+                this.physics = {
+                    pos: new THREE.Vector3(0, 1.2, 10),
+                    vel: new THREE.Vector3(0, 0, 0),
+                    rotY: 0,
+                    grounded: true,
+                    flying: false,
+                    speed: 0.16,
+                    flySpeed: 0.22,
+                    jumpForce: 0.31,
+                    gravity: 0.016,
+                    height: 2.0,
+                    width: 1.2,
+                    isCharging: false,
+                    isStriking: 0, 
+                    lastSpecialTime: 0
+                };
+
+                // Network
+                this.socket = null;
+                this.isMultiplayer = false;
+                this.roomId = "dbz-room";
+                this.lastSendTime = 0;
+            }
+
+            init() {
+                // Scene
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x22354c); 
+                this.scene.fog = new THREE.FogExp2(0x22354c, 0.006);
+
+                this.clock = new THREE.Clock();
+
+                // Camera
+                this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.camera.position.set(0, 13, 16);
+
+                // Renderer
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                document.body.appendChild(this.renderer.domElement);
+
+                // Lighting
+                this.setupLights();
+
+                // Build Tropical Islands
+                this.buildEnvironment();
+
+                // Collectibles
+                this.spawnDragonBalls();
+                this.spawnCrystals(250);
+                this.spawnSenzuBeans(50);
+                this.spawnCapsules(30);
+
+                // Inputs
+                this.setupControls();
+
+                // Handle resize
+                window.addEventListener('resize', () => {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+
+                // Lobby Advanced toggles
+                const advBtn = document.getElementById('toggle-server-settings');
+                advBtn.addEventListener('click', () => {
+                    const panel = document.getElementById('server-settings-panel');
+                    panel.style.display = (panel.style.display === "flex") ? "none" : "flex";
+                });
+
+                // Character cards pointerdown listener for selection
+                const cards = document.querySelectorAll('.char-card');
+                cards.forEach(card => {
+                    card.addEventListener('pointerdown', () => {
+                        cards.forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        sound.init(); // Initialize audio context on click
+                        sound.playWhoosh(); // Play a nice feedback sound
+                    });
+                });
+
+                // Frame Loop
+                this.animate();
+            }
+
+            setupLights() {
+                const ambient = new THREE.AmbientLight(0xffffff, 0.35);
+                this.scene.add(ambient);
+
+                const sun = new THREE.DirectionalLight(0xffd1a9, 0.55);
+                sun.position.set(60, 120, 40);
+                sun.castShadow = true;
+                sun.shadow.mapSize.width = 1024;
+                sun.shadow.mapSize.height = 1024;
+                sun.shadow.camera.near = 0.5;
+                sun.shadow.camera.far = 400;
+                const d = 120;
+                sun.shadow.camera.left = -d;
+                sun.shadow.camera.right = d;
+                sun.shadow.camera.top = d;
+                sun.shadow.camera.bottom = -d;
+                this.scene.add(sun);
+            }
+
+            createLegoBox(w, h, d, color) {
+                const geom = new THREE.BoxGeometry(w, h, d);
+                const mat = new THREE.MeshStandardMaterial({ color, metalness: 0.1, roughness: 0.6 });
+                const mesh = new THREE.Mesh(geom, mat);
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+                return mesh;
+            }
+
+            buildEnvironment() {
+                // Ocean Floor
+                const oceanGeo = new THREE.PlaneGeometry(800, 800);
+                const oceanMat = new THREE.MeshStandardMaterial({ 
+                    color: 0x0284c7, 
+                    roughness: 0.15, 
+                    metalness: 0.7 
+                });
+                const ocean = new THREE.Mesh(oceanGeo, oceanMat);
+                ocean.rotation.x = -Math.PI / 2;
+                ocean.receiveShadow = true;
+                this.scene.add(ocean);
+
+                const grid = new THREE.GridHelper(800, 80, 0x0ea5e9, 0x0369a1);
+                grid.position.y = 0.02;
+                this.scene.add(grid);
+
+                // Helper to create grass-topped tropical islands
+                const createGrassIsland = (x, y, z, w, h, d) => {
+                    const islandGroup = new THREE.Group();
+                    islandGroup.position.set(x, y - h/2, z);
+
+                    // Sandy/rocky brown body
+                    const body = this.createLegoBox(w, h, d, 0x8b5a2b);
+                    islandGroup.add(body);
+
+                    // Thin lush green grass top layer - natural green (0x4ca64c)
+                    const grassHeight = 0.35;
+                    const grass = this.createLegoBox(w + 0.1, grassHeight, d + 0.1, 0x4ca64c);
+                    grass.position.y = h/2 + grassHeight/2;
+                    islandGroup.add(grass);
+
+                    this.scene.add(islandGroup);
+                    this.environmentElements.push(islandGroup);
+
+                    // Spawn Lego Trees
+                    if (w >= 10) {
+                        const treesCount = Math.floor(w / 6);
+                        for(let i=0; i<treesCount; i++) {
+                            this.spawnLegoTree(
+                                x + (Math.random()-0.5)*(w-3), 
+                                y + grassHeight, 
+                                z + (Math.random()-0.5)*(d-3)
+                            );
+                        }
+                    }
+                };
+
+                // MAIN ISLAND - MASSIVE starting ground Y=1.2 (160x160)
+                createGrassIsland(0, 1.2, 0, 160, 1.2, 160);
+
+                // FOUR CONNECTED LARGE ISLANDS - 70x70 each, placed further at offset 130
+                createGrassIsland(130, 1.2, 0, 70, 1.2, 70);   // East
+                createGrassIsland(-130, 1.2, 0, 70, 1.2, 70);  // West
+                createGrassIsland(0, 1.2, 130, 70, 1.2, 70);   // South
+                createGrassIsland(0, 1.2, -130, 70, 1.2, 70);  // North
+
+                // BRIDGES (arches) connecting center to large islands - width 12, length 20
+                const createBridge = (x, y, z, w, h, d, rotY = 0) => {
+                    const bBody = this.createLegoBox(w, h, d, 0x8b5a2b);
+                    bBody.position.set(x, y, z);
+                    bBody.rotation.y = rotY;
+                    const bGrass = this.createLegoBox(w + 0.1, 0.25, d + 0.1, 0x4ca64c);
+                    bGrass.position.set(x, y + h/2 + 0.125, z);
+                    bGrass.rotation.y = rotY;
+                    this.scene.add(bBody, bGrass);
+                };
+
+                createBridge(87.5, 1.2, 0, 20, 0.8, 12);      // East bridge
+                createBridge(-87.5, 1.2, 0, 20, 0.8, 12);     // West bridge
+                createBridge(0, 1.2, 87.5, 12, 0.8, 20);      // South bridge
+                createBridge(0, 1.2, -87.5, 12, 0.8, 20);     // North bridge
+
+                // 7 High Floating Islands (above the archipelago) - lowered and spaced out
+                createGrassIsland(50, 10.0, 50, 9, 2.0, 9);      // Platform 1 (floor ~10.35)
+                createGrassIsland(-60, 12.0, -40, 11, 2.5, 7);  // Platform 2 (floor ~12.35)
+                createGrassIsland(-50, 8.0, 60, 8, 1.8, 8);     // Platform 3 (floor ~8.35)
+                createGrassIsland(80, 16.0, -40, 14, 3.2, 14);  // Platform 4 (floor ~16.35)
+                createGrassIsland(-90, 15.0, 90, 10, 2.6, 10);  // Platform 5 (floor ~15.35)
+                createGrassIsland(100, 14.0, 100, 9, 2.0, 9);   // Platform 6 (floor ~14.35)
+                createGrassIsland(-110, 18.0, -110, 10, 2.6, 10); // Platform 7 (floor ~18.35)
+
+                // High stone arch spanning in the sky - lowered
+                createBridge(-45, 10.0, -32.5, 35, 2.5, 4.5, Math.PI / 4);
+            }
+
+            spawnLegoTree(x, y, z) {
+                const tree = new THREE.Group();
+                tree.position.set(x, y, z);
+
+                // Natural dark brown trunk
+                const trunk = this.createLegoBox(0.4, 2.6, 0.4, 0x6c584c);
+                trunk.position.y = 1.3;
+                tree.add(trunk);
+
+                // Natural forest dark green leaves
+                const leaves1 = this.createLegoBox(2.2, 1.5, 2.2, 0x2d6a4f);
+                leaves1.position.y = 2.6 + 0.75;
+                // Natural bright green leaves
+                const leaves2 = this.createLegoBox(1.5, 1.0, 1.5, 0x40916c);
+                leaves2.position.y = 4.1 + 0.5;
+
+                tree.add(leaves1, leaves2);
+                this.scene.add(tree);
+            }
+
+            getGamePlatforms() {
+                return [
+                    // 7 High Floating Islands - updated heights
+                    { x: 50, y: 10.35, z: 50 },
+                    { x: -60, y: 12.35, z: -40 },
+                    { x: -50, y: 8.35, z: 60 },
+                    { x: 80, y: 16.35, z: -40 },
+                    { x: -90, y: 15.35, z: 90 },
+                    { x: 100, y: 14.35, z: 100 },
+                    { x: -110, y: 18.35, z: -110 },
+                    // Main Center Island (dispersed points on 160x160)
+                    { x: 0, y: 1.55, z: 0 },
+                    { x: 35, y: 1.55, z: 35 },
+                    { x: -35, y: 1.55, z: -35 },
+                    { x: 35, y: 1.55, z: -35 },
+                    { x: -35, y: 1.55, z: 35 },
+                    { x: 60, y: 1.55, z: 0 },
+                    { x: -60, y: 1.55, z: 0 },
+                    { x: 0, y: 1.55, z: 60 },
+                    { x: 0, y: 1.55, z: -60 },
+                    // Outer Islands (70x70 at offset 130)
+                    { x: 130, y: 1.55, z: 0 },
+                    { x: 130, y: 1.55, z: 20 },
+                    { x: 130, y: 1.55, z: -20 },
+                    { x: -130, y: 1.55, z: 0 },
+                    { x: -130, y: 1.55, z: 20 },
+                    { x: -130, y: 1.55, z: -20 },
+                    { x: 0, y: 1.55, z: 130 },
+                    { x: 20, y: 1.55, z: 130 },
+                    { x: -20, y: 1.55, z: 130 },
+                    { x: 0, y: 1.55, z: -130 },
+                    { x: 20, y: 1.55, z: -130 },
+                    { x: -20, y: 1.55, z: -130 },
+                    // Bridges
+                    { x: 87.5, y: 1.85, z: 0 },
+                    { x: -87.5, y: 1.85, z: 0 },
+                    { x: 0, y: 1.85, z: 87.5 },
+                    { x: 0, y: 1.85, z: -87.5 }
+                ];
+            }
+
+            spawnDragonBalls() {
+                DB_LOCATIONS.forEach((pos, i) => {
+                    const ball = new THREE.Group();
+                    ball.position.copy(pos);
+
+                    // Giant size 1.8 (from 1.2) for extreme visibility
+                    const geom = new THREE.SphereGeometry(1.8, 16, 16);
+                    const mat = new THREE.MeshStandardMaterial({ 
+                        color: 0xff8800, 
+                        emissive: 0xff6600,
+                        roughness: 0.1,
+                        metalness: 0.1
+                    });
+                    const sphere = new THREE.Mesh(geom, mat);
+                    sphere.castShadow = true;
+                    ball.add(sphere);
+
+                    // High power orange light (2.5 intensity, 18 range)
+                    const light = new THREE.PointLight(0xff8800, 2.5, 18);
+                    ball.add(light);
+
+                    // Glowing sky beacon Cylinder pointing straight up
+                    const beamGeom = new THREE.CylinderGeometry(0.2, 0.8, 80, 8, 1, true);
+                    beamGeom.translate(0, 40, 0); // Bottom starts at Dragon Ball pos
+                    const beamMat = new THREE.MeshBasicMaterial({
+                        color: 0xffaa00,
+                        transparent: true,
+                        opacity: 0.22,
+                        blending: THREE.AdditiveBlending,
+                        side: THREE.DoubleSide,
+                        depthWrite: false
+                    });
+                    const beacon = new THREE.Mesh(beamGeom, beamMat);
+                    ball.add(beacon);
+
+                    ball.userData = {
+                        index: i + 1,
+                        pulseOffset: Math.random() * Math.PI,
+                        rotSpeed: 0.02 + Math.random() * 0.02,
+                        light: light,
+                        sphere: sphere
+                    };
+
+                    this.scene.add(ball);
+                    this.dragonBalls.push(ball);
+                });
+            }
+
+            spawnCrystals(count) {
+                const geom = new THREE.OctahedronGeometry(0.45, 0);
+                const platformCords = this.getGamePlatforms();
+                
+                for (let i = 0; i < count; i++) {
+                    const color = Math.random() < 0.5 ? 0x8a2be2 : 0x00ffff; 
+                    const mat = new THREE.MeshStandardMaterial({
+                        color: color,
+                        emissive: color,
+                        roughness: 0.1,
+                        metalness: 0.9
+                    });
+                    const crystal = new THREE.Mesh(geom, mat);
+                    
+                    const p = platformCords[Math.floor(Math.random() * platformCords.length)];
+                    let scatter = 4;
+                    if (p.x === 0 && p.z === 0) {
+                        scatter = 50;
+                    } else if (Math.abs(p.x) === 25 || Math.abs(p.z) === 25) {
+                        scatter = 35;
+                    } else if (Math.abs(p.x) === 40 || Math.abs(p.z) === 40) {
+                        scatter = 40;
+                    } else if (Math.abs(p.x) === 85 || Math.abs(p.z) === 85) {
+                        scatter = 20;
+                    } else if (Math.abs(p.x) === 58.75 || Math.abs(p.z) === 58.75) {
+                        scatter = 1.5;
+                    }
+                    
+                    const rx = p.x + (Math.random() - 0.5) * scatter;
+                    const rz = p.z + (Math.random() - 0.5) * scatter;
+                    const ry = p.y;
+
+                    crystal.position.set(rx, ry, rz);
+                    crystal.userData = {
+                        rotY: 0.015 + Math.random() * 0.02,
+                        bobOffset: Math.random() * Math.PI,
+                        originalY: ry
+                    };
+
+                    this.scene.add(crystal);
+                    this.crystals.push(crystal);
+                }
+            }
+
+            spawnSenzuBeans(count) {
+                const geom = new THREE.CylinderGeometry(0.2, 0.2, 0.5, 8);
+                const mat = new THREE.MeshStandardMaterial({
+                    color: 0x4ade80,
+                    emissive: 0x22c55e,
+                    roughness: 0.2,
+                    metalness: 0.5
+                });
+
+                const platformCords = this.getGamePlatforms();
+
+                for (let i = 0; i < count; i++) {
+                    const bean = new THREE.Mesh(geom, mat);
+                    bean.rotation.z = Math.PI / 2;
+
+                    const p = platformCords[Math.floor(Math.random() * platformCords.length)];
+                    let scatter = 4;
+                    if (p.x === 0 && p.z === 0) {
+                        scatter = 50;
+                    } else if (Math.abs(p.x) === 25 || Math.abs(p.z) === 25) {
+                        scatter = 35;
+                    } else if (Math.abs(p.x) === 40 || Math.abs(p.z) === 40) {
+                        scatter = 40;
+                    } else if (Math.abs(p.x) === 85 || Math.abs(p.z) === 85) {
+                        scatter = 20;
+                    } else if (Math.abs(p.x) === 58.75 || Math.abs(p.z) === 58.75) {
+                        scatter = 1.5;
+                    }
+
+                    const rx = p.x + (Math.random() - 0.5) * scatter;
+                    const rz = p.z + (Math.random() - 0.5) * scatter;
+                    const ry = p.y;
+
+                    bean.position.set(rx, ry, rz);
+                    bean.userData = {
+                        rotY: 0.01 + Math.random() * 0.01,
+                        bobOffset: Math.random() * Math.PI,
+                        originalY: ry
+                    };
+
+                    this.scene.add(bean);
+                    this.senzuBeans.push(bean);
+                }
+            }
+
+            spawnCapsules(count) {
+                const platformCords = this.getGamePlatforms();
+                const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3, metalness: 0.2 });
+                const cylGeom = new THREE.CylinderGeometry(0.22, 0.22, 0.45, 8);
+                const sphGeom = new THREE.SphereGeometry(0.22, 8, 8);
+
+                for (let i = 0; i < count; i++) {
+                    const group = new THREE.Group();
+                    
+                    const centerCyl = new THREE.Mesh(cylGeom, whiteMat);
+                    centerCyl.position.y = 0;
+                    group.add(centerCyl);
+
+                    const coloredMat = new THREE.MeshStandardMaterial({ 
+                        color: Math.random() < 0.5 ? 0xff3b30 : 0x0088ff, 
+                        roughness: 0.3, 
+                        metalness: 0.2 
+                    });
+                    const topSph = new THREE.Mesh(sphGeom, coloredMat);
+                    topSph.position.y = 0.225;
+                    group.add(topSph);
+
+                    const botSph = new THREE.Mesh(sphGeom, whiteMat);
+                    botSph.position.y = -0.225;
+                    group.add(botSph);
+
+                    const lightColor = coloredMat.color.getHex();
+                    const light = new THREE.PointLight(lightColor, 0.8, 6);
+                    light.position.y = 0;
+                    group.add(light);
+
+                    const p = platformCords[Math.floor(Math.random() * platformCords.length)];
+                    let scatter = 4;
+                    if (p.x === 0 && p.z === 0) {
+                        scatter = 50;
+                    } else if (Math.abs(p.x) === 25 || Math.abs(p.z) === 25) {
+                        scatter = 35;
+                    } else if (Math.abs(p.x) === 40 || Math.abs(p.z) === 40) {
+                        scatter = 40;
+                    } else if (Math.abs(p.x) === 85 || Math.abs(p.z) === 85) {
+                        scatter = 20;
+                    } else if (Math.abs(p.x) === 58.75 || Math.abs(p.z) === 58.75) {
+                        scatter = 1.5;
+                    }
+
+                    const rx = p.x + (Math.random() - 0.5) * scatter;
+                    const rz = p.z + (Math.random() - 0.5) * scatter;
+                    const ry = p.y + 0.35; 
+
+                    group.position.set(rx, ry, rz);
+                    
+                    group.rotation.x = Math.PI / 6;
+                    group.rotation.z = Math.PI / 12;
+
+                    group.userData = {
+                        rotY: 0.015 + Math.random() * 0.015,
+                        rotX: 0.005 + Math.random() * 0.01,
+                        bobOffset: Math.random() * Math.PI,
+                        originalY: ry
+                    };
+
+                    this.scene.add(group);
+                    this.capsules.push(group);
+                }
+            }
+
+            buildLegoCharacter(charId, ssj) {
+                const group = new THREE.Group();
+                const config = CHAR_CONFIG[charId];
+                const form = config.forms[Math.min(ssj, config.forms.length - 1)];
+
+                const skinColor = config.skinColor;
+                const giColor = form.redFur ? 0xff3b30 : config.giColor;
+                const bootColor = config.bootColor;
+                const beltColor = config.beltColor;
+                const hairColor = form.hairColor;
+
+                // Scale character based on level properties (e.g. Piccolo Giant form scaling)
+                const charScale = form.scale || 1.0;
+                group.scale.set(charScale, charScale, charScale);
+
+                // Legs
+                const legL = this.createLegoBox(0.4, 0.8, 0.42, giColor);
+                legL.position.set(-0.25, 0.4, 0);
+                const legR = this.createLegoBox(0.4, 0.8, 0.42, giColor);
+                legR.position.set(0.25, 0.4, 0);
+                group.add(legL, legR);
+
+                // Torso
+                const torso = this.createLegoBox(0.95, 1.2, 0.55, giColor);
+                torso.position.y = 1.4;
+                group.add(torso);
+
+                // Belt
+                const belt = this.createLegoBox(0.98, 0.18, 0.57, beltColor);
+                belt.position.y = 0.95;
+                group.add(belt);
+
+                // Head
+                const head = this.createLegoBox(0.65, 0.65, 0.65, skinColor);
+                head.position.y = 2.18;
+                group.add(head);
+
+                // Eyes
+                const eyeColor = ssj > 0 ? 0x00ffcc : 0x111111;
+                const eyeL = this.createLegoBox(0.12, 0.08, 0.08, 0xffffff);
+                eyeL.position.set(-0.16, 2.22, 0.3);
+                const pupilL = this.createLegoBox(0.06, 0.08, 0.04, eyeColor);
+                pupilL.position.set(-0.16, 2.22, 0.33);
+                
+                const eyeR = this.createLegoBox(0.12, 0.08, 0.08, 0xffffff);
+                eyeR.position.set(0.16, 2.22, 0.3);
+                const pupilR = this.createLegoBox(0.06, 0.08, 0.04, eyeColor);
+                pupilR.position.set(0.16, 2.22, 0.33);
+
+                group.add(eyeL, pupilL, eyeR, pupilR);
+
+                // Piccolo Turban
+                if (form.turban) {
+                    const turban = this.createLegoBox(0.72, 0.28, 0.72, 0xeeeeee);
+                    turban.position.set(0, 2.5, 0);
+                    group.add(turban);
+                    const cape = this.createLegoBox(1.15, 1.5, 0.1, 0xeeeeee);
+                    cape.position.set(0, 1.25, -0.35);
+                    group.add(cape);
+                }
+
+                // Arms
+                const lArm = this.createLegoBox(0.32, 0.9, 0.32, giColor);
+                lArm.position.set(-0.62, 1.35, 0);
+                const rArm = this.createLegoBox(0.32, 0.9, 0.32, giColor);
+                rArm.position.set(0.62, 1.35, 0);
+                group.add(lArm, rArm);
+
+                // SS4 tail
+                if (ssj === 4 && charId === "goku") {
+                    const tail = this.createLegoBox(0.12, 0.12, 1.1, 0xdd2200);
+                    tail.position.set(0, 0.6, -0.6);
+                    tail.rotation.x = -0.3;
+                    group.add(tail);
+                }
+
+                // Hair
+                const hairGroup = new THREE.Group();
+                hairGroup.position.set(0, 2.45, 0);
+
+                if (!form.turban) {
+                    const cap = this.createLegoBox(0.67, 0.15, 0.67, hairColor);
+                    hairGroup.add(cap);
+
+                    const spikeData = [];
+                    if (form.longHair) {
+                        spikeData.push({ x: 0, y: -0.5, z: -0.4, w: 0.5, h: 1.2, d: 0.3 });
+                        spikeData.push({ x: 0.1, y: -1.1, z: -0.5, w: 0.4, h: 1.0, d: 0.3 });
+                        spikeData.push({ x: -0.1, y: -1.1, z: -0.5, w: 0.4, h: 1.0, d: 0.3 });
+                        spikeData.push({ x: 0, y: 0.2, z: 0.3, w: 0.15, h: 0.5, d: 0.15, rx: 0.4 });
+                        spikeData.push({ x: 0.2, y: 0.2, z: 0.2, w: 0.15, h: 0.5, d: 0.15, rz: -0.5 });
+                        spikeData.push({ x: -0.2, y: 0.2, z: 0.2, w: 0.15, h: 0.5, d: 0.15, rz: 0.5 });
+                    } else if (charId === "vegeta") {
+                        spikeData.push({ x: 0, y: 0.3, z: -0.1, w: 0.35, h: 0.7, d: 0.35 });
+                        spikeData.push({ x: 0.2, y: 0.25, z: 0.05, w: 0.25, h: 0.6, d: 0.25, rz: -0.25 });
+                        spikeData.push({ x: -0.2, y: 0.25, z: 0.05, w: 0.25, h: 0.6, d: 0.25, rz: 0.25 });
+                        spikeData.push({ x: 0.1, y: 0.5, z: -0.1, w: 0.25, h: 0.6, d: 0.25 });
+                        spikeData.push({ x: -0.1, y: 0.5, z: -0.1, w: 0.25, h: 0.6, d: 0.25 });
+                    } else {
+                        spikeData.push({ x: 0.25, y: 0.25, z: 0.15, w: 0.28, h: 0.6, d: 0.28, rz: -0.4, rx: 0.2 });
+                        spikeData.push({ x: -0.25, y: 0.25, z: 0.15, w: 0.28, h: 0.6, d: 0.28, rz: 0.4, rx: 0.2 });
+                        spikeData.push({ x: 0.15, y: 0.4, z: -0.1, w: 0.3, h: 0.62, d: 0.3, rz: -0.2 });
+                        spikeData.push({ x: -0.15, y: 0.4, z: -0.1, w: 0.3, h: 0.62, d: 0.3, rz: 0.2 });
+                        spikeData.push({ x: 0, y: 0.5, z: 0.1, w: 0.25, h: 0.7, d: 0.25 });
+                        spikeData.push({ x: 0.32, y: -0.1, z: 0.2, w: 0.15, h: 0.35, d: 0.15 });
+                        spikeData.push({ x: -0.32, y: -0.1, z: 0.2, w: 0.15, h: 0.35, d: 0.15 });
+                    }
+
+                    spikeData.forEach(sd => {
+                        const spike = this.createLegoBox(sd.w, sd.h, sd.d, hairColor);
+                        spike.position.set(sd.x, sd.y, sd.z);
+                        if (sd.rx) spike.rotation.x = sd.rx;
+                        if (sd.rz) spike.rotation.z = sd.rz;
+                        hairGroup.add(spike);
+                    });
+                }
+                group.add(hairGroup);
+
+                // Aura Cylinder
+                const auraGeo = new THREE.ConeGeometry(2.0, 4.0, 8, 1, true);
+                const auraMat = new THREE.MeshBasicMaterial({ 
+                    color: form.auraColor, 
+                    transparent: true, 
+                    opacity: 0.16,
+                    side: THREE.DoubleSide,
+                    blending: THREE.AdditiveBlending
+                });
+                const aura = new THREE.Mesh(auraGeo, auraMat);
+                aura.position.y = 1.0;
+                aura.visible = (ssj > 0);
+                group.add(aura);
+
+                group.userData = {
+                    lLeg: legL, rLeg: legR,
+                    lArm: lArm, rArm: rArm,
+                    aura: aura,
+                    form: form
+                };
+
+                return group;
+            }
+
+            setupControls() {
+                // Keyboard
+                window.addEventListener('keydown', e => {
+                    const key = e.key.toLowerCase();
+                    this.keys[key] = true;
+                    if (e.code) {
+                        const codeKey = e.code.replace('Key', '').toLowerCase();
+                        this.keys[codeKey] = true;
+                    }
+                    sound.init(); 
+
+                    if (e.key === ' ' || e.code === 'Space') {
+                        const now = performance.now();
+                        if (now - this.lastFlyToggleTime < 280) {
+                            this.toggleFlight();
+                        }
+                        this.lastFlyToggleTime = now;
+                    }
+
+                    if (e.key.toLowerCase() === 'c' || e.code === 'KeyC') {
+                        this.performKamehameha();
+                    }
+                    if (e.key.toLowerCase() === 'v' || e.code === 'KeyV') {
+                        this.performSpiritBomb();
+                    }
+                    if (e.key.toLowerCase() === 'z' || e.code === 'KeyZ') {
+                        this.changeSSJLevel(-1);
+                    }
+                    if (e.key.toLowerCase() === 'x' || e.code === 'KeyX') {
+                        this.changeSSJLevel(1);
+                    }
+                    if (e.key.toLowerCase() === 'q' || e.code === 'KeyQ') {
+                        this.performVanish();
+                    }
+                });
+
+                window.addEventListener('keyup', e => {
+                    const key = e.key.toLowerCase();
+                    this.keys[key] = false;
+                    if (e.code) {
+                        const codeKey = e.code.replace('Key', '').toLowerCase();
+                        this.keys[codeKey] = false;
+                    }
+                });
+
+                // Mouse actions
+                window.addEventListener('mousedown', e => {
+                    sound.init();
+                    if (!this.gameStarted) return;
+                    if (e.button === 0) {
+                        this.performMelee();
+                    } else if (e.button === 2) {
+                        this.performKiBlast();
+                    }
+                });
+
+                window.addEventListener('contextmenu', e => e.preventDefault());
+
+                // Start screen triggers
+                document.getElementById('start-btn').addEventListener('click', () => {
+                    this.startLobbyGame();
+                });
+
+                document.getElementById('victory-restart-btn').addEventListener('click', () => {
+                    location.reload();
+                });
+
+                const soundBtn = document.getElementById('sound-btn');
+                soundBtn.addEventListener('click', () => {
+                    const isMuted = sound.toggle();
+                    document.getElementById('sound-icon').textContent = isMuted ? "🔇" : "🔊";
+                    document.getElementById('sound-text').textContent = isMuted ? "מוזיקה כבויה" : "מוזיקה דולקת";
+                });
+
+                // Manual show/hide controls overlay toggle
+                const helpBtn = document.getElementById('help-btn');
+                helpBtn.classList.add('active');
+                helpBtn.addEventListener('click', () => {
+                    this.showHelp = !this.showHelp;
+                    const helpOverlay = document.getElementById('help-overlay');
+                    if (this.showHelp) {
+                        helpOverlay.style.display = "flex";
+                        helpBtn.classList.add('active');
+                    } else {
+                        helpOverlay.style.display = "none";
+                        helpBtn.classList.remove('active');
+                    }
+                });
+
+                // Mobile Virtual Buttons
+                document.getElementById('touch-charge').addEventListener('touchstart', () => { this.physics.isCharging = true; });
+                document.getElementById('touch-charge').addEventListener('touchend', () => { this.physics.isCharging = false; });
+                
+                document.getElementById('touch-fly').addEventListener('touchstart', () => { this.toggleFlight(); });
+                document.getElementById('touch-attack').addEventListener('touchstart', () => { this.performMelee(); });
+                document.getElementById('touch-special').addEventListener('touchstart', () => { this.performKiBlast(); });
+
+                // Mobile Joystick
+                const joystick = document.getElementById('touch-joystick');
+                const knob = document.getElementById('touch-knob');
+                
+                const handleJoystick = (touch) => {
+                    const rect = joystick.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    
+                    let dx = touch.clientX - centerX;
+                    let dy = touch.clientY - centerY;
+                    const dist = Math.hypot(dx, dy);
+                    const maxDist = rect.width / 2;
+                    
+                    if (dist > maxDist) {
+                        dx = (dx / dist) * maxDist;
+                        dy = (dy / dist) * maxDist;
+                    }
+                    
+                    knob.style.transform = `translate(${dx}px, ${dy}px)`;
+                    
+                    this.joystickInput.x = dx / maxDist;
+                    this.joystickInput.z = dy / maxDist;
+                };
+
+                joystick.addEventListener('touchstart', e => {
+                    this.isJoystickDragging = true;
+                    handleJoystick(e.touches[0]);
+                });
+                joystick.addEventListener('touchmove', e => {
+                    if (this.isJoystickDragging) handleJoystick(e.touches[0]);
+                });
+                joystick.addEventListener('touchend', () => {
+                    this.isJoystickDragging = false;
+                    knob.style.transform = 'translate(0px, 0px)';
+                    this.joystickInput.x = 0;
+                    this.joystickInput.z = 0;
+                });
+            }
+
+            toggleFlight() {
+                const config = CHAR_CONFIG[this.myCharId];
+                const form = config.forms[Math.min(this.ssjLevel, config.forms.length - 1)];
+                
+                if (form.fly || this.myCharId === "piccolo") {
+                    this.physics.flying = !this.physics.flying;
+                    this.physics.vel.set(0,0,0);
+                    this.announce(this.physics.flying ? "מעוף פעיל! 💨" : "נחיתה");
+                    sound.playWhoosh();
+                } else {
+                    this.announce("צריך רמת סייאן למעוף! ⚡");
+                }
+            }
+
+            // Checks score and levels up Saiyan transforms automatically (Disabled for manual transformations)
+            checkLevelProgress() {
+                // Transformations are now manually triggered via X/Z and Gamepad D-pad Left/Right!
+            }
+
+            changeSSJLevel(dir) {
+                const config = CHAR_CONFIG[this.myCharId];
+                let targetSSJ = this.ssjLevel + dir;
+                targetSSJ = Math.max(0, Math.min(config.forms.length - 1, targetSSJ));
+                
+                if (targetSSJ !== this.ssjLevel) {
+                    this.ssjLevel = targetSSJ;
+                    this.updateLocalCharacterMesh();
+
+                    // Transformation FX
+                    sound.playTransform();
+                    this.createTransformationBurst();
+                    this.cameraShake(25);
+                    
+                    const form = config.forms[this.ssjLevel];
+                    this.announce(`שינוי צורה: ${form.name}! 🔥`);
+
+                    // Sync transform state
+                    this.sendNetworkMessage({
+                        type: "transform",
+                        ssj: this.ssjLevel
+                    });
+                }
+            }
+
+            updateLocalCharacterMesh() {
+                if (this.playerGroup) {
+                    this.scene.remove(this.playerGroup);
+                }
+                this.playerGroup = this.buildLegoCharacter(this.myCharId, this.ssjLevel);
+                this.playerGroup.position.copy(this.physics.pos);
+                this.scene.add(this.playerGroup);
+
+                const config = CHAR_CONFIG[this.myCharId];
+                const form = config.forms[Math.min(this.ssjLevel, config.forms.length - 1)];
+                const levelNum = this.ssjLevel + 1;
+                document.getElementById('hud-char-form').textContent = `מצב: ${form.name} · רמה ${levelNum}`;
+            }
+
+            startLobbyGame() {
+                const nickInput = document.getElementById('nickname-input');
+                this.myName = nickInput.value.trim() || "סייאן";
+
+                const selectedCard = document.querySelector('.char-card.selected');
+                if (selectedCard) {
+                    this.myCharId = selectedCard.dataset.char;
+                }
+
+                const lobby = document.getElementById('lobby-container');
+                lobby.style.opacity = '0';
+                setTimeout(() => {
+                    lobby.style.display = 'none';
+                }, 500);
+
+                document.getElementById('hud').style.opacity = '1';
+                document.getElementById('hud-char-name').textContent = CHAR_CONFIG[this.myCharId].name + " (" + this.myName + ")";
+
+                this.updateLocalCharacterMesh();
+
+                this.connectMultiplayer();
+
+                this.gameStarted = true;
+                sound.startMusic();
+            }
+
+            connectMultiplayer() {
+                const defaultBroker = "wss://broker.hivemq.com:8884/mqtt";
+                let brokerUrl = document.getElementById('server-input').value.trim() || defaultBroker;
+
+                this.mqttClientId = "dbz_" + Math.random().toString(16).substring(2, 10);
+                
+                try {
+                    this.mqttClient = mqtt.connect(brokerUrl, { 
+                        clientId: this.mqttClientId,
+                        connectTimeout: 5000,
+                        reconnectPeriod: 4000
+                    });
+
+                    this.mqttClient.on('connect', () => {
+                        this.isMultiplayer = true;
+                        const statusDot = document.getElementById('net-status-dot');
+                        if (statusDot) statusDot.className = "status-dot online";
+                        
+                        const statusText = document.getElementById('net-status-text');
+                        if (statusText) statusText.textContent = "מחובר לשרת";
+
+                        this.mqttClient.subscribe(`guy-games/dbz/${this.roomId}`, (err) => {
+                            if (!err) {
+                                this.sendNetworkMessage({
+                                    type: "join",
+                                    name: this.myName,
+                                    charId: this.myCharId
+                                });
+                            } else {
+                                this.enterLocalMode();
+                            }
+                        });
+                    });
+
+                    this.mqttClient.on('message', (topic, message) => {
+                        try {
+                            const data = JSON.parse(message.toString());
+                            if (data.senderId === this.mqttClientId) return;
+                            this.handleNetworkMessage(data);
+                        } catch(e) {
+                            console.error("Error parsing MQTT message:", e);
+                        }
+                    });
+
+                    this.mqttClient.on('error', () => {
+                        this.enterLocalMode();
+                    });
+
+                    this.mqttClient.on('close', () => {
+                        if (!this.isMultiplayer) {
+                            this.enterLocalMode();
+                        }
+                    });
+                } catch(e) {
+                    this.enterLocalMode();
+                }
+            }
+
+            enterLocalMode() {
+                this.isMultiplayer = false;
+                const statusDot = document.getElementById('net-status-dot');
+                if (statusDot) statusDot.className = "status-dot local";
+                const statusText = document.getElementById('net-status-text');
+                if (statusText) statusText.textContent = "אימון מקומי";
+
+                if (this.saibamen.length === 0) {
+                    this.spawnSaibamen();
+                }
+                this.updateRoomStats();
+            }
+
+            spawnSaibamen() {
+                const locations = [
+                    new THREE.Vector3(25, 1.2, -18),
+                    new THREE.Vector3(-25, 1.2, 22),
+                    new THREE.Vector3(35, 1.2, 35)
+                ];
+
+                locations.forEach((pos, i) => {
+                    const saiba = new THREE.Group();
+                    saiba.position.copy(pos);
+
+                    const body = this.createLegoBox(0.8, 0.9, 0.4, 0x4f8f29);
+                    body.position.y = 0.85;
+                    const legs = this.createLegoBox(0.6, 0.4, 0.3, 0x3d701e);
+                    legs.position.y = 0.2;
+                    const head = this.createLegoBox(0.55, 0.55, 0.55, 0x5fa832);
+                    head.position.y = 1.5;
+                    const eyeL = this.createLegoBox(0.1, 0.08, 0.05, 0xff0000);
+                    eyeL.position.set(-0.12, 1.52, 0.24);
+                    const eyeR = this.createLegoBox(0.1, 0.08, 0.05, 0xff0000);
+                    eyeR.position.set(0.12, 1.52, 0.24);
+
+                    saiba.add(legs, body, head, eyeL, eyeR);
+                    
+                    const labelDiv = document.createElement('div');
+                    labelDiv.className = 'player-label-3d';
+                    labelDiv.textContent = `סאיבמן ${i + 1}`;
+                    labelDiv.style.borderColor = "#39ff14";
+                    
+                    saiba.userData = {
+                        label: labelDiv,
+                        isSaibaman: true,
+                        hp: 100,
+                        id: `saiba-${i}`
+                    };
+
+                    document.body.appendChild(labelDiv);
+                    this.scene.add(saiba);
+                    this.saibamen.push(saiba);
+                });
+            }
+
+            sendNetworkMessage(data) {
+                if (this.mqttClient && this.isMultiplayer) {
+                    data.senderId = this.mqttClientId;
+                    this.mqttClient.publish(`guy-games/dbz/${this.roomId}`, JSON.stringify(data));
+                }
+            }
+
+            spawnRemotePlayer(id, name, charId, ssj) {
+                if (this.remotePlayers[id]) {
+                    this.scene.remove(this.remotePlayers[id].mesh);
+                    if (this.remotePlayers[id].label && this.remotePlayers[id].label.parentNode) {
+                        this.remotePlayers[id].label.parentNode.removeChild(this.remotePlayers[id].label);
+                    }
+                }
+
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'player-label-3d';
+                labelDiv.textContent = `${name} (${CHAR_CONFIG[charId].name})`;
+                document.body.appendChild(labelDiv);
+
+                const mesh = this.buildLegoCharacter(charId, ssj);
+                this.scene.add(mesh);
+
+                this.remotePlayers[id] = {
+                    name: name,
+                    charId: charId,
+                    ssj: ssj,
+                    mesh: mesh,
+                    label: labelDiv,
+                    pos: new THREE.Vector3(0,0,0),
+                    targetPos: new THREE.Vector3(0,0,0),
+                    rotY: 0,
+                    targetRotY: 0,
+                    lastUpdateTime: performance.now()
+                };
+
+                this.updateRoomStats();
+            }
+
+            handleNetworkMessage(msg) {
+                const id = msg.senderId;
+                if (!id) return;
+
+                if (msg.type === "join") {
+                    this.announce(`לוחם ${msg.name} הצטרף! ⚔️`);
+                    this.spawnRemotePlayer(id, msg.name, msg.charId, 0);
+                    
+                    // Reply immediately with a sync message so they know about us
+                    this.sendNetworkMessage({
+                        type: "sync",
+                        name: this.myName,
+                        charId: this.myCharId,
+                        ssj: this.ssjLevel
+                    });
+                }
+
+                else if (msg.type === "sync") {
+                    this.spawnRemotePlayer(id, msg.name, msg.charId, msg.ssj);
+                }
+
+                else if (msg.type === "move") {
+                    let player = this.remotePlayers[id];
+                    if (!player) {
+                        this.spawnRemotePlayer(id, msg.name || "לוחם", msg.charId || "goku", msg.ssj || 0);
+                        player = this.remotePlayers[id];
+                    }
+                    if (player) {
+                        player.targetPos.set(msg.pos.x, msg.pos.y, msg.pos.z);
+                        player.targetRotY = msg.rotY;
+                        player.lastUpdateTime = performance.now();
+                        
+                        if (player.mesh.userData && player.mesh.userData.aura) {
+                            player.mesh.userData.aura.visible = (msg.ssj > 0);
+                        }
+                    }
+                }
+
+                else if (msg.type === "transform") {
+                    const player = this.remotePlayers[id];
+                    if (player) {
+                        player.ssj = msg.ssj;
+                        
+                        this.scene.remove(player.mesh);
+                        player.mesh = this.buildLegoCharacter(player.charId, msg.ssj);
+                        this.scene.add(player.mesh);
+
+                        this.createTransformationSparks(player.mesh.position, msg.ssj);
+                    }
+                }
+
+                else if (msg.type === "attack") {
+                    const player = this.remotePlayers[id];
+                    if (player) {
+                        this.triggerRemoteAttackFX(player, msg.attackType);
+                    }
+                }
+
+                else if (msg.type === "collect") {
+                    this.registerBallCollection(msg.ballIndex);
+                }
+
+                else if (msg.type === "leave") {
+                    const player = this.remotePlayers[id];
+                    if (player) {
+                        this.announce(`הלוחם ${player.name} עזב`);
+                        this.scene.remove(player.mesh);
+                        if (player.label && player.label.parentNode) {
+                            player.label.parentNode.removeChild(player.label);
+                        }
+                        delete this.remotePlayers[id];
+                        this.updateRoomStats();
+                    }
+                }
+            }
+
+            updateRoomStats() {
+                const count = Object.keys(this.remotePlayers).length + 1;
+                const el = document.getElementById('hud-players-count');
+                if (el) {
+                    el.textContent = `(${count} מחוברים)`;
+                }
+            }
+
+            performMelee() {
+                if (this.physics.isCharging) return;
+                this.physics.isStriking = 10; 
+                sound.playWhoosh();
+
+                if (this.playerGroup && this.playerGroup.userData.rArm) {
+                    this.playerGroup.userData.rArm.rotation.x = -Math.PI / 2;
+                }
+
+                if (!this.isMultiplayer) {
+                    this.saibamen.forEach(saiba => {
+                        const dist = this.physics.pos.distanceTo(saiba.position);
+                        if (dist < 2.5) {
+                            this.damageTarget(saiba, 20 + this.ssjLevel * 10);
+                        }
+                    });
+                }
+
+                this.sendNetworkMessage({
+                    type: "attack",
+                    attackType: "melee"
+                });
+            }
+
+            performKiBlast() {
+                if (this.physics.isCharging) return;
+                
+                sound.playKiBlast();
+                this.announce("מטח קי! 💥");
+
+                const dir = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.physics.rotY).normalize();
+                const spawnPos = this.physics.pos.clone().addScaledVector(dir, 1.2);
+                spawnPos.y += 1.2;
+
+                const proj = this.createKiSphere(spawnPos, dir, 0.4, 0.35, 0x00ffff);
+                this.projectiles.push(proj);
+
+                this.sendNetworkMessage({
+                    type: "attack",
+                    attackType: "kiblast"
+                });
+            }
+
+            performKamehameha() {
+                if (this.physics.isCharging) return;
+
+                this.announce("קא-מה-הא-מה... 🌊");
+                sound.playKamehameCharge();
+
+                this.physics.isCharging = true;
+                setTimeout(() => {
+                    this.physics.isCharging = false;
+                    sound.playKamehameFire();
+                    this.announce("האאאאא! 🌊");
+                    this.cameraShake(15);
+
+                    const dir = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.physics.rotY).normalize();
+                    const beamPos = this.physics.pos.clone().addScaledVector(dir, 2.5);
+                    beamPos.y += 1.2;
+
+                    const beam = this.createKamehamehaBeam(beamPos, dir);
+                    this.projectiles.push(beam);
+
+                    if (!this.isMultiplayer) {
+                        this.saibamen.forEach(saiba => {
+                            const diff = saiba.position.clone().sub(this.physics.pos);
+                            const dist = diff.length();
+                            if (dist < 40) {
+                                const angle = diff.normalize().angleTo(dir);
+                                if (angle < 0.25) { 
+                                    this.damageTarget(saiba, 80 + this.ssjLevel * 25);
+                                }
+                            }
+                        });
+                    }
+                }, 1200);
+
+                this.sendNetworkMessage({
+                    type: "attack",
+                    attackType: "kamehameha"
+                });
+            }
+
+            performSpiritBomb() {
+                if (this.physics.isCharging) return;
+
+                this.announce("גיוס פצצת רוח! 🔮");
+                sound.playSpiritBombCharge();
+
+                if (this.playerGroup) {
+                    if (this.playerGroup.userData.lArm) this.playerGroup.userData.lArm.rotation.x = -Math.PI;
+                    if (this.playerGroup.userData.rArm) this.playerGroup.userData.rArm.rotation.x = -Math.PI;
+                }
+
+                const bombPos = this.physics.pos.clone();
+                bombPos.y += 4.5;
+
+                const geom = new THREE.SphereGeometry(2.5, 16, 16);
+                const mat = new THREE.MeshBasicMaterial({ 
+                    color: 0x00ffff, 
+                    transparent: true, 
+                    opacity: 0.5,
+                    blending: THREE.AdditiveBlending 
+                });
+                const bombMesh = new THREE.Mesh(geom, mat);
+                bombMesh.position.copy(bombPos);
+                this.scene.add(bombMesh);
+
+                setTimeout(() => {
+                    this.scene.remove(bombMesh);
+                    sound.playSpiritBombExplode();
+                    this.announce("פצצת רוח הוטלה! 💥");
+                    this.cameraShake(30);
+
+                    this.createExplosionSparks(this.physics.pos, 0x00ffff, 45);
+
+                    if (!this.isMultiplayer) {
+                        this.saibamen.forEach(saiba => {
+                            const dist = this.physics.pos.distanceTo(saiba.position);
+                            if (dist < 30) {
+                                this.damageTarget(saiba, 100);
+                            }
+                        });
+                    }
+                }, 1600);
+
+                this.sendNetworkMessage({
+                    type: "attack",
+                    attackType: "spiritbomb"
+                });
+            }
+
+            performVanish() {
+                if (!this.gameStarted || this.physics.isCharging) return;
+                
+                let dir = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.physics.rotY).normalize();
+                
+                const vanishDist = 12;
+                const newPos = this.physics.pos.clone().addScaledVector(dir, vanishDist);
+                
+                newPos.x = Math.max(-240, Math.min(240, newPos.x));
+                newPos.z = Math.max(-240, Math.min(240, newPos.z));
+                
+                this.createExplosionSparks(this.physics.pos, 0xffea00, 15);
+                this.physics.pos.copy(newPos);
+                this.createExplosionSparks(this.physics.pos, 0x00ffff, 15);
+                
+                sound.playWhoosh();
+                this.announce("השתגרות! 💨");
+                this.cameraShake(5);
+                
+                this.networkSync();
+            }
+
+            damageTarget(target, dmg) {
+                target.userData.hp -= dmg;
+                this.announce(`פגיעה! ${dmg} נזק`);
+                
+                this.createFloatingText(target.position, `-${dmg}`, 0xff0000);
+
+                if (target.userData.hp <= 0) {
+                    this.announce("מטרה נוטרלה! 🌟");
+                    this.createExplosionSparks(target.position, 0x39ff14, 20);
+                    
+                    // Award score for defeating Saibamen
+                    this.addScore(50);
+                    
+                    target.position.set((Math.random() - 0.5) * 120, 1.2, (Math.random() - 0.5) * 120);
+                    target.userData.hp = 100;
+                }
+            }
+
+            addScore(pts) {
+                this.score += pts;
+                // Pad with zeros in UI
+                document.getElementById('hud-score').textContent = `${String(this.score).padStart(4, '0')} XP`;
+                
+                // Check leveling progression
+                this.checkLevelProgress();
+            }
+
+            triggerRemoteAttackFX(player, type) {
+                const pos = player.mesh.position;
+                if (type === "melee") {
+                    this.playToneRemote(120, 'triangle', 0.12);
+                } 
+                else if (type === "kiblast") {
+                    const dir = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.mesh.rotation.y).normalize();
+                    const start = pos.clone().addScaledVector(dir, 1.2);
+                    start.y += 1.2;
+                    const proj = this.createKiSphere(start, dir, 0.4, 0.35, 0x00ffff);
+                    this.projectiles.push(proj);
+                }
+                else if (type === "kamehameha") {
+                    this.createFloatingText(pos, "KAMEHAMEHA!", 0x0088ff);
+                    const dir = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.mesh.rotation.y).normalize();
+                    const start = pos.clone().addScaledVector(dir, 2.5);
+                    start.y += 1.2;
+                    const beam = this.createKamehamehaBeam(start, dir);
+                    this.projectiles.push(beam);
+                }
+                else if (type === "spiritbomb") {
+                    this.createFloatingText(pos, "SPIRIT BOMB!", 0xffcc00);
+                    this.createExplosionSparks(pos, 0x00ffff, 30);
+                }
+            }
+
+            playToneRemote(freq, type, duration) {
+                if (!sound.isMuted) {
+                    sound.playTone(freq, type, duration, 0.05);
+                }
+            }
+
+            createKiSphere(pos, dir, radius, speed, color) {
+                const geom = new THREE.SphereGeometry(radius, 8, 8);
+                const mat = new THREE.MeshBasicMaterial({ 
+                    color: color, 
+                    transparent: true, 
+                    opacity: 0.8,
+                    blending: THREE.AdditiveBlending 
+                });
+                const mesh = new THREE.Mesh(geom, mat);
+                mesh.position.copy(pos);
+                this.scene.add(mesh);
+
+                return {
+                    mesh: mesh,
+                    dir: dir,
+                    speed: speed,
+                    life: 60, 
+                    type: 'blast'
+                };
+            }
+
+            createKamehamehaBeam(pos, dir) {
+                const geom = new THREE.CylinderGeometry(1.6, 1.6, 45, 12);
+                geom.rotateX(Math.PI / 2);
+                
+                const mat = new THREE.MeshBasicMaterial({
+                    color: 0x00ffff,
+                    transparent: true,
+                    opacity: 0.65,
+                    blending: THREE.AdditiveBlending
+                });
+                const mesh = new THREE.Mesh(geom, mat);
+                
+                mesh.position.copy(pos).addScaledVector(dir, 22.5); 
+                mesh.lookAt(pos.clone().addScaledVector(dir, 100));
+                this.scene.add(mesh);
+
+                return {
+                    mesh: mesh,
+                    dir: dir,
+                    speed: 0, 
+                    life: 25, 
+                    type: 'beam'
+                };
+            }
+
+            announce(text) {
+                const log = document.getElementById('announcer-log');
+                log.textContent = text;
+                log.style.opacity = '1';
+                if (this.announcerTimeout) clearTimeout(this.announcerTimeout);
+                this.announcerTimeout = setTimeout(() => {
+                    log.style.opacity = '0';
+                }, 1600);
+            }
+
+            createFloatingText(pos, text, color) {
+                const div = document.createElement('div');
+                div.className = 'player-label-3d';
+                div.textContent = text;
+                div.style.borderColor = "#ff3b30";
+                div.style.color = "#ff3b30";
+                div.style.background = "rgba(0,0,0,0.85)";
+                document.body.appendChild(div);
+
+                this.particles.push({
+                    type: 'text',
+                    element: div,
+                    pos: pos.clone(),
+                    vy: 0.05,
+                    life: 1.0
+                });
+            }
+
+            createTransformationBurst() {
+                const config = CHAR_CONFIG[this.myCharId];
+                const form = config.forms[Math.min(this.ssjLevel, config.forms.length - 1)];
+                const color = form.auraColor;
+
+                for (let i = 0; i < 45; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const spd = 0.2 + Math.random() * 0.4;
+                    const pGeo = new THREE.BoxGeometry(0.25, 0.25, 0.25);
+                    const pMat = new THREE.MeshBasicMaterial({ color: color });
+                    const pMesh = new THREE.Mesh(pGeo, pMat);
+                    
+                    pMesh.position.copy(this.physics.pos);
+                    pMesh.position.y += 0.5;
+                    this.scene.add(pMesh);
+
+                    this.particles.push({
+                        type: 'mesh',
+                        mesh: pMesh,
+                        vel: new THREE.Vector3(Math.cos(angle) * spd, 0.15 + Math.random()*0.25, Math.sin(angle) * spd),
+                        life: 1.0,
+                        decay: 0.025
+                    });
+                }
+            }
+
+            createTransformationSparks(pos, ssj) {
+                const color = ssj === 4 ? 0xff2200 : 0xffea00;
+                for (let i = 0; i < 20; i++) {
+                    const pGeo = new THREE.BoxGeometry(0.18, 0.18, 0.18);
+                    const pMat = new THREE.MeshBasicMaterial({ color: color });
+                    const pMesh = new THREE.Mesh(pGeo, pMat);
+                    pMesh.position.copy(pos);
+                    this.scene.add(pMesh);
+
+                    const angle = Math.random() * Math.PI * 2;
+                    const s = 0.15 + Math.random() * 0.2;
+                    this.particles.push({
+                        type: 'mesh',
+                        mesh: pMesh,
+                        vel: new THREE.Vector3(Math.cos(angle) * s, 0.1 + Math.random()*0.15, Math.sin(angle) * s),
+                        life: 1.0,
+                        decay: 0.04
+                    });
+                }
+            }
+
+            createExplosionSparks(pos, color, count) {
+                for (let i = 0; i < count; i++) {
+                    const pGeo = new THREE.BoxGeometry(0.35, 0.35, 0.35);
+                    const pMat = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.9 });
+                    const pMesh = new THREE.Mesh(pGeo, pMat);
+                    pMesh.position.copy(pos).y += 1.0;
+                    this.scene.add(pMesh);
+
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.acos(Math.random() * 2 - 1);
+                    const speed = 0.3 + Math.random() * 0.4;
+
+                    this.particles.push({
+                        type: 'mesh',
+                        mesh: pMesh,
+                        vel: new THREE.Vector3(
+                            Math.sin(phi) * Math.cos(theta) * speed,
+                            Math.sin(phi) * Math.sin(theta) * speed,
+                            Math.cos(phi) * speed
+                        ),
+                        life: 1.0,
+                        decay: 0.035
+                    });
+                }
+            }
+
+            cameraShake(amt) {
+                this.shakeAmount = amt;
+            }
+
+            // Core Physics & Game Loop
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                const delta = this.clock.getDelta();
+                
+                if (this.gameStarted) {
+                    this.updatePhysics();
+                    this.updateRemotePlayers(delta);
+                    this.updateProjectiles();
+                    this.updateCollectibles();
+                    this.updateParticles();
+                    this.updateCamera();
+                    this.networkSync();
+                }
+
+                if (this.renderer && this.scene && this.camera) {
+                    this.renderer.render(this.scene, this.camera);
+                }
+            }
+
+            updatePhysics() {
+                // Infinite Ki: always keep Ki at max!
+                this.ki = this.maxKi;
+
+                // Gamepad API integration
+                this.pollGamepad();
+
+                const config = CHAR_CONFIG[this.myCharId];
+                const form = config.forms[Math.min(this.ssjLevel, config.forms.length - 1)];
+                const moveSpeed = this.physics.flying ? form.speed * 1.5 : form.speed;
+
+                if (this.physics.isStriking > 0) {
+                    this.physics.isStriking--;
+                    if (this.physics.isStriking === 0 && this.playerGroup && this.playerGroup.userData.rArm) {
+                        this.playerGroup.userData.rArm.rotation.x = 0;
+                    }
+                }
+
+                // Ki charging - visual FX only since Ki is infinite
+                if (this.physics.isCharging) {
+                    sound.playChargeLoop();
+                    this.cameraShake(2);
+                    
+                    if (Math.random() < 0.25) {
+                        this.createTransformationSparks(this.physics.pos, this.ssjLevel);
+                    }
+                }
+
+                let mx = 0;
+                let mz = 0;
+
+                if (this.keys['w'] || this.keys['arrowup']) mz = -1;
+                if (this.keys['s'] || this.keys['arrowdown']) mz = 1;
+                if (this.keys['a'] || this.keys['arrowleft']) mx = -1;
+                if (this.keys['d'] || this.keys['arrowright']) mx = 1;
+
+                if (this.gamepadInput) {
+                    mx = this.gamepadInput.x;
+                    mz = this.gamepadInput.z;
+                }
+
+                if (this.isJoystickDragging) {
+                    mx = this.joystickInput.x;
+                    mz = this.joystickInput.z;
+                }
+
+                const isMoving = (mx !== 0 || mz !== 0 || Math.abs(mx) > 0.01 || Math.abs(mz) > 0.01);
+
+                // Auto-fade controls overlay when moving to keep screen clean!
+                if (this.showHelp) {
+                    const helpOverlay = document.getElementById('help-overlay');
+                    if (isMoving || this.physics.flying) {
+                        helpOverlay.style.opacity = '0';
+                    } else {
+                        helpOverlay.style.opacity = '0.85';
+                    }
+                }
+
+                let currentMoveSpeed = moveSpeed;
+                const isBoosting = this.keys['shift'];
+                if (isBoosting && isMoving && !this.physics.isCharging) {
+                    currentMoveSpeed *= 2.0;
+                    
+                    // Spawn aura trailing particles behind the player
+                    if (Math.random() < 0.4) {
+                        const pGeo = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+                        const pMat = new THREE.MeshBasicMaterial({ 
+                            color: form.auraColor,
+                            transparent: true,
+                            opacity: 0.8
+                        });
+                        const pMesh = new THREE.Mesh(pGeo, pMat);
+                        const backDir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.physics.rotY).normalize();
+                        pMesh.position.copy(this.physics.pos).addScaledVector(backDir, 0.6);
+                        pMesh.position.y += 0.8;
+                        this.scene.add(pMesh);
+                        
+                        this.particles.push({
+                            type: 'mesh',
+                            mesh: pMesh,
+                            vel: new THREE.Vector3((Math.random() - 0.5) * 0.1, -0.02 - Math.random() * 0.03, (Math.random() - 0.5) * 0.1),
+                            life: 0.6,
+                            decay: 0.05
+                        });
+                    }
+                }
+
+                if (isMoving && !this.physics.isCharging) {
+                    let moveVec = new THREE.Vector3(mx, 0, mz);
+                    const length = moveVec.length();
+                    if (length > 1.0) {
+                        moveVec.normalize();
+                    }
+                    this.physics.pos.addScaledVector(moveVec, currentMoveSpeed);
+
+                    const targetRot = Math.atan2(moveVec.x, moveVec.z);
+                    this.physics.rotY = targetRot;
+
+                    if (this.playerGroup && !this.physics.flying) {
+                        const time = performance.now() * 0.012;
+                        this.playerGroup.userData.lLeg.rotation.x = Math.sin(time) * 0.6;
+                        this.playerGroup.userData.rLeg.rotation.x = -Math.sin(time) * 0.6;
+                    }
+                } else {
+                    if (this.playerGroup) {
+                        this.playerGroup.userData.lLeg.rotation.x = 0;
+                        this.playerGroup.userData.rLeg.rotation.x = 0;
+                    }
+                }
+
+                if (this.physics.flying && !this.physics.isCharging) {
+                    if (this.keys[' '] || this.keys['e']) {
+                        this.physics.pos.y += moveSpeed * 0.85; 
+                    }
+                    if (this.keys['f']) {
+                        this.physics.pos.y -= moveSpeed * 0.85; 
+                    }
+                    this.physics.pos.y = Math.max(1.2, Math.min(50, this.physics.pos.y));
+                }
+
+                if (!this.physics.flying) {
+                    this.physics.vel.y -= this.physics.gravity;
+                    this.physics.pos.y += this.physics.vel.y;
+
+                    let currentFloor = 1.2;
+
+                    const checkPlatforms = [
+                        // 7 High Floating Islands
+                        { x: 50, y: 10.35, z: 50, w: 9, d: 9 },
+                        { x: -60, y: 12.35, z: -40, w: 11, d: 7 },
+                        { x: -50, y: 8.35, z: 60, w: 8, d: 8 },
+                        { x: 80, y: 16.35, z: -40, w: 14, d: 14 },
+                        { x: -90, y: 15.35, z: 90, w: 10, d: 10 },
+                        { x: 100, y: 14.35, z: 100, w: 9, d: 9 },
+                        { x: -110, y: 18.35, z: -110, w: 10, d: 10 },
+                        // Main archipelago points
+                        { x: 0, y: 1.55, z: 0, w: 160, d: 160 },
+                        { x: 130, y: 1.55, z: 0, w: 70, d: 70 },
+                        { x: -130, y: 1.55, z: 0, w: 70, d: 70 },
+                        { x: 0, y: 1.55, z: 130, w: 70, d: 70 },
+                        { x: 0, y: 1.55, z: -130, w: 70, d: 70 },
+                        // Bridges
+                        { x: 87.5, y: 1.85, z: 0, w: 20, d: 12 },
+                        { x: -87.5, y: 1.85, z: 0, w: 20, d: 12 },
+                        { x: 0, y: 1.85, z: 87.5, w: 12, d: 20 },
+                        { x: 0, y: 1.85, z: -87.5, w: 12, d: 20 }
+                    ];
+
+                    checkPlatforms.forEach(plat => {
+                        if (this.physics.pos.x > plat.x - plat.w/2 - 0.4 && this.physics.pos.x < plat.x + plat.w/2 + 0.4 &&
+                            this.physics.pos.z > plat.z - plat.d/2 - 0.4 && this.physics.pos.z < plat.z + plat.d/2 + 0.4) {
+                            if (this.physics.pos.y >= plat.y - 0.5 && this.physics.pos.y <= plat.y + 0.5 && this.physics.vel.y <= 0) {
+                                currentFloor = plat.y;
+                            }
+                        }
+                    });
+
+                    if (this.physics.pos.y <= currentFloor) {
+                        this.physics.pos.y = currentFloor;
+                        this.physics.vel.y = 0;
+                        this.physics.grounded = true;
+                    } else {
+                        this.physics.grounded = false;
+                    }
+
+                    if (this.keys[' '] && this.physics.grounded) {
+                        this.physics.vel.y = this.physics.jumpForce;
+                        this.physics.grounded = false;
+                    }
+                }
+
+                this.physics.pos.x = Math.max(-240, Math.min(240, this.physics.pos.x));
+                this.physics.pos.z = Math.max(-240, Math.min(240, this.physics.pos.z));
+
+                if (this.playerGroup) {
+                    this.playerGroup.position.copy(this.physics.pos);
+                    this.playerGroup.rotation.y = this.physics.rotY;
+                }
+
+                const percent = (this.ki / this.maxKi) * 100;
+                document.getElementById('hud-ki-fill').style.width = `${percent}%`;
+                document.getElementById('hud-ki-text').textContent = `אנרגיית קי: ${Math.floor(this.ki)} / ${this.maxKi}`;
+            }
+
+            pollGamepad() {
+                const gamepads = navigator.getGamepads();
+                let pad = null;
+                for (let i = 0; i < gamepads.length; i++) {
+                    if (gamepads[i]) {
+                        pad = gamepads[i];
+                        break;
+                    }
+                }
+
+                const gpStatus = document.getElementById('gp-hud-status');
+                if (pad) {
+                    gpStatus.innerHTML = "<span style='color: var(--dbz-green)'>🎮 שלט מחובר! לחצו L1 למעוף, ◼️/RT למעלה, ❌/LT למטה</span>";
+                    
+                    // Left Stick Movement
+                    const stickX = pad.axes[0] || 0;
+                    const stickZ = pad.axes[1] || 0;
+                    const deadzone = 0.15;
+                    
+                    if (Math.hypot(stickX, stickZ) > deadzone) {
+                        this.gamepadInput = { x: stickX, z: stickZ };
+                        
+                        // Clear keyboard keys to avoid conflicts
+                        this.keys['w'] = false;
+                        this.keys['s'] = false;
+                        this.keys['a'] = false;
+                        this.keys['d'] = false;
+                        this.keys['arrowup'] = false;
+                        this.keys['arrowdown'] = false;
+                        this.keys['arrowleft'] = false;
+                        this.keys['arrowright'] = false;
+                    } else {
+                        this.gamepadInput = null;
+                    }
+
+                    // A / Cross (Button 0) - Jump (on ground only)
+                    const jumpPressed = !!pad.buttons[0]?.pressed;
+                    if (jumpPressed && !this.gpJumpPrev && !this.physics.flying) {
+                        this.keys[' '] = true;
+                    } else if (!jumpPressed) {
+                        this.keys[' '] = false;
+                    }
+                    this.gpJumpPrev = jumpPressed;
+
+                    // L1 / LB (Button 4) - Toggle Flight directly
+                    const flyPressed = !!pad.buttons[4]?.pressed;
+                    if (flyPressed && !this.gpFlyPrev) {
+                        this.toggleFlight();
+                    }
+                    this.gpFlyPrev = flyPressed;
+
+                    // Vertical flight controls - Square (2) or RT (7) to Fly Up, Cross (0) or LT (6) to Fly Down
+                    if (this.physics.flying) {
+                        this.keys['e'] = !!pad.buttons[2]?.pressed || !!pad.buttons[7]?.pressed; // Square/RT
+                        this.keys['f'] = !!pad.buttons[0]?.pressed || !!pad.buttons[6]?.pressed; // Cross/LT
+                    } else {
+                        this.keys['e'] = false;
+                        this.keys['f'] = false;
+                    }
+
+                    // Charge Ki - Disabled (infinite Ki)
+                    this.physics.isCharging = false;
+
+                    // R1 / RB (Button 5) - Punch
+                    const punchPressed = !!pad.buttons[5]?.pressed;
+                    if (punchPressed && !this.gpPunchPrev) {
+                        this.performMelee();
+                    }
+                    this.gpPunchPrev = punchPressed;
+
+                    // B / Circle (Button 1) - Ki Blast
+                    const blastPressed = !!pad.buttons[1]?.pressed;
+                    if (blastPressed && !this.gpBlastPrev) {
+                        this.performKiBlast();
+                    }
+                    this.gpBlastPrev = blastPressed;
+
+                    // Y / Triangle (Button 3) - Kamehameha
+                    const kamPressed = !!pad.buttons[3]?.pressed;
+                    if (kamPressed && !this.gpKamPrev) {
+                        this.performKamehameha();
+                    }
+                    this.gpKamPrev = kamPressed;
+
+                    // D-pad Up (Button 12) - Spirit Bomb
+                    const bombPressed = !!pad.buttons[12]?.pressed;
+                    if (bombPressed && !this.gpBombPrev) {
+                        this.performSpiritBomb();
+                    }
+                    this.gpBombPrev = bombPressed;
+
+                    // D-pad Left (Button 14) - Power Down Saiyan level
+                    const dpadLeftPressed = !!pad.buttons[14]?.pressed;
+                    if (dpadLeftPressed && !this.gpDpadLeftPrev) {
+                        this.changeSSJLevel(-1);
+                    }
+                    this.gpDpadLeftPrev = dpadLeftPressed;
+
+                    // D-pad Right (Button 15) - Power Up Saiyan level
+                    const dpadRightPressed = !!pad.buttons[15]?.pressed;
+                    if (dpadRightPressed && !this.gpDpadRightPrev) {
+                        this.changeSSJLevel(1);
+                    }
+                    this.gpDpadRightPrev = dpadRightPressed;
+
+                    // L3 (Button 10) - Sprint Boost
+                    const l3Pressed = !!pad.buttons[10]?.pressed;
+                    this.keys['shift'] = l3Pressed;
+
+                    // R3 (Button 11) - Vanish Teleport
+                    const r3Pressed = !!pad.buttons[11]?.pressed;
+                    if (r3Pressed && !this.gpR3Prev) {
+                        this.performVanish();
+                    }
+                    this.gpR3Prev = r3Pressed;
+                } else {
+                    gpStatus.innerHTML = "<span>🎮 שלט לא מחובר</span>";
+                    this.gamepadInput = null;
+                }
+            }
+
+            updateRemotePlayers(delta) {
+                const now = performance.now();
+                Object.keys(this.remotePlayers).forEach(id => {
+                    const p = this.remotePlayers[id];
+                    
+                    p.mesh.position.lerp(p.targetPos, 0.15);
+                    
+                    let diffRot = p.targetRotY - p.mesh.rotation.y;
+                    while (diffRot < -Math.PI) diffRot += Math.PI * 2;
+                    while (diffRot > Math.PI) diffRot -= Math.PI * 2;
+                    p.mesh.rotation.y += diffRot * 0.15;
+
+                    if (now - p.lastUpdateTime > 10000) {
+                        this.scene.remove(p.mesh);
+                        if (p.label && p.label.parentNode) {
+                            p.label.parentNode.removeChild(p.label);
+                        }
+                        delete this.remotePlayers[id];
+                        this.updateRoomStats();
+                    }
+                });
+            }
+
+            updateProjectiles() {
+                for (let i = this.projectiles.length - 1; i >= 0; i--) {
+                    const p = this.projectiles[i];
+                    p.mesh.position.addScaledVector(p.dir, p.speed);
+                    
+                    p.life--;
+                    if (p.life <= 0) {
+                        this.scene.remove(p.mesh);
+                        this.projectiles.splice(i, 1);
+                    }
+                }
+            }
+
+            updateCollectibles() {
+                const now = performance.now();
+
+                // Dragon Balls
+                this.dragonBalls.forEach(ball => {
+                    if (ball.visible) {
+                        ball.rotation.y += ball.userData.rotSpeed;
+                        const offset = ball.userData.pulseOffset;
+                        ball.position.y = DB_LOCATIONS[ball.userData.index - 1].y + Math.sin(now * 0.003 + offset) * 0.25;
+
+                        // Pulsing animations for Dragon Balls (scale 1.0 to 1.3, light intensity 1.5 to 3.5)
+                        const pulse = Math.sin(now * 0.005 + offset);
+                        const pulseScale = 1.0 + pulse * 0.15;
+                        if (ball.userData.sphere) {
+                            ball.userData.sphere.scale.set(pulseScale, pulseScale, pulseScale);
+                        }
+                        if (ball.userData.light) {
+                            ball.userData.light.intensity = 2.5 + pulse * 1.0;
+                        }
+
+                        const dist = this.physics.pos.distanceTo(ball.position);
+                        if (dist < 2.4) {
+                            this.collectDragonBallLocal(ball.userData.index);
+                        }
+                    }
+                });
+
+                // Crystals
+                this.crystals.forEach(c => {
+                    if (c.visible) {
+                        c.rotation.y += c.userData.rotY;
+                        const offset = c.userData.bobOffset;
+                        c.position.y = c.userData.originalY + Math.sin(now * 0.003 + offset) * 0.18;
+
+                        const dist = this.physics.pos.distanceTo(c.position);
+                        if (dist < 1.5) {
+                            c.visible = false;
+                            this.ki = Math.min(this.maxKi, this.ki + 15);
+                            sound.playCollect();
+                            
+                            // Award score
+                            this.addScore(10);
+
+                            setTimeout(() => {
+                                c.visible = true;
+                            }, 5000);
+                        }
+                    }
+                });
+
+                // Senzu Beans
+                this.senzuBeans.forEach(b => {
+                    if (b.visible) {
+                        b.rotation.y += b.userData.rotY;
+                        const offset = b.userData.bobOffset;
+                        b.position.y = b.userData.originalY + Math.sin(now * 0.003 + offset) * 0.15;
+
+                        const dist = this.physics.pos.distanceTo(b.position);
+                        if (dist < 1.4) {
+                            b.visible = false;
+                            this.ki = Math.min(this.maxKi, this.ki + 50);
+                            sound.playCollect();
+                            
+                            // Floating UI score indicator
+                            this.createFloatingText(b.position, "+25 XP / סנזו! 🌱", 0x39ff14);
+
+                            // Award Senzu score
+                            this.addScore(25);
+
+                            setTimeout(() => {
+                                b.visible = true;
+                            }, 7000);
+                        }
+                    }
+                });
+
+                // Capsule Corp Capsules
+                this.capsules.forEach(cap => {
+                    if (cap.visible) {
+                        cap.rotation.y += cap.userData.rotY;
+                        cap.rotation.x += cap.userData.rotX;
+                        const offset = cap.userData.bobOffset;
+                        cap.position.y = cap.userData.originalY + Math.sin(now * 0.0035 + offset) * 0.2;
+
+                        const dist = this.physics.pos.distanceTo(cap.position);
+                        if (dist < 1.5) {
+                            cap.visible = false;
+                            this.ki = this.maxKi; // Full Ki charge!
+                            sound.playCollect();
+                            
+                            this.createFloatingText(cap.position, "+50 XP / קפסולה! 💊", 0xff3b30);
+                            this.addScore(50);
+
+                            setTimeout(() => {
+                                cap.visible = true;
+                            }, 10000);
+                        }
+                    }
+                });
+            }
+
+            collectDragonBallLocal(index) {
+                if (this.collectedBalls.has(index)) return;
+                
+                this.registerBallCollection(index);
+                this.sendNetworkMessage({
+                    type: "collect",
+                    ballIndex: index
+                });
+            }
+
+            registerBallCollection(index) {
+                if (this.collectedBalls.has(index)) return;
+
+                this.collectedBalls.add(index);
+                sound.playCollect();
+                this.announce(`אספתם את כדור הדרקון ה-${index}! 🐉`);
+                
+                this.addScore(100);
+
+                const slot = document.getElementById(`db-slot-${index}`);
+                if (slot) {
+                    slot.className = "db-hud-slot active";
+                }
+
+                if (this.collectedBalls.size === 7 && !this.isWon) {
+                    this.isWon = true;
+                    setTimeout(() => {
+                        document.getElementById('victory-screen').style.display = 'flex';
+                        sound.stopMusic();
+                        sound.playTransform();
+                    }, 1500);
+                }
+
+                this.dragonBalls.forEach(ball => {
+                    if (ball.userData.index === index) {
+                        ball.visible = false;
+                    }
+                });
+            }
+
+            updateParticles() {
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+
+                    if (p.type === 'mesh') {
+                        p.mesh.position.add(p.vel);
+                        p.life -= p.decay;
+                        
+                        if (p.life <= 0) {
+                            this.scene.remove(p.mesh);
+                            this.particles.splice(i, 1);
+                        }
+                    } 
+                    else if (p.type === 'text') {
+                        p.pos.y += p.vy;
+                        p.life -= 0.025;
+
+                        const vector = p.pos.clone();
+                        vector.project(this.camera);
+
+                        const x = (vector.x * .5 + .5) * window.innerWidth;
+                        const y = (-(vector.y * .5) + .5) * window.innerHeight;
+
+                        p.element.style.left = `${x}px`;
+                        p.element.style.top = `${y}px`;
+                        p.element.style.opacity = `${p.life}`;
+
+                        if (p.life <= 0) {
+                            if (p.element.parentNode) {
+                                p.element.parentNode.removeChild(p.element);
+                            }
+                            this.particles.splice(i, 1);
+                        }
+                    }
+                }
+            }
+
+            updateCamera() {
+                if (!this.playerGroup) return;
+
+                if (this.shakeAmount > 0) {
+                    this.shakeAmount *= 0.88;
+                } else {
+                    this.shakeAmount = 0;
+                }
+
+                // FIXED follow camera offset to avoid player getting stuck
+                const targetCamPos = this.physics.pos.clone().add(new THREE.Vector3(0, 13, 16));
+
+                this.camera.position.lerp(targetCamPos, 0.08);
+                
+                const lookTarget = this.physics.pos.clone().add(new THREE.Vector3(0, 1.0, 0));
+                
+                if (this.shakeAmount > 0) {
+                    this.camera.position.x += (Math.random() - 0.5) * this.shakeAmount * 0.03;
+                    this.camera.position.y += (Math.random() - 0.5) * this.shakeAmount * 0.03;
+                    this.camera.position.z += (Math.random() - 0.5) * this.shakeAmount * 0.03;
+                }
+
+                this.camera.lookAt(lookTarget);
+
+                // Update Player Name labels
+                Object.keys(this.remotePlayers).forEach(id => {
+                    const p = this.remotePlayers[id];
+                    this.updateFloatingDivPosition(p.mesh.position.clone().add(new THREE.Vector3(0, 2.5, 0)), p.label);
+                });
+
+                if (!this.isMultiplayer) {
+                    this.saibamen.forEach(saiba => {
+                        this.updateFloatingDivPosition(saiba.position.clone().add(new THREE.Vector3(0, 2.2, 0)), saiba.userData.label);
+                    });
+                }
+            }
+
+            updateFloatingDivPosition(pos3d, element) {
+                const vector = pos3d.project(this.camera);
+                
+                if (vector.z > 1) {
+                    element.style.display = 'none';
+                    return;
+                }
+
+                const x = (vector.x * .5 + .5) * window.innerWidth;
+                const y = (-(vector.y * .5) + .5) * window.innerHeight;
+
+                element.style.display = 'block';
+                element.style.left = `${x - element.offsetWidth / 2}px`;
+                element.style.top = `${y}px`;
+            }
+
+            networkSync() {
+                const now = performance.now();
+                if (now - this.lastSendTime > 33 && this.isMultiplayer) {
+                    this.sendNetworkMessage({
+                        type: "move",
+                        pos: {
+                            x: parseFloat(this.physics.pos.x.toFixed(2)),
+                            y: parseFloat(this.physics.pos.y.toFixed(2)),
+                            z: parseFloat(this.physics.pos.z.toFixed(2))
+                        },
+                        rotY: parseFloat(this.physics.rotY.toFixed(2)),
+                        ssj: this.ssjLevel
+                    });
+                    this.lastSendTime = now;
+                }
+            }
+        }
+
+        // Initialize Game
+        const game = new DBZGame();
+        game.init();
+    </script>
+</body>
+</html>

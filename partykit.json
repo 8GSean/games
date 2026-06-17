@@ -1,0 +1,6 @@
+{
+  "$schema": "https://www.partykit.io/schema.json",
+  "name": "guy-games-dbz",
+  "main": "dragonball-z/party/server.js",
+  "compatibilityDate": "2023-09-28"
+}
