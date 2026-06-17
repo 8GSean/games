@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>פורטפוליו משחקים - guybuilds</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;900&display=swap');
+
         :root {
             --bg-color: #0b1020;
             --accent-color: #38bdf8;
             --secondary-accent: #818cf8;
-            --card-bg: rgba(30, 41, 59, 0.6);
+            --card-bg: rgba(15, 23, 42, 0.45);
             --text-color: #f1f5f9;
         }
 
@@ -20,7 +22,7 @@
             padding: 0;
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Rubik', 'Segoe UI', system-ui, -apple-system, sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -34,8 +36,8 @@
             inset: 0;
             z-index: -2;
             background:
-                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.16) 0px, transparent 45%),
-                radial-gradient(at 100% 100%, rgba(129, 140, 248, 0.16) 0px, transparent 45%);
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.18) 0px, transparent 45%),
+                radial-gradient(at 100% 100%, rgba(129, 140, 248, 0.18) 0px, transparent 45%);
         }
         .bg-fx::before, .bg-fx::after {
             content: '';
@@ -61,7 +63,7 @@
         @keyframes float2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(6vw,-6vh) scale(1.2)} }
 
         header {
-            padding: 70px 20px 30px;
+            padding: 50px 20px 20px;
             text-align: center;
             max-width: 820px;
         }
@@ -74,15 +76,16 @@
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 800;
+            font-weight: 900;
             animation: shine 6s linear infinite;
         }
         @keyframes shine { to { background-position: 200% center; } }
 
         p.subtitle {
-            font-size: 1.2rem;
-            opacity: 0.8;
+            font-size: 1.25rem;
+            opacity: 0.85;
             margin: 0;
+            font-weight: 300;
         }
 
         /* ===== Stats ===== */
@@ -95,22 +98,60 @@
         }
         .stat { text-align: center; }
         .stat-num {
-            font-size: 2rem;
-            font-weight: 800;
+            font-size: 2.2rem;
+            font-weight: 900;
             color: var(--accent-color);
             line-height: 1;
         }
-        .stat-label { font-size: 0.85rem; opacity: 0.6; margin-top: 4px; }
+        .stat-label { font-size: 0.85rem; opacity: 0.6; margin-top: 4px; font-weight: 500; }
+
+        /* ===== View Switcher (Tabs) ===== */
+        .view-switcher {
+            display: flex;
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 50px;
+            padding: 5px;
+            margin: 15px auto 25px;
+            width: fit-content;
+            backdrop-filter: blur(12px);
+            position: relative;
+            z-index: 10;
+        }
+        .switch-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            padding: 11px 26px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Rubik', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .switch-btn:hover {
+            color: var(--accent-color);
+        }
+        .switch-btn.active {
+            background: linear-gradient(135deg, var(--accent-color), var(--secondary-accent));
+            color: #04111f;
+            box-shadow: 0 4px 18px rgba(56, 189, 248, 0.35);
+        }
 
         /* ===== Toolbar (filter chips) ===== */
         .toolbar {
             width: 100%;
             max-width: 1100px;
-            padding: 10px 20px 0;
+            padding: 0 20px;
             display: flex;
             flex-direction: column;
             gap: 18px;
             align-items: center;
+            transition: opacity 0.3s, max-height 0.3s;
         }
 
         .filters {
@@ -120,13 +161,14 @@
             justify-content: center;
         }
         .chip {
-            border: 1px solid rgba(255,255,255,0.14);
-            background: rgba(30,41,59,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(30,41,59,0.4);
             color: var(--text-color);
             padding: 9px 18px;
             border-radius: 50px;
             font-size: 0.92rem;
             font-weight: 600;
+            font-family: 'Rubik', sans-serif;
             cursor: pointer;
             transition: all 0.2s;
             backdrop-filter: blur(6px);
@@ -139,6 +181,7 @@
             box-shadow: 0 6px 18px rgba(56,189,248,0.3);
         }
 
+        /* ===== Library Grid ===== */
         .game-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -148,20 +191,31 @@
             padding: 34px 20px 20px;
         }
 
+        /* Link Wrapper for clickability */
+        .game-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            outline: none;
+            border-radius: 20px;
+            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+
         .game-card {
             --c: var(--accent-color);
             background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 20px;
             padding: 30px;
             text-align: center;
-            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s, border-color 0.3s, opacity 0.45s, filter 0.45s;
-            backdrop-filter: blur(12px);
+            transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
+            backdrop-filter: blur(16px);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             position: relative;
             overflow: hidden;
+            height: 100%;
         }
         .game-card::before {
             content: '';
@@ -172,17 +226,28 @@
             opacity: 0;
             transition: opacity 0.3s;
         }
-        .game-card:hover {
-            transform: translateY(-10px);
+        
+        /* Hover on clickable link affects inner card */
+        .game-card-link:hover {
+            transform: translateY(-8px);
+        }
+        .game-card-link:hover .game-card {
             border-color: color-mix(in srgb, var(--c) 50%, transparent);
+            background: rgba(30, 41, 59, 0.3);
             box-shadow: 0 22px 40px -12px rgba(0,0,0,0.55),
                         0 0 32px -8px color-mix(in srgb, var(--c) 60%, transparent);
         }
-        .game-card:hover::before { opacity: 1; }
+        .game-card-link:hover .game-card::before { opacity: 1; }
+        .game-card-link:hover .game-icon { transform: scale(1.12) rotate(-4deg); }
+        .game-card-link:hover .play-btn {
+            transform: scale(1.04);
+            box-shadow: 0 0 24px color-mix(in srgb, var(--c) 65%, transparent);
+        }
+        .game-card-link:hover .play-btn .arrow { transform: translateX(-5px); }
 
         /* entrance animation */
-        .game-card.enter { opacity: 0; transform: translateY(24px); }
-        .game-card.show { opacity: 1; transform: translateY(0); }
+        .game-card-link.enter { opacity: 0; transform: translateY(24px); }
+        .game-card-link.show { opacity: 1; transform: translateY(0); }
 
         .card-tags {
             display: flex;
@@ -207,8 +272,8 @@
             margin-bottom: 16px;
             filter: drop-shadow(0 0 12px color-mix(in srgb, var(--c) 55%, transparent));
             transition: transform 0.3s;
+            display: inline-block;
         }
-        .game-card:hover .game-icon { transform: scale(1.12) rotate(-4deg); }
 
         .game-title {
             font-size: 1.55rem;
@@ -219,7 +284,7 @@
 
         .game-desc {
             font-size: 0.97rem;
-            opacity: 0.72;
+            opacity: 0.75;
             margin-bottom: 24px;
             line-height: 1.6;
             flex: 1;
@@ -230,7 +295,6 @@
             color: #04111f;
             padding: 13px 30px;
             border-radius: 12px;
-            text-decoration: none;
             font-weight: 800;
             font-size: 1.02rem;
             transition: all 0.2s;
@@ -239,13 +303,9 @@
             justify-content: center;
             gap: 8px;
             align-self: center;
-        }
-        .play-btn:hover {
-            transform: scale(1.06);
-            box-shadow: 0 0 24px color-mix(in srgb, var(--c) 65%, transparent);
+            margin-top: auto;
         }
         .play-btn .arrow { transition: transform 0.2s; }
-        .play-btn:hover .arrow { transform: translateX(-5px); }
 
         .no-results {
             grid-column: 1 / -1;
@@ -256,81 +316,141 @@
             display: none;
         }
 
-        /* ===== Featured hero (Ninja Turtles) — big clickable CTA above the fold ===== */
-        .hero-cta {
-            display: block;
-            text-decoration: none;
-            color: inherit;
+        /* ===== Featured Section Layout ===== */
+        .featured-section {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
             width: 100%;
             max-width: 1150px;
             margin: 0 auto;
-            padding: 26px 20px 0;
+            padding: 10px 20px 20px;
         }
-        .hero-card {
+
+        .featured-cta {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            outline: none;
+            border-radius: 22px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .featured-card {
             display: flex;
-            flex-direction: row-reverse;
+            flex-direction: column;
             align-items: center;
-            gap: 44px;
-            text-align: right;
-            min-height: min(70vh, 540px);
-            padding: 50px 56px;
-            border: 2px solid #39ff14;
+            text-align: center;
+            padding: 30px 24px;
             border-radius: 22px;
             position: relative;
             overflow: hidden;
-            background:
-                radial-gradient(at 90% 10%, rgba(255, 108, 0, 0.18) 0px, transparent 45%),
-                linear-gradient(135deg, rgba(57, 255, 20, 0.12), rgba(15, 22, 40, 0.85));
-            box-shadow: 0 0 40px rgba(57, 255, 20, 0.15), inset 0 0 60px rgba(57, 255, 20, 0.05);
-            backdrop-filter: blur(12px);
-            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+            background: linear-gradient(135deg, color-mix(in srgb, var(--c) 8%, transparent), rgba(15, 22, 40, 0.85));
+            border: 2px solid var(--c);
+            box-shadow: 0 0 30px color-mix(in srgb, var(--c) 12%, transparent), inset 0 0 40px rgba(255,255,255,0.02);
+            backdrop-filter: blur(16px);
+            height: 100%;
+            justify-content: space-between;
+            transition: box-shadow 0.3s, border-color 0.3s, background-color 0.3s;
         }
-        .hero-card::before {
+
+        .featured-card::before {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0;
             height: 5px;
-            background: linear-gradient(to right, #39ff14, #ff6c00);
+            background: linear-gradient(to right, var(--c), #ffffff);
+            opacity: 0.8;
         }
-        .hero-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 0 60px rgba(57, 255, 20, 0.35);
+
+        .featured-cta:hover {
+            transform: translateY(-8px);
         }
-        .hero-icon-wrap { flex-shrink: 0; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.45)); }
-        .tmnt-icon { width: 190px; height: 209px; animation: turtle-bob 2.6s ease-in-out infinite; }
-        @keyframes turtle-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
-        .hero-body { flex: 1; }
-        .hero-card .game-title { font-size: 3rem; color: #39ff14; text-shadow: 0 0 18px rgba(57,255,20,0.45); margin-bottom: 16px; line-height: 1.1; }
-        .hero-card .game-desc { font-size: 1.12rem; flex: none; }
-        .hero-badge {
-            display: inline-block;
-            background: #ff6c00;
+
+        .featured-cta:hover .featured-card {
+            box-shadow: 0 15px 45px -10px color-mix(in srgb, var(--c) 35%, transparent),
+                        0 0 30px -5px color-mix(in srgb, var(--c) 40%, transparent);
+            background: linear-gradient(135deg, color-mix(in srgb, var(--c) 14%, transparent), rgba(15, 22, 40, 0.75));
+        }
+
+        .featured-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-weight: 800;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            padding: 4px 12px;
+            border-radius: 50px;
+        }
+
+        .featured-icon-wrap {
+            margin-top: 15px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 6px 14px rgba(0,0,0,0.35));
+        }
+
+        .tmnt-icon-sm {
+            width: 100px;
+            height: 110px;
+            animation: turtle-bob 2.6s ease-in-out infinite;
+        }
+
+        .featured-icon-emoji {
+            font-size: 4.8rem;
+            animation: bounce-slow 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px color-mix(in srgb, var(--c) 60%, transparent));
+        }
+
+        @keyframes bounce-slow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .featured-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        .featured-card .game-title {
+            font-size: 1.65rem;
+            color: var(--c);
+            text-shadow: 0 0 15px color-mix(in srgb, var(--c) 40%, transparent);
+            margin-bottom: 12px;
+            font-weight: 800;
+        }
+
+        .featured-card .game-desc {
+            font-size: 0.94rem;
+            line-height: 1.6;
+            opacity: 0.85;
+            margin-bottom: 24px;
+            flex-grow: 1;
+        }
+
+        .featured-card .play-btn {
+            background: var(--c);
             color: #0f172a;
             font-weight: 800;
-            font-size: 0.8rem;
-            letter-spacing: 1px;
-            padding: 4px 14px;
-            border-radius: 50px;
-            margin-bottom: 14px;
-            box-shadow: 0 0 14px rgba(255,108,0,0.5);
+            font-size: 1rem;
+            padding: 12px 36px;
+            border-radius: 12px;
+            transition: all 0.2s;
         }
-        .hero-card .play-btn {
-            background: linear-gradient(to right, #39ff14, #2bc40e);
-            color: #04111f;
-            font-size: 1.15rem;
-            padding: 16px 42px;
-            align-self: flex-start;
-        }
-        .hero-cta:hover .play-btn {
-            transform: scale(1.06);
-            box-shadow: 0 0 26px rgba(57,255,20,0.6);
+
+        .featured-cta:hover .play-btn {
+            transform: scale(1.04);
+            box-shadow: 0 0 20px color-mix(in srgb, var(--c) 70%, transparent);
         }
 
         /* ===== Iteration journey banner ===== */
         .journey-banner {
             width: 100%;
             max-width: 1100px;
-            margin: 6px 20px 0;
+            margin: 20px 20px 0;
             padding: 26px 34px;
             border-radius: 20px;
             background: linear-gradient(135deg, rgba(56,189,248,0.12), rgba(129,140,248,0.12));
@@ -345,77 +465,233 @@
         .journey-banner .jb-text { text-align: right; }
         .journey-banner h3 { margin: 0 0 6px; font-size: 1.4rem; color: var(--accent-color); }
         .journey-banner p { margin: 0; opacity: 0.75; max-width: 640px; line-height: 1.55; }
-        .journey-banner .play-btn { --c: var(--accent-color); flex-shrink: 0; }
+        .journey-banner .play-btn { --c: var(--accent-color); flex-shrink: 0; text-decoration: none; }
+
+        /* ===== Timeline View Styles ===== */
+        .timeline-view {
+            display: none;
+            width: 100%;
+            max-width: 950px;
+            margin: 20px auto 40px;
+            padding: 0 20px;
+            position: relative;
+        }
+        /* Central line */
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--accent-color), var(--secondary-accent), #f472b6);
+            transform: translateX(-50%);
+            border-radius: 2px;
+            opacity: 0.6;
+        }
+        .timeline-list {
+            display: flex;
+            flex-direction: column;
+            gap: 48px;
+            position: relative;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .timeline-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            width: 100%;
+        }
+        /* Timeline Node point */
+        .timeline-node {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #0b1020;
+            border: 4px solid var(--c, var(--accent-color));
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 900;
+            color: var(--text-color);
+            box-shadow: 0 0 16px var(--c, var(--accent-color));
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .timeline-item:hover .timeline-node {
+            transform: translate(-50%, -50%) scale(1.25);
+            background: var(--c, var(--accent-color));
+            color: #0b1020;
+            box-shadow: 0 0 24px var(--c, var(--accent-color));
+        }
+
+        /* Timeline Card wrapper */
+        .timeline-card-wrapper {
+            width: 45%;
+            text-decoration: none;
+            color: inherit;
+            outline: none;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .timeline-card {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 24px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
+            display: flex;
+            flex-direction: column;
+            text-align: right;
+        }
+        .timeline-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--c);
+            border-radius: 20px 20px 0 0;
+            opacity: 0.85;
+        }
+        
+        /* Alternating sides alignment */
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+        .timeline-item:nth-child(odd) .timeline-card-wrapper {
+            margin-left: auto;
+        }
+        .timeline-item:nth-child(even) .timeline-card-wrapper {
+            margin-right: auto;
+        }
+
+        /* Hover states in Timeline */
+        .timeline-card-wrapper:hover {
+            transform: translateY(-6px);
+        }
+        .timeline-card-wrapper:hover .timeline-card {
+            border-color: color-mix(in srgb, var(--c) 50%, transparent);
+            background: rgba(30, 41, 59, 0.3);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6),
+                        0 0 28px -6px color-mix(in srgb, var(--c) 50%, transparent);
+        }
+        .timeline-card-wrapper:hover .game-icon {
+            transform: scale(1.1) rotate(-3deg);
+        }
+
+        /* Timeline contents detail */
+        .timeline-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 8px;
+            gap: 10px;
+        }
+        .timeline-step {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--c);
+            letter-spacing: 0.5px;
+        }
+        .timeline-milestone {
+            font-size: 0.78rem;
+            background: color-mix(in srgb, var(--c) 15%, transparent);
+            color: var(--c);
+            padding: 3px 10px;
+            border-radius: 4px;
+            border: 1px solid color-mix(in srgb, var(--c) 30%, transparent);
+            font-weight: 700;
+        }
+        .timeline-title-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .timeline-title-row .game-icon {
+            font-size: 2.2rem;
+            margin-bottom: 0;
+            filter: drop-shadow(0 0 8px color-mix(in srgb, var(--c) 40%, transparent));
+        }
+        .timeline-title-row .game-title {
+            font-size: 1.35rem;
+            margin-bottom: 0;
+            color: var(--c);
+            font-weight: 700;
+        }
+        .timeline-desc {
+            font-size: 0.94rem;
+            opacity: 0.78;
+            line-height: 1.55;
+            margin-bottom: 14px;
+        }
+        .timeline-learned {
+            background: rgba(255, 255, 255, 0.02);
+            border-right: 3px solid var(--c);
+            padding: 10px 14px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            text-align: right;
+        }
+        .timeline-learned strong {
+            color: var(--c);
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        .timeline-learned p {
+            margin: 0;
+            opacity: 0.85;
+        }
 
         footer { margin-top: auto; padding: 50px; opacity: 0.5; font-size: 0.9rem; }
 
-        @media (max-width: 600px) {
-            h1 { font-size: 2.4rem; }
-            .game-grid { grid-template-columns: 1fr; }
-            .hero-card { flex-direction: column; text-align: center; padding: 30px 20px; }
-            .hero-card .game-title { font-size: 1.9rem; }
-            .hero-card .play-btn, .hero-badge { align-self: center; }
-            .journey-banner { flex-direction: column; text-align: center; }
+        /* ===== Mobile Responsive Updates ===== */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .game-grid { grid-template-columns: 1fr; gap: 20px; }
+            .featured-section { grid-template-columns: 1fr; gap: 20px; }
+            .featured-card { padding: 24px 20px; }
+            .journey-banner { flex-direction: column; text-align: center; padding: 22px 20px; }
             .journey-banner .jb-text { text-align: center; }
+
+            /* Timeline Mobile stack */
+            .timeline-line {
+                left: 20px;
+                transform: none;
+            }
+            .timeline-node {
+                left: 20px;
+                transform: translate(-50%, -50%);
+            }
+            .timeline-item {
+                flex-direction: row !important;
+            }
+            .timeline-card-wrapper {
+                width: calc(100% - 45px) !important;
+                margin-left: 0 !important;
+                margin-right: 45px !important; /* Push card to the left of node */
+            }
+            .timeline-card {
+                padding: 18px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="bg-fx"></div>
-
-    <!-- Big clickable hero CTA: Ninja Turtles (above the fold) -->
-    <a href="ninja-turtles/ninja-turtles.html" class="hero-cta">
-        <div class="game-card hero-card">
-            <div class="hero-icon-wrap">
-                <svg class="tmnt-icon" viewBox="0 0 100 156" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="פח אשפה עם צב נינג'ה">
-                    <defs>
-                        <linearGradient id="canGrad" x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0" stop-color="#4b5563"/>
-                            <stop offset="0.45" stop-color="#9ca3af"/>
-                            <stop offset="0.55" stop-color="#cbd5e1"/>
-                            <stop offset="1" stop-color="#374151"/>
-                        </linearGradient>
-                        <radialGradient id="headGrad" cx="0.4" cy="0.35" r="0.85">
-                            <stop offset="0" stop-color="#86efac"/>
-                            <stop offset="1" stop-color="#22c55e"/>
-                        </radialGradient>
-                    </defs>
-                    <g transform="rotate(20 90 58)">
-                        <ellipse cx="90" cy="58" rx="15" ry="6" fill="#9ca3af" stroke="#1f2937" stroke-width="2"/>
-                        <rect x="86" y="44" width="8" height="12" rx="4" fill="#6b7280" stroke="#1f2937" stroke-width="1.6"/>
-                    </g>
-                    <path d="M16 60 L24 146 Q24 152 30 152 L70 152 Q76 152 76 146 L84 60 Z" fill="url(#canGrad)" stroke="#1f2937" stroke-width="2"/>
-                    <g stroke="#374151" stroke-width="1.6" opacity="0.55">
-                        <path d="M34 66 L36 146"/>
-                        <path d="M50 66 L50 146"/>
-                        <path d="M66 66 L64 146"/>
-                    </g>
-                    <path d="M21 96 L79 96" stroke="#1f2937" stroke-width="2.4" opacity="0.45"/>
-                    <path d="M19 78 L81 78" stroke="#e2e8f0" stroke-width="2" opacity="0.4"/>
-                    <ellipse cx="50" cy="60" rx="34" ry="9" fill="#1f2937"/>
-                    <ellipse cx="50" cy="59" rx="29" ry="6.5" fill="#0b1220"/>
-                    <circle cx="50" cy="40" r="17" fill="url(#headGrad)" stroke="#166534" stroke-width="2"/>
-                    <path d="M32 35 q18 -7 36 0 l0 8 q-18 6 -36 0 z" fill="#00b3ff"/>
-                    <path d="M32 36 l-11 -4 l5 8 z" fill="#00b3ff"/>
-                    <path d="M68 36 l11 -4 l-5 8 z" fill="#00b3ff"/>
-                    <ellipse cx="42" cy="39" rx="3.6" ry="4" fill="#fff"/>
-                    <ellipse cx="58" cy="39" rx="3.6" ry="4" fill="#fff"/>
-                    <circle cx="42.6" cy="39.6" r="1.7" fill="#0f172a"/>
-                    <circle cx="57.4" cy="39.6" r="1.7" fill="#0f172a"/>
-                    <path d="M43 49 q7 6 14 0" fill="none" stroke="#166534" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M20 58 q-5 6 2 9 q7 2 9 -5 z" fill="url(#headGrad)" stroke="#166534" stroke-width="1.6"/>
-                    <path d="M80 58 q5 6 -2 9 q-7 2 -9 -5 z" fill="url(#headGrad)" stroke="#166534" stroke-width="1.6"/>
-                    <path d="M16 60 Q50 74 84 60 Q50 67 16 60 Z" fill="url(#canGrad)" stroke="#1f2937" stroke-width="1.6"/>
-                </svg>
-            </div>
-            <div class="hero-body">
-                <span class="hero-badge">חדש · המשחק הראשי</span>
-                <div class="game-title">צבי הנינג'ה: שומרי הביוב 3D</div>
-                <div class="game-desc">קאוואבּנגה! שחקו כלאונרדו, רפאל, דונטלו או מיכלאנג'לו בהרפתקת לגו תלת-מימדית ברחבי ניו יורק ומערכת הביוב. סיירו בחופשיות, אספו מכלי מוטגן ופיצות (פיצה = בריאות!), שחררו יכולות נינג'ה מיוחדות והתמודדו עם שרדר. כולל מצב שוטטות חופשית ותמיכה מלאה בשלט.</div>
-                <span class="play-btn">שחק עכשיו 🐢</span>
-            </div>
-        </div>
-    </a>
 
     <header>
         <h1>מאגר המשחקים שלי</h1>
@@ -427,13 +703,118 @@
         </div>
     </header>
 
+    <!-- Interactive View Switcher -->
+    <div class="view-switcher">
+        <button class="switch-btn active" id="btn-library">
+            <span>🎮</span> ספריית המשחקים
+        </button>
+        <button class="switch-btn" id="btn-timeline">
+            <span>🚀</span> מסע הפיתוח
+        </button>
+    </div>
+
+    <!-- Featured Section: Three prominent featured cards sharing space -->
+    <div class="featured-section" id="featured-section">
+        <!-- Ninja Turtles -->
+        <a href="ninja-turtles/ninja-turtles.html" class="featured-cta" style="--c: #39ff14;">
+            <div class="featured-card tmnt">
+                <span class="featured-badge" style="background: #39ff14; color: #0f172a; box-shadow: 0 0 10px rgba(57,255,20,0.5);">משחק ראשי</span>
+                <div class="featured-icon-wrap">
+                    <svg class="tmnt-icon-sm" viewBox="0 0 100 156" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="פח אשפה עם צב נינג'ה">
+                        <defs>
+                            <linearGradient id="canGrad" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0" stop-color="#4b5563"/>
+                                <stop offset="0.45" stop-color="#9ca3af"/>
+                                <stop offset="0.55" stop-color="#cbd5e1"/>
+                                <stop offset="1" stop-color="#374151"/>
+                            </linearGradient>
+                            <radialGradient id="headGrad" cx="0.4" cy="0.35" r="0.85">
+                                <stop offset="0" stop-color="#86efac"/>
+                                <stop offset="1" stop-color="#22c55e"/>
+                            </radialGradient>
+                        </defs>
+                        <g transform="rotate(20 90 58)">
+                            <ellipse cx="90" cy="58" rx="15" ry="6" fill="#9ca3af" stroke="#1f2937" stroke-width="2"/>
+                            <rect x="86" y="44" width="8" height="12" rx="4" fill="#6b7280" stroke="#1f2937" stroke-width="1.6"/>
+                        </g>
+                        <path d="M16 60 L24 146 Q24 152 30 152 L70 152 Q76 152 76 146 L84 60 Z" fill="url(#canGrad)" stroke="#1f2937" stroke-width="2"/>
+                        <g stroke="#374151" stroke-width="1.6" opacity="0.55">
+                            <path d="M34 66 L36 146"/>
+                            <path d="M50 66 L50 146"/>
+                            <path d="M66 66 L64 146"/>
+                        </g>
+                        <path d="M21 96 L79 96" stroke="#1f2937" stroke-width="2.4" opacity="0.45"/>
+                        <path d="M19 78 L81 78" stroke="#e2e8f0" stroke-width="2" opacity="0.4"/>
+                        <ellipse cx="50" cy="60" rx="34" ry="9" fill="#1f2937"/>
+                        <ellipse cx="50" cy="59" rx="29" ry="6.5" fill="#0b1220"/>
+                        <circle cx="50" cy="40" r="17" fill="url(#headGrad)" stroke="#166534" stroke-width="2"/>
+                        <path d="M32 35 q18 -7 36 0 l0 8 q-18 6 -36 0 z" fill="#00b3ff"/>
+                        <path d="M32 36 l-11 -4 l5 8 z" fill="#00b3ff"/>
+                        <path d="M68 36 l11 -4 l-5 8 z" fill="#00b3ff"/>
+                        <ellipse cx="42" cy="39" rx="3.6" ry="4" fill="#fff"/>
+                        <ellipse cx="58" cy="39" rx="3.6" ry="4" fill="#fff"/>
+                        <circle cx="42.6" cy="39.6" r="1.7" fill="#0f172a"/>
+                        <circle cx="57.4" cy="39.6" r="1.7" fill="#0f172a"/>
+                        <path d="M43 49 q7 6 14 0" fill="none" stroke="#166534" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M20 58 q-5 6 2 9 q7 2 9 -5 z" fill="url(#headGrad)" stroke="#166534" stroke-width="1.6"/>
+                        <path d="M80 58 q5 6 -2 9 q-7 2 -9 -5 z" fill="url(#headGrad)" stroke="#166534" stroke-width="1.6"/>
+                        <path d="M16 60 Q50 74 84 60 Q50 67 16 60 Z" fill="url(#canGrad)" stroke="#1f2937" stroke-width="1.6"/>
+                    </svg>
+                </div>
+                <div class="featured-body">
+                    <div class="game-title">צבי הנינג'ה 3D</div>
+                    <div class="game-desc">קאוואבּנגה! שחקו כצב נינג'ה בהרפתקת לגו תלת-מימדית ברחבי ניו יורק. אספו פיצות, שחררו יכולות והילחמו בשרדר.</div>
+                    <span class="play-btn">שחק עכשיו 🐢</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Dragonball Z -->
+        <a href="dragonball-z/dragonball-z.html" class="featured-cta" style="--c: #ff9f1c;">
+            <div class="featured-card dbz">
+                <span class="featured-badge" style="background: #ff9f1c; color: #0f172a; box-shadow: 0 0 10px rgba(255,159,28,0.5);">מולטיפלייר</span>
+                <div class="featured-icon-wrap">
+                    <div class="featured-icon-emoji">🐉</div>
+                </div>
+                <div class="featured-body">
+                    <div class="game-title">דרגון בול זי 3D</div>
+                    <div class="game-desc">עופפו בשמיים והילחמו יחד עם חברים בזירה תלת-מימדית מדהימה! תומך ב-PartyKit (עד 4 שחקנים) ושלט קונסולה.</div>
+                    <span class="play-btn">שחק עכשיו ⚡</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Beyblade -->
+        <a href="beyblade-valkyre-v2/beyblade-valkyre-v2.html" class="featured-cta" style="--c: #59e6ff;">
+            <div class="featured-card beyblade">
+                <span class="featured-badge" style="background: #59e6ff; color: #0f172a; box-shadow: 0 0 10px rgba(89,230,255,0.5);">חדש ביותר</span>
+                <div class="featured-icon-wrap">
+                    <div class="featured-icon-emoji">🌀</div>
+                </div>
+                <div class="featured-body">
+                    <div class="game-title">בייבלייד Valkyre V2</div>
+                    <div class="game-desc">שחקו בסימולטור סיבוב חופשי מבוסס פיזיקת אינרציה ותנע! פגעו בבאמפרים קפיציים, עופפו מרמפות וצברו מהירות שיא.</div>
+                    <span class="play-btn">שחק עכשיו 🌀</span>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Grid Layout for Library view -->
     <main class="game-grid" id="grid">
-        <!-- Cards injected by JS below this point -->
         <div class="no-results" id="noResults">😕 לא נמצאו משחקים תואמים.</div>
     </main>
 
-    <!-- Iteration journey -->
-    <div class="journey-banner">
+    <!-- Chronological Timeline View -->
+    <div class="timeline-view" id="timeline-view">
+        <div class="timeline-line"></div>
+        <ul class="timeline-list" id="timeline-list">
+            <!-- Timeline elements injected via Javascript -->
+        </ul>
+    </div>
+
+    <!-- Iteration journey banner -->
+    <div class="journey-banner" id="journey-banner">
         <div class="jb-text">
             <h3>🚀 תהליך הפיתוח: לנסות ולתקן</h3>
             <p>מצגת אינטראקטיבית המציגה את המסע מאחורי הקלעים: איך איטרציות, פתרון בעיות ושיפורים מתמידים הופכים רעיונות למשחקי פרימיום.</p>
@@ -444,59 +825,188 @@
     <footer>&copy; 2026 guybuilds. כל הזכויות שמורות.</footer>
 
     <script>
-        // ===== Game catalog (data-driven) =====
+        // ===== Game catalog (data-driven with chronological tracking) =====
         const GAMES = [
-            { title: "Dragon Ball Z — מולטיפלייר 3D", icon: "🐉", c: "#ff9f1c", cat: "anime",
-              tags: ["אנימה", "3D", "רב-משתתפים", "חדש"], href: "dragonball-z/dragonball-z.html",
-              desc: "שחקו יחד עם חברים בגרסת 3D מרהיבה! שחקו כגוקו (עד SS4), מקיטה (וג'יטה), גוהאן או פיקולו, אספו את כדורי הדרקון ועופפו בשמיים. תמיכה ב-PartyKit (עד 4 שחקנים) ותמיכה מלאה בשלט." },
-
-            { title: "הרנג'ר הזהוב", icon: "⚡", c: "#fbbf24", cat: "action",
-              tags: ["אקשן", "אספן", "חדש"], href: "power-rangers/power-rangers.html",
-              desc: "התחפשו לרנג'ר הזהוב, אספו מטבעות זהב ומלאו את מד העוצמה כדי להפעיל \"Gold Rush\" אדיר. עלו דרגות, רדפו אחרי שיא הניקוד ותיהנו מפסקול דינמי. תומך בשלט." },
-
-            { title: "גודזילה: 3D Rampage", icon: "🦖", c: "#22c55e", cat: "action",
-              tags: ["אקשן", "3D", "חדש"], href: "Godzilla/Godzilla.html",
-              desc: "הפכו למפלצת האולטימטיבית והחריבו עיר תלת-מימדית שלמה. נופצו גורדי שחקים, זרעו הרס ושלטו ברחובות במנוע Three.js עוצר נשימה." },
-
-            { title: "LEGO Batman 4: Gotham Chronicles", icon: "🦇", c: "#ffcc00", cat: "dc",
-              tags: ["DC", "3D", "לגו"], href: "lego-batman-4/lego-batman-4.html",
-              desc: "הצטרפו לבאטמן, רובין ופלאש (המהיר פי 7!) בהרפתקת לגו תלת-מימד. החליפו חליפות, זמנו ונהגו בבאטמוביל, נפצו חפצי לגו והילחמו בג'וקר-מך הענקי!" },
-
-            { title: "Avengers 1: Battle of NY", icon: "🛡️", c: "#38bdf8", cat: "marvel",
-              tags: ["מארוול", "קרב"], href: "avengers-1/avengers-1.html",
-              desc: "שחקו את אחד מששת הנוקמים המקוריים בקרב מול צבא הצ'יטאורי בניו יורק. אספו אנרגיית טסראקט ושרדו ככל האפשר." },
-
-            { title: "LEGO Avengers 3: Ultra Proportions", icon: "🤖", c: "#a855f7", cat: "marvel",
-              tags: ["מארוול", "לגו"], href: "lego-avengers-3/lego-avengers-3.html",
-              desc: "הפכו לאולטרון פריים או לענק הירוק, גדלו לממדים קוסמיים והחריבו את העיר בסימולטור השמדה עם פיזיקת גודל מתקדמת." },
-
-            { title: "Marvel 2: Ultra Edition", icon: "🦸", c: "#ef4444", cat: "marvel",
-              tags: ["מארוול"], href: "marvel-2/marvel-2.html",
-              desc: "המשך הלהיט עם גמישות גודל חדשה! שחקו כענק הירוק (עד פי 9) או כאיירון מן (עד פי 63), השתמשו ב-Smash וב-Unibeam והשתלטו על העיר." },
-
-            { title: "Marvel 2: Mobile Edition", icon: "📱", c: "#f472b6", cat: "marvel",
-              tags: ["מארוול", "מובייל"], href: "marvel-2-mobile/marvel-2-mobile.html",
-              desc: "גרסת המובייל המאוחדת של Marvel 2! שליטה מלאה בגיבורים, שינוי גודל דינמי ומצב ה-Legion הייחודי באריזת HTML אחת." },
-
-            { title: "Iron Man Visor", icon: "🤖", c: "#f87171", cat: "marvel",
-              tags: ["מארוול", "חוויה"], href: "iron-man-visor/iron-man-visor.html",
-              desc: "חוו את העולם דרך עיניו של טוני סטארק בקונספט HUD מתקדם עם אפקטים של חלקיקים אינטראקטיביים." },
-
-            { title: "Stark Run: Infinite", icon: "🏃", c: "#fb923c", cat: "marvel",
-              tags: ["מארוול", "ריצה"], href: "marvel-runner/marvel-runner.html",
-              desc: "הצטרפו לאיירון מן בריצה אינסופית ברחובות ניו יורק. התחמקו ממכשולים, השתמשו בבוסטים והשיגו את הניקוד הגבוה ביותר!" },
-
-            { title: "Pac-Man Retro", icon: "🍕", c: "#facc15", cat: "classic",
-              tags: ["קלאסי", "רטרו"], href: "pacman/pacman.html",
-              desc: "הקלאסיקה האהובה בגרסה מודרנית וצבעונית עם מכניקת משחק מדויקת." },
-
-            { title: "Snake Premium", icon: "🐍", c: "#4ade80", cat: "classic",
-              tags: ["קלאסי", "רטרו"], href: "snake/snake.html",
-              desc: "משחק הסנייק עם עיצוב נקי, בקרת מהירות ואפקטים חזותיים מרשימים." },
-
-            { title: "Ninja Fruits", icon: "🥷", c: "#34d399", cat: "classic",
-              tags: ["אקשן", "ארקייד"], href: "ninja-fruits/ninja-fruits.html",
-              desc: "משחק חיתוך פירות ממכר עם אפקטים מרשימים, פצצות מאתגרות ודרגות קושי עולות. הוכיחו את כישורי הנינג'ה שלכם!" },
+            { 
+                title: "בייבלייד Valkyre V2 — סיבוב חופשי", 
+                icon: "🌀", 
+                c: "#59e6ff", 
+                cat: "action",
+                tags: ["בייבלייד", "פיזיקה", "ארקייד", "חדש", "שלט"], 
+                href: "beyblade-valkyre-v2/beyblade-valkyre-v2.html",
+                desc: "נווטו את הבייבלייד במגרש המשחקים, היכנסו למסלולים מהירים, בצעו קפיצות מרמפות, פגעו בבאמפרים מקפיצים וצברו מהירות שיא. תומך בשלט קונסולה עם יכולות מיוחדות.",
+                order: 15,
+                milestone: "פיזיקת סיבוב ואינרציה מתקדמת",
+                whatLearned: "חישובי תנע ואינרציה של סיבוב, באמפרים קפיציים פיזיקליים, טעינת מד עוצמה (Super Spin) ושילוב שלט גיימפאד מתקדם."
+            },
+            { 
+                title: "Dragon Ball Z — מולטיפלייר 3D", 
+                icon: "🐉", 
+                c: "#ff9f1c", 
+                cat: "anime",
+                tags: ["אנימה", "3D", "רב-משתתפים", "חדש"], 
+                href: "dragonball-z/dragonball-z.html",
+                desc: "שחקו יחד עם חברים בגרסת 3D מרהיבה! שחקו כגוקו (עד SS4), מקיטה (וג'יטה), גוהאן או פיקולו, אספו את כדורי הדרקון ועופפו בשמיים. תמיכה ב-PartyKit (עד 4 שחקנים) ותמיכה מלאה בשלט.",
+                order: 14,
+                milestone: "מולטיפלייר בזמן אמת בשרת מבוזר",
+                whatLearned: "אינטגרציית WebSockets מבוססת PartyKit, סנכרון מיקום שחקנים ואנימציות בזמן אמת, ריחוף במרחב תלת-מימדי מלא, וטרנספורמציות סופר סאיין דינמיות."
+            },
+            { 
+                title: "הרנג'ר הזהוב", 
+                icon: "⚡", 
+                c: "#fbbf24", 
+                cat: "action",
+                tags: ["אקשן", "אספן", "חדש"], 
+                href: "power-rangers/power-rangers.html",
+                desc: "התחפשו לרנג'ר הזהוב, אספו מטבעות זהב ומלאו את מד העוצמה כדי להפעיל \"Gold Rush\" אדיר. עלו דרגות, רדפו אחרי שיא הניקוד ותיהנו מפסקול דינמי. תומך בשלט.",
+                order: 13,
+                milestone: "עיצוב חוויית ארקייד מלוטשת ומוזיקה דינמית",
+                whatLearned: "מצב \"Gold Rush\" המפעיל אפקטים חזותיים קיצוניים, שילוב מערכת סאונד מסונתז מתקדם (Web Audio API), ועומס תנועה משופר."
+            },
+            { 
+                title: "צבי הנינג'ה: שומרי הביוב 3D", 
+                icon: "🐢", 
+                c: "#39ff14", 
+                cat: "action",
+                tags: ["אקשן", "3D", "לגו", "שלט", "ראשי"], 
+                href: "ninja-turtles/ninja-turtles.html",
+                desc: "קאוואבּנגה! שחקו כלאונרדו, רפאל, דונטלו או מיכלאנג'לו בהרפתקת לגו תלת-מימדית ברחבי ניו יורק ומערכת הביוב. סיירו בחופשיות, אספו מכלי מוטגן ופיצות, שחררו יכולות נינג'ה מיוחדות והתמודדו עם שרדר. כולל תמיכה מלאה בשלט.",
+                order: 12,
+                milestone: "עולם פתוח, שלט קונסולה ומצלמה מתקדמת",
+                whatLearned: "בניית עיר תלת-מימדית גדולה הכוללת סביבת ביוב תחתית, אינטגרציה מלאה של שלטי PlayStation/Xbox, מערכת מצלמה חכמה, ומשימות חקירה."
+            },
+            { 
+                title: "LEGO Batman 4: Gotham Chronicles", 
+                icon: "🦇", 
+                c: "#ffcc00", 
+                cat: "dc",
+                tags: ["DC", "3D", "לגו"], 
+                href: "lego-batman-4/lego-batman-4.html",
+                desc: "הצטרפו לבאטמן, רובין ופלאש (המהיר פי 7!) בהרפתקת לגו תלת-מימד. החליפו חליפות, זמנו ונהגו בבאטמוביל, נפצו חפצי לגו והילחמו בג'וקר-מך הענקי!",
+                order: 11,
+                milestone: "מכניקת רכבים ובוסים תלת-מימדיים",
+                whatLearned: "הוספת רכבים שניתן להיכנס/לצאת ולנהוג בהם, פיזיקת נהיגה, קרב בוס מורכב בעל שלבי התקפה שונים, מוזיקה ואפקטים מסונתזים (Web Audio API), ומערכת חליפות מתחלפות."
+            },
+            { 
+                title: "Stark Run: Infinite", 
+                icon: "🏃", 
+                c: "#fb923c", 
+                cat: "marvel",
+                tags: ["מארוול", "ריצה"], 
+                href: "marvel-runner/marvel-runner.html",
+                desc: "הצטרפו לאיירון מן בריצה אינסופית ברחובות ניו יורק. התחמקו ממכשולים, השתמשו בבוסטים והשיגו את הניקוד הגבוה ביותר!",
+                order: 10,
+                milestone: "יצירת שלבים אינסופיים (Procedural Generation)",
+                whatLearned: "יצירת מכשולים ובונוסים בצורה פרוצדורלית מול השחקן, מהירות תנועה עולה, אפקטים של מהירות, ושיפור זריזות התגובה במשחק מהיר."
+            },
+            { 
+                title: "Marvel 2: Mobile Edition", 
+                icon: "📱", 
+                c: "#f472b6", 
+                cat: "marvel",
+                tags: ["מארוול", "מובייל"], 
+                href: "marvel-2-mobile/marvel-2-mobile.html",
+                desc: "גרסת המובייל המאוחדת של Marvel 2! שליטה מלאה בגיבורים, שינוי גודל דינמי ומצב ה-Legion הייחודי באריזת HTML אחת.",
+                order: 9,
+                milestone: "התאמה למובייל ומערכות שליטה במגע",
+                whatLearned: "אופטימיזציה של ביצועים למכשירים ניידים, שליטת ג'ויסטיק וירטואלי (Virtual Joystick) על גבי המסך, התאמת ממשק רספונסיבי, ומצב Legion המזמן גיבורים מרובים."
+            },
+            { 
+                title: "גודזילה: 3D Rampage", 
+                icon: "🦖", 
+                c: "#22c55e", 
+                cat: "action",
+                tags: ["אקשן", "3D", "חדש"], 
+                href: "Godzilla/Godzilla.html",
+                desc: "הפכו למפלצת האולטימטיבית והחריבו עיר תלת-מימדית שלמה. נופצו גורדי שחקים, זרעו הרס ושלטו ברחובות במנוע Three.js עוצר נשימה.",
+                order: 8,
+                milestone: "סימולטור הרס סביבתי וקנה מידה דינמי",
+                whatLearned: "הרס בניינים דינמי במנוע Three.js, פיצוצים ואפקטים של אש תלת-מימדיים, ומכניקת תקיפה עם זנב ולייזר אטומי."
+            },
+            { 
+                title: "LEGO Avengers 3: Ultra Proportions", 
+                icon: "🤖", 
+                c: "#a855f7", 
+                cat: "marvel",
+                tags: ["מארוול", "לגו"], 
+                href: "lego-avengers-3/lego-avengers-3.html",
+                desc: "הפכו לאולטרון פריים או לענק הירוק, גדלו לממדים קוסמיים והחריבו את העיר בסימולטור השמדה עם פיזיקת גודל מתקדמת.",
+                order: 7,
+                milestone: "פיזיקת הרס ותלת-מימד מורכב",
+                whatLearned: "מערכת התנגשויות מתקדמת במרחב 3D, פירוק אובייקטים לחלקי לגו קטנים שמתפזרים בפיזיקה מציאותית, ומכניקה מתקדמת של קנה מידה קיצוני."
+            },
+            { 
+                title: "Marvel 2: World Eater Edition", 
+                icon: "🦸", 
+                c: "#ef4444", 
+                cat: "marvel",
+                tags: ["מארוול", "3D", "חדש"], 
+                href: "marvel-2-neon/marvel-2-neon.html",
+                desc: "המשך הלהיט עם גמישות גודל חדשה! שחקו כענק הירוק, איירון מן או גלקטוס, והתעצמו כדי לזלול כוכבי לכת במנוע תלת-מימד מלא.",
+                order: 6,
+                milestone: "מעבר לתלת-מימד מלא (Three.js)",
+                whatLearned: "שימוש במנוע Three.js, בניית סצנה תלת-מימדית, ניהול מצלמה עוקבת, ומכניקת גדילה דינמית (שינוי קנה מידה של מודלים בזמן אמת עד פי 20)."
+            },
+            { 
+                title: "Avengers 1: Battle of NY", 
+                icon: "🛡️", 
+                c: "#38bdf8", 
+                cat: "marvel",
+                tags: ["מארוול", "קרב"], 
+                href: "avengers-1/avengers-1.html",
+                desc: "שחקו את אחד מששת הנוקמים המקוריים בקרב מול צבא הצ'יטאורי בניו יורק. אספו אנרגיית טסראקט ושרדו ככל האפשר.",
+                order: 5,
+                milestone: "ניהול רוסטר דמויות ואויבים מרובים",
+                whatLearned: "בניית רוסטר עם דמויות מגוונות (לכל אחת יכולת אחרת), יצירת גלים של אויבים (Spawning waves), מעקב אחר חיים, ואינטגרציה של מוזיקת רקע ואפקטים."
+            },
+            { 
+                title: "Ninja Fruits", 
+                icon: "🥷", 
+                c: "#34d399", 
+                cat: "classic",
+                tags: ["אקשן", "ארקייד"], 
+                href: "ninja-fruits/ninja-fruits.html",
+                desc: "משחק חיתוך פירות ממכר עם אפקטים מרשימים, פצצות מאתגרות ודרגות קושי עולות. הוכיחו את כישורי הנינג'ה שלכם!",
+                order: 4,
+                milestone: "פיזיקה דו-מימדית וחישובי גרירה",
+                whatLearned: "זיהוי מחוות גרירה (Swipe/Slicing), פיזיקת כבידה ותאוצה לפירות מעופפים, מערכת אפקטים של התזת נוזלים (Splash), וחלקיקים מבוססי כיוון."
+            },
+            { 
+                title: "Iron Man Visor", 
+                icon: "👁️", 
+                c: "#f87171", 
+                cat: "marvel",
+                tags: ["מארוול", "חוויה"], 
+                href: "iron-man-visor/iron-man-visor.html",
+                desc: "חוו את העולם דרך עיניו של טוני סטארק בקונספט HUD מתקדם עם אפקטים של חלקיקים אינטראקטיביים.",
+                order: 3,
+                milestone: "עיצוב ממשקים (HUD & UI)",
+                whatLearned: "שילוב CSS מתקדם, אפקטים של זוהר (Neon), אפקטים של חלקיקים תלת-מימדיים בדו-מימד, וממזק HUD אינטראקטיבי דינמי שמגיב לעכבר."
+            },
+            { 
+                title: "Pac-Man Retro", 
+                icon: "🍕", 
+                c: "#facc15", 
+                cat: "classic",
+                tags: ["קלאסי", "רטרו"], 
+                href: "pacman/pacman.html",
+                desc: "הקלאסיקה האהובה בגרסה מודרנית וצבעונית עם מכניקת משחק מדויקת.",
+                order: 2,
+                milestone: "ניווט מבוסס רשת ובינה מלאכותית פשוטה",
+                whatLearned: "מבוכים מבוססי מפה (מערכים דו-מימדיים), תנועה מוגבלת לקירות, בינה מלאכותית בסיסית לרוחות (מעקב ושינוי כיוון), ומערכת נקודות כוח."
+            },
+            { 
+                title: "Snake Premium", 
+                icon: "🐍", 
+                c: "#4ade80", 
+                cat: "classic",
+                tags: ["קלאסי", "רטרו"], 
+                href: "snake/snake.html",
+                desc: "משחק הסנייק עם עיצוב נקי, בקרת מהירות ואפקטים חזותיים מרשימים.",
+                order: 1,
+                milestone: "יסודות הדו-מימד וקנבס",
+                whatLearned: "לולאת משחק בסיסית, בקרת מקלדת, ניהול מערכים (חלקי הנחש), ציור על Canvas דו-מימדי, ולוגיקת התנגשות."
+            }
         ];
 
         const CATEGORIES = [
@@ -510,7 +1020,13 @@
 
         const grid = document.getElementById('grid');
         const noResults = document.getElementById('noResults');
+        const featuredSection = document.getElementById('featured-section');
+        const journeyBanner = document.getElementById('journey-banner');
+        const timelineView = document.getElementById('timeline-view');
+        const timelineList = document.getElementById('timeline-list');
+        
         let activeCat = "all";
+        let activeView = "library"; // "library" or "timeline"
 
         // Build filter chips
         const filters = document.createElement('div');
@@ -535,36 +1051,141 @@
         toolbar.appendChild(filters);
         grid.parentNode.insertBefore(toolbar, grid);
 
+        // Click handler for entire card wrap
         function makeCard(g) {
-            const card = document.createElement('div');
-            card.className = 'game-card enter';
-            card.style.setProperty('--c', g.c);
-            card.innerHTML = `
-                <div class="card-tags">${g.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
-                <div class="game-icon">${g.icon}</div>
-                <div class="game-title">${g.title}</div>
-                <div class="game-desc">${g.desc}</div>
-                <a href="${g.href}" class="play-btn">שחק עכשיו <span class="arrow">←</span></a>`;
-            return card;
+            const cardLink = document.createElement('a');
+            cardLink.href = g.href;
+            cardLink.className = 'game-card-link enter';
+            cardLink.style.setProperty('--c', g.c);
+            
+            cardLink.innerHTML = `
+                <div class="game-card">
+                    <div class="card-tags">${g.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+                    <div class="game-icon">${g.icon}</div>
+                    <div class="game-title">${g.title}</div>
+                    <div class="game-desc">${g.desc}</div>
+                    <div class="play-btn">שחק עכשיו <span class="arrow">←</span></div>
+                </div>`;
+            return cardLink;
         }
 
-        function render() {
-            // remove previously injected cards
-            grid.querySelectorAll('.game-card:not(.hero-card)').forEach(c => c.remove());
+        // Timeline item generator
+        function makeTimelineItem(g) {
+            const item = document.createElement('li');
+            item.className = 'timeline-item';
+            item.style.setProperty('--c', g.c);
+            
+            item.innerHTML = `
+                <div class="timeline-node">${g.order}</div>
+                <a href="${g.href}" class="timeline-card-wrapper">
+                    <div class="timeline-card">
+                        <div class="timeline-header">
+                            <span class="timeline-step">שלב ${g.order} במסע</span>
+                            <span class="timeline-milestone">${g.milestone}</span>
+                        </div>
+                        <div class="timeline-title-row">
+                            <span class="game-icon">${g.icon}</span>
+                            <h4 class="game-title">${g.title}</h4>
+                        </div>
+                        <p class="timeline-desc">${g.desc}</p>
+                        <div class="timeline-learned">
+                            <strong>💡 מה שלמדנו ושיפרנו:</strong>
+                            <p>${g.whatLearned}</p>
+                        </div>
+                    </div>
+                </a>`;
+            return item;
+        }
 
-            const matches = GAMES.filter(g => activeCat === "all" || g.cat === activeCat);
+        function renderLibrary() {
+            // Remove previously injected cards
+            grid.querySelectorAll('.game-card-link').forEach(c => c.remove());
 
-            matches.forEach((g, i) => {
+            // Render all except the three featured ones in 'all' view to avoid duplicating them
+            const matches = GAMES.filter(g => {
+                const matchesCategory = activeCat === "all" || g.cat === activeCat;
+                if (activeCat === "all") {
+                    const isFeatured = g.href === "ninja-turtles/ninja-turtles.html" || 
+                                       g.href === "dragonball-z/dragonball-z.html" || 
+                                       g.href === "beyblade-valkyre-v2/beyblade-valkyre-v2.html";
+                    if (isFeatured) return false;
+                }
+                return matchesCategory;
+            });
+
+            // Sorted reverse-chronologically (newest first / descending order)
+            const sortedMatches = [...matches].sort((a, b) => b.order - a.order);
+
+            sortedMatches.forEach((g, i) => {
                 const card = makeCard(g);
                 grid.insertBefore(card, noResults);
                 // staggered entrance
-                requestAnimationFrame(() => setTimeout(() => card.classList.add('show'), i * 55));
+                requestAnimationFrame(() => setTimeout(() => card.classList.add('show'), i * 45));
             });
 
-            noResults.style.display = matches.length ? 'none' : 'block';
+            noResults.style.display = sortedMatches.length ? 'none' : 'block';
         }
 
-        document.getElementById('stat-total').textContent = GAMES.length + 1; // +1 for the hero game
+        function renderTimeline() {
+            timelineList.innerHTML = '';
+            
+            // Sorted reverse-chronologically (newest first / descending order)
+            const chronologicalGAMES = [...GAMES].sort((a, b) => b.order - a.order);
+
+            chronologicalGAMES.forEach((g) => {
+                const item = makeTimelineItem(g);
+                timelineList.appendChild(item);
+            });
+        }
+
+        function render() {
+            if (activeView === "library") {
+                // Show library elements
+                featuredSection.style.display = 'grid';
+                toolbar.style.display = 'flex';
+                grid.style.display = 'grid';
+                journeyBanner.style.display = 'flex';
+                
+                // Hide timeline elements
+                timelineView.style.display = 'none';
+                
+                renderLibrary();
+            } else {
+                // Hide library elements
+                featuredSection.style.display = 'none';
+                toolbar.style.display = 'none';
+                grid.style.display = 'none';
+                journeyBanner.style.display = 'none';
+                
+                // Show timeline elements
+                timelineView.style.display = 'block';
+                
+                renderTimeline();
+            }
+        }
+
+        // View Switching Event Listeners
+        const btnLibrary = document.getElementById('btn-library');
+        const btnTimeline = document.getElementById('btn-timeline');
+
+        btnLibrary.addEventListener('click', () => {
+            btnLibrary.classList.add('active');
+            btnTimeline.classList.remove('active');
+            activeView = "library";
+            render();
+        });
+
+        btnTimeline.addEventListener('click', () => {
+            btnTimeline.classList.add('active');
+            btnLibrary.classList.remove('active');
+            activeView = "timeline";
+            render();
+        });
+
+        // Set total stats count
+        document.getElementById('stat-total').textContent = GAMES.length;
+        
+        // Initial render
         render();
     </script>
 </body>

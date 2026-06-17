@@ -3078,6 +3078,16 @@
                 if (pad) {
                     gpStatus.innerHTML = "<span style='color: var(--dbz-green)'>🎮 שלט מחובר!</span>";
                     
+                    // Restart on any button if won
+                    if (this.isWon) {
+                        for (let b = 0; b < pad.buttons.length; b++) {
+                            if (pad.buttons[b] && pad.buttons[b].pressed) {
+                                location.reload();
+                                return;
+                            }
+                        }
+                    }
+                    
                     // Left Stick Movement
                     const stickX = pad.axes[0] || 0;
                     const stickZ = pad.axes[1] || 0;
