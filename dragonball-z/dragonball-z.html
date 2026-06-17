@@ -278,6 +278,25 @@
             transition: opacity 0.5s ease;
         }
 
+        /* Mobile HUD compaction */
+        @media (max-width: 900px) {
+            #hud { padding: 8px; }
+            .hud-panel { padding: 7px 10px !important; border-radius: 10px !important; }
+            .hud-title-char { font-size: 0.85rem !important; margin-bottom: 1px !important; }
+            .hud-ability-tip { font-size: 0.62rem !important; }
+            .ki-bar-container, .hp-bar-container { width: 110px !important; height: 11px !important; margin-top: 3px !important; }
+            .ki-bar-text, .hp-bar-text { font-size: 0.58rem !important; }
+            .dragon-balls-hud { gap: 4px !important; margin-top: 6px !important; }
+            .db-hud-slot { width: 20px !important; height: 20px !important; font-size: 0.52rem !important; }
+            .stat-label { font-size: 0.65rem !important; }
+            .stat-value { font-size: 1.1rem !important; }
+            .multiplayer-status { font-size: 0.65rem !important; margin-top: 3px !important; }
+            .status-panel { min-width: auto !important; }
+            #announcer-log { font-size: 1.1rem !important; top: 80px !important; }
+            .hud-top-buttons { gap: 6px !important; }
+            .sound-toggle, .help-toggle-btn, .scouter-toggle-btn { padding: 5px 9px !important; font-size: 0.7rem !important; }
+        }
+
         .hud-header {
             display: flex;
             justify-content: space-between;
@@ -525,7 +544,7 @@
             bottom: 20px; right: 20px;
             display: grid;
             grid-template-areas:
-                "charge transform ."
+                "kamehameha transform ."
                 "flydown flyup special"
                 ". . attack";
             gap: 8px;
@@ -558,8 +577,8 @@
             filter: brightness(1.2);
         }
 
-        .btn-charge { grid-area: charge; border-color: var(--dbz-yellow); color: var(--dbz-yellow); }
-        .btn-charge:active { background: rgba(255, 204, 0, 0.2); }
+        .btn-kamehameha { grid-area: kamehameha; border-color: #00ccff; color: #00ccff; font-size: 0.65rem !important; }
+        .btn-kamehameha:active { background: rgba(0, 204, 255, 0.25); box-shadow: 0 0 18px rgba(0, 204, 255, 0.5); }
 
         .btn-transform { grid-area: transform; border-color: var(--dbz-green); color: var(--dbz-green); }
         .btn-transform:active { background: rgba(57, 255, 20, 0.2); }
@@ -979,7 +998,7 @@
             <div class="joystick-knob" id="touch-knob"></div>
         </div>
         <div class="action-buttons">
-            <button class="action-btn btn-charge" id="touch-charge">טען 🔥</button>
+            <button class="action-btn btn-kamehameha" id="touch-kamehameha">קמהמהה 🌊</button>
             <button class="action-btn btn-transform" id="touch-transform">סייאן ⚡</button>
             <button class="action-btn btn-fly-down" id="touch-fly-down">⬇️ מטה</button>
             <button class="action-btn btn-fly-up" id="touch-fly-up">⬆️ מעלה</button>
@@ -2795,10 +2814,9 @@
                     }
                 };
 
-                bindTouchBtn('touch-charge', 
-                    () => { this.physics.isCharging = true; }, 
-                    () => { this.physics.isCharging = false; }
-                );
+                bindTouchBtn('touch-kamehameha', () => {
+                    this.performKamehameha();
+                });
 
                 bindTouchBtn('touch-transform', () => {
                     this.transformMobile();
@@ -2932,7 +2950,7 @@
                     this.announce(`שינוי צורה: ${form.name}! 🔥`);
                     
                     // Show stats/form name HUD temporarily on transformation
-                    this.showPlayerInfoTemporarily(4000);
+                    this.showPlayerInfoTemporarily(2500);
 
                     // Sync transform state
                     this.sendNetworkMessage({
@@ -2976,8 +2994,8 @@
 
                 // Hide HUD panels by default and trigger initial brief reveal for orientation
                 document.body.classList.add('hud-info-hidden', 'hud-status-hidden');
-                this.showPlayerInfoTemporarily(4000);
-                this.showStatusPanelTemporarily(4000);
+                this.showPlayerInfoTemporarily(2500);
+                this.showStatusPanelTemporarily(2000);
 
                 // Auto-fade controls help overlay after 10 seconds
                 this.helpFadeTimeout = setTimeout(() => {
@@ -5335,8 +5353,8 @@
                 sound.playCollect();
                 this.announce(`אספתם את כדור הדרקון ה-${index}! 🐉`);
                 
-                // Show player info (stats and Dragon Ball slots) temporarily
-                this.showPlayerInfoTemporarily(5000);
+                // Show player info (Dragon Ball slots) briefly
+                this.showPlayerInfoTemporarily(2500);
                 
                 this.addScore(100);
 
