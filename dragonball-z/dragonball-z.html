@@ -334,6 +334,38 @@
             text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
 
+        .hp-bar-container {
+            width: 160px;
+            height: 16px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 9px;
+            overflow: hidden;
+            position: relative;
+            margin-top: 5px;
+        }
+
+        .hp-bar-fill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(to left, #dc2626, #ea580c);
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.8);
+            transition: width 0.1s ease;
+        }
+
+        .hp-bar-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            direction: ltr;
+        }
+
         .hud-stats {
             text-align: right;
         }
@@ -466,20 +498,21 @@
 
         .joystick-zone {
             position: absolute;
-            bottom: 25px; right: 25px;
-            width: 150px; height: 150px;
+            bottom: 20px; left: 20px;
+            width: 120px; height: 120px;
             pointer-events: auto;
             display: flex;
             justify-content: center;
             align-items: center;
             background: rgba(0,0,0,0.3);
-            border: 2px dashed rgba(255,255,255,0.1);
+            border: 2px dashed rgba(255,255,255,0.15);
             border-radius: 50%;
+            touch-action: none;
         }
 
         .joystick-knob {
-            width: 60px; height: 60px;
-            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+            width: 50px; height: 50px;
+            background: radial-gradient(circle, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 100%);
             border: 2px solid var(--dbz-orange);
             border-radius: 50%;
             box-shadow: 0 0 15px rgba(255, 85, 0, 0.4);
@@ -489,25 +522,26 @@
 
         .action-buttons {
             position: absolute;
-            bottom: 25px; left: 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            bottom: 20px; right: 20px;
+            display: grid;
+            grid-template-areas:
+                "charge transform ."
+                "flydown flyup special"
+                ". . attack";
+            gap: 8px;
             pointer-events: auto;
-        }
-
-        .row-btns {
-            display: flex;
-            gap: 12px;
+            justify-items: center;
+            align-items: center;
+            touch-action: none;
         }
 
         .action-btn {
-            width: 70px; height: 70px;
+            width: 60px; height: 60px;
             border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            border: 2.2px solid rgba(255, 255, 255, 0.22);
             background: var(--glass);
             color: #fff;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 800;
             display: flex;
             justify-content: center;
@@ -515,22 +549,104 @@
             backdrop-filter: blur(8px);
             transition: all 0.15s;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            user-select: none;
+            touch-action: none;
         }
 
         .action-btn:active {
             transform: scale(0.9);
+            filter: brightness(1.2);
         }
 
-        .btn-fly { border-color: var(--dbz-blue); color: var(--dbz-blue); box-shadow: 0 0 10px rgba(0, 136, 255, 0.2); }
-        .btn-fly:active { background: var(--dbz-blue); color: #000; }
-        
-        .btn-charge { border-color: var(--dbz-yellow); color: var(--dbz-yellow); box-shadow: 0 0 10px rgba(255, 204, 0, 0.2); width: 85px; height: 85px; font-size: 1.15rem; }
-        
-        .btn-attack { border-color: var(--dbz-orange); color: var(--dbz-orange); }
-        .btn-attack:active { background: var(--dbz-orange); color: #fff; }
+        .btn-charge { grid-area: charge; border-color: var(--dbz-yellow); color: var(--dbz-yellow); }
+        .btn-charge:active { background: rgba(255, 204, 0, 0.2); }
 
-        .btn-special { border-color: #ff3355; color: #ff3355; }
-        .btn-special:active { background: #ff3355; color: #fff; }
+        .btn-transform { grid-area: transform; border-color: var(--dbz-green); color: var(--dbz-green); }
+        .btn-transform:active { background: rgba(57, 255, 20, 0.2); }
+
+        .btn-fly-down { grid-area: flydown; border-color: var(--dbz-blue); color: var(--dbz-blue); }
+        .btn-fly-down:active { background: rgba(0, 136, 255, 0.2); }
+
+        .btn-fly-up { grid-area: flyup; border-color: var(--dbz-blue); color: var(--dbz-blue); }
+        .btn-fly-up:active { background: rgba(0, 136, 255, 0.2); }
+
+        .btn-special { grid-area: special; border-color: #ff3355; color: #ff3355; }
+        .btn-special:active { background: rgba(255, 51, 85, 0.2); }
+
+        .btn-attack {
+            grid-area: attack;
+            width: 76px;
+            height: 76px;
+            font-size: 1.12rem;
+            border-color: var(--dbz-orange);
+            color: var(--dbz-orange);
+            box-shadow: 0 0 15px rgba(255, 85, 0, 0.3);
+        }
+        .btn-attack:active {
+            background: var(--dbz-orange);
+            color: #fff;
+            box-shadow: 0 0 20px var(--dbz-orange);
+        }
+
+        /* Dynamic HUD Panel Slide-out Styles */
+        .hud-panel.player-info {
+            transition: transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.45s ease;
+        }
+        .hud-panel.status-panel {
+            transition: transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.45s ease;
+        }
+
+        body.hud-info-hidden .hud-panel.player-info {
+            transform: translateY(-130%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        body.hud-status-hidden .hud-panel.status-panel {
+            transform: translateY(-130%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Scouter Toggle HUD Button styling */
+        .scouter-toggle-btn {
+            background: rgba(10, 25, 45, 0.75);
+            border: 1.5px solid #ff3b30;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+            transition: all 0.2s;
+        }
+
+        .scouter-toggle-btn:hover {
+            box-shadow: 0 0 10px rgba(255, 59, 48, 0.3);
+        }
+
+        .scouter-toggle-btn.hud-active {
+            border-color: var(--dbz-green);
+            box-shadow: 0 0 12px rgba(57, 255, 20, 0.4);
+        }
+
+        .scouter-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ff3b30;
+            display: inline-block;
+            transition: background-color 0.2s, box-shadow 0.2s;
+        }
+
+        .scouter-toggle-btn.hud-active .scouter-dot {
+            background-color: var(--dbz-green);
+            box-shadow: 0 0 8px var(--dbz-green);
+        }
 
         /* Help Overlay in Hebrew - support fade out when moving */
         #help-overlay {
@@ -581,6 +697,58 @@
             z-index: 2000;
             padding: 20px;
             text-align: center;
+        }
+
+        @keyframes victory-shimmer {
+            0%   { color: #ffcc00; text-shadow: 0 0 30px #ffcc00, 0 0 60px #ff5500; }
+            25%  { color: #39ff14; text-shadow: 0 0 30px #39ff14, 0 0 60px #00ffcc; }
+            50%  { color: #00ccff; text-shadow: 0 0 30px #00ccff, 0 0 60px #8a2be2; }
+            75%  { color: #ff5500; text-shadow: 0 0 30px #ff5500, 0 0 60px #ffcc00; }
+            100% { color: #ffcc00; text-shadow: 0 0 30px #ffcc00, 0 0 60px #ff5500; }
+        }
+
+        @keyframes winner-slide-in {
+            0%   { opacity: 0; transform: translateY(40px) scale(0.7); }
+            60%  { opacity: 1; transform: translateY(-8px) scale(1.08); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes victory-bg-pulse {
+            0%   { background: rgba(5, 12, 22, 0.94); }
+            50%  { background: rgba(10, 40, 20, 0.96); }
+            100% { background: rgba(5, 12, 22, 0.94); }
+        }
+
+        .victory-active {
+            animation: victory-bg-pulse 2.5s ease-in-out infinite;
+        }
+
+        .victory-title-animated {
+            animation: victory-shimmer 1.8s ease-in-out infinite;
+            font-size: 3.8rem !important;
+        }
+
+        #victory-winner-name {
+            font-family: 'Outfit', 'Assistant', sans-serif;
+            font-size: 4.2rem;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            background: linear-gradient(135deg, #ffcc00 0%, #ff5500 50%, #ffcc00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 18px rgba(255, 204, 0, 0.9));
+            animation: winner-slide-in 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            margin-bottom: 6px;
+        }
+
+        #victory-subtitle {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #39ff14;
+            text-shadow: 0 0 15px rgba(57, 255, 20, 0.7);
+            margin-bottom: 20px;
+            animation: winner-slide-in 0.9s 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
         }
 
         .screen-title {
@@ -710,6 +878,7 @@
         </div>
 
         <button class="play-btn" id="start-btn">היכנס לזירת האימונים 🚀</button>
+        <div id="lobby-gamepad-status" style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8; text-align: center;">🎮 שלט לא מחובר</div>
     </div>
 
     <!-- HUD Overlay -->
@@ -722,6 +891,10 @@
                     <div class="ki-bar-container">
                         <div class="ki-bar-fill" id="hud-ki-fill"></div>
                         <div class="ki-bar-text" id="hud-ki-text">אנרגיית קי: 0 / 200</div>
+                    </div>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar-fill" id="hud-hp-fill"></div>
+                        <div class="hp-bar-text" id="hud-hp-text">HP: 100 / 100</div>
                     </div>
                     <!-- Dragon Balls Slots -->
                     <div class="dragon-balls-hud">
@@ -755,24 +928,23 @@
             <div style="display: flex; gap: 30px; text-align: right; direction: rtl;">
                 <!-- Keyboard Column -->
                 <div style="min-width: 190px;">
-                    <h4 style="margin: 0 0 8px 0; color: var(--dbz-orange); font-size: 0.85rem; text-align: center; border-bottom: 1px solid rgba(255,85,0,0.3); padding-bottom: 4px; font-weight: 800;">🎹 מקלדת ועכבר</h4>
+                    <h4 style="margin: 0 0 8px 0; color: var(--dbz-orange); font-size: 0.85rem; text-align: center; border-bottom: 1px solid rgba(255,85,0,0.3); padding-bottom: 4px; font-weight: 800;">🎹 מקלדת בלבד (ללא עכבר)</h4>
                     <div class="help-item"><span class="key-badge">WASD / חצים</span> תנועה חלקה</div>
-                    <div class="help-item"><span class="key-badge">רווח</span> קפיצה / הפעלת מעוף</div>
-                    <div class="help-item"><span class="key-badge">E / F</span> טיסה למעלה / למטה</div>
+                    <div class="help-item"><span class="key-badge">E / רווח</span> המראה ותעופה למעלה ⬆️</div>
+                    <div class="help-item"><span class="key-badge">F</span> תעופה למטה ונחיתה ⬇️</div>
+                    <div class="help-item"><span class="key-badge">R</span> אגרוף 👊</div>
+                    <div class="help-item"><span class="key-badge">T</span> יריית קי ☄️</div>
+                    <div class="help-item"><span class="key-badge">C</span> קאמהאמהה 🌊</div>
+                    <div class="help-item"><span class="key-badge">V</span> פצצת רוח 🔮</div>
                     <div class="help-item"><span class="key-badge">Z / X</span> שינוי דרגת סייאן ⚡</div>
                     <div class="help-item"><span class="key-badge">Shift</span> ריצה/מעוף מהיר ⚡</div>
-                    <div class="help-item"><span class="key-badge">Q</span> השתגרות (Vanish) 💨</div>
-                    <div class="help-item"><span class="key-badge">קליק שמאל / R1</span> אגרוף</div>
-                    <div class="help-item"><span class="key-badge">קליק ימין / Circle</span> יריית קי</div>
-                    <div class="help-item"><span class="key-badge">C / Triangle</span> קאמהאמהה 🌊</div>
-                    <div class="help-item"><span class="key-badge">V / D-Pad Up</span> פצצת רוח 🔮</div>
                 </div>
                 <!-- Gamepad Column -->
                 <div style="min-width: 210px; border-right: 1px dashed rgba(255,255,255,0.15); padding-right: 20px;">
                     <h4 style="margin: 0 0 8px 0; color: var(--dbz-blue); font-size: 0.85rem; text-align: center; border-bottom: 1px solid rgba(0,136,255,0.3); padding-bottom: 4px; font-weight: 800;">🎮 שלט (Gamepad)</h4>
                     <div class="help-item"><span class="key-badge">ג'ויסטיק שמאל</span> תנועה (דחיפה מלאה = ריצה מהירה ⚡)</div>
-                    <div class="help-item"><span class="key-badge">R2 / RT / Triangle</span> מעוף למעלה ⬆️ (המראה אוטומטית)</div>
-                    <div class="help-item"><span class="key-badge">L2 / LT / Cross</span> מעוף למטה ⬇️ / נחיתה אוטומטית</div>
+                    <div class="help-item"><span class="key-badge">R2 / RT</span> מעוף למעלה ⬆️ (המראה אוטומטית)</div>
+                    <div class="help-item"><span class="key-badge">L2 / LT</span> מעוף למטה ⬇️ / נחיתה אוטומטית</div>
                     <div class="help-item"><span class="key-badge">Cross / A</span> קפיצה (על הקרקע) 🦘</div>
                     <div class="help-item"><span class="key-badge">Square</span> אגרוף 👊 (עם רעידת מסך וגל הדף)</div>
                     <div class="help-item"><span class="key-badge">Circle</span> יריית קי ☄️</div>
@@ -780,7 +952,6 @@
                     <div class="help-item"><span class="key-badge">L1 / LB</span> פצצת רוח 🔮</div>
                     <div class="help-item"><span class="key-badge">D-pad למעלה</span> סופר סייאן למעלה ⚡ (עד 4)</div>
                     <div class="help-item"><span class="key-badge">D-pad למטה</span> סופר סייאן למטה ⬇️</div>
-                    <div class="help-item"><span class="key-badge">D-pad ימין / שמאל</span> השתגרות (Vanish) 💨</div>
                 </div>
             </div>
         </div>
@@ -790,6 +961,9 @@
     <div class="hud-top-buttons">
         <button class="sound-toggle" id="sound-btn">
             <span id="sound-icon">🔊</span> <span id="sound-text">מוזיקה דולקת</span>
+        </button>
+        <button class="scouter-toggle-btn" id="scouter-btn">
+            <span class="scouter-dot"></span> <span id="scouter-text">סייר HUD</span>
         </button>
         <button class="help-toggle-btn" id="help-btn">
             <span>❓ מדריך מקשים</span>
@@ -805,20 +979,34 @@
             <div class="joystick-knob" id="touch-knob"></div>
         </div>
         <div class="action-buttons">
-            <button class="action-btn btn-charge" id="touch-charge">טען קי</button>
-            <div class="row-btns">
-                <button class="action-btn btn-fly" id="touch-fly">תעופה</button>
-                <button class="action-btn btn-attack" id="touch-attack">אגרוף</button>
-                <button class="action-btn btn-special" id="touch-special">קי</button>
-            </div>
+            <button class="action-btn btn-charge" id="touch-charge">טען 🔥</button>
+            <button class="action-btn btn-transform" id="touch-transform">סייאן ⚡</button>
+            <button class="action-btn btn-fly-down" id="touch-fly-down">⬇️ מטה</button>
+            <button class="action-btn btn-fly-up" id="touch-fly-up">⬆️ מעלה</button>
+            <button class="action-btn btn-special" id="touch-special">קי ☄️</button>
+            <button class="action-btn btn-attack" id="touch-attack">👊 מכה</button>
         </div>
+    </div>
+
+    <!-- Summon Countdown Overlay -->
+    <div id="summon-countdown" style="display: none; position: fixed; top: 15%; left: 50%; transform: translate(-50%, -50%); font-family: 'Outfit', 'Assistant', sans-serif; font-size: 3.2rem; font-weight: 900; color: #ffcc00; text-shadow: 0 0 20px rgba(255, 204, 0, 0.8), 0 0 40px rgba(255, 85, 0, 0.6); z-index: 1500; text-align: center; direction: rtl; pointer-events: none;">
+        מזמנים את שנרון: 10.00 שניות!
     </div>
 
     <!-- Victory Screen -->
     <div class="overlay-screen" id="victory-screen" style="color: var(--dbz-yellow);">
-        <h2 class="screen-title">זימנתם את שנרון! 🐉</h2>
-        <p class="screen-text">אספתם בהצלחה את כל 7 כדורי הדרקון! הדרקון האגדי שנרון הופיע ומילא את משאלתכם לכוח סייאן אינסופי. אימוניכם הושלמו!</p>
-        <button class="btn-restart" id="victory-restart-btn">שחק שוב ⚡</button>
+        <h2 id="victory-dragon-title" class="screen-title victory-title-animated">🐉 שנרון הוזמן! 🐉</h2>
+        <div id="victory-winner-name">לוחם</div>
+        <div id="victory-subtitle">זימן את הדרקון האגדי!</div>
+        <div style="background: rgba(0,0,0,0.55); border: 2px solid var(--dbz-green); border-radius: 16px; padding: 25px; max-width: 600px; margin-bottom: 30px; box-shadow: 0 0 25px rgba(57, 255, 20, 0.3); direction: rtl; text-align: center;">
+            <p class="screen-text" style="font-size: 1.45rem; color: #fff; margin-bottom: 15px; font-weight: 800; line-height: 1.5;">
+                "אני שנרון, דרקון הנצח! אספתם את כל 7 כדורי הדרקון... אני אגשים לכם משאלה אחת. מהי בקשתכם?"
+            </p>
+            <p class="screen-text" style="font-size: 1.3rem; color: var(--dbz-yellow); font-style: italic; margin-bottom: 0; font-weight: 700;">
+                "המשאלה שלנו היא... לשחק שוב מחדש! 🌟"
+            </p>
+        </div>
+        <button class="btn-restart" id="victory-restart-btn" style="background: linear-gradient(135deg, var(--dbz-green) 0%, #15803d 100%); color: #fff; box-shadow: 0 4px 20px rgba(57, 255, 20, 0.4); border: 1px solid #86efac; font-size: 1.4rem;">הגשם משאלה! 🌟</button>
     </div>
 
     <!-- Three.js Library -->
@@ -826,16 +1014,27 @@
     <!-- MQTT Library for Serverless Cloud Multiplayer -->
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <script>
-        // Game Settings
-        const DB_LOCATIONS = [
-            new THREE.Vector3(0, 1.55, 0),        
-            new THREE.Vector3(90, 10.35, 90),       
-            new THREE.Vector3(-110, 12.35, -80),   
-            new THREE.Vector3(70, 1.55, -70),     
-            new THREE.Vector3(-90, 8.35, 110),     
-            new THREE.Vector3(170, 1.55, 0),      
-            new THREE.Vector3(-160, 18.35, -160)       
-        ];
+        // Seedable Random Class
+        class SeededRandom {
+            constructor(seed) {
+                this.seed = seed;
+            }
+            next() {
+                this.seed = (this.seed * 1664525 + 1013904223) % 4294967296;
+                return this.seed / 4294967296;
+            }
+            range(min, max) {
+                return min + this.next() * (max - min);
+            }
+        }
+
+        function hashCode(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return Math.abs(hash);
+        }
 
         const CHAR_CONFIG = {
             goku: {
@@ -1041,6 +1240,64 @@
                 }, 150);
             }
 
+            playVictoryFanfare() {
+                if (this.isMuted || !this.ctx) return;
+                this.init();
+
+                // sched(freq, type, dur_secs, vol, slideFreq_or_null, delay_ms)
+                // Maps to: playTone(freq, type, duration, volume, slideToFreq)
+                const sched = (freq, type, dur, vol, slideFreq, delay) => {
+                    setTimeout(() => this.playTone(freq, type, dur, vol, slideFreq), delay);
+                };
+
+                // ── LEAD MELODY (square wave – punchy chiptune feel) ──────────────
+                // Phrase 1: triumphant ascending fanfare
+                sched(523.25, 'square', 0.12, 0.18, null,    0);   // C5
+                sched(659.25, 'square', 0.12, 0.18, null,  140);   // E5
+                sched(783.99, 'square', 0.12, 0.20, null,  280);   // G5
+                sched(1046.5, 'square', 0.22, 0.22, null,  420);   // C6 – peak
+                // Brief rest then descend and re-ascend
+                sched(987.77, 'square', 0.10, 0.18, null,  700);   // B5
+                sched(880.00, 'square', 0.10, 0.18, null,  840);   // A5
+                sched(783.99, 'square', 0.10, 0.20, null,  980);   // G5
+                sched(659.25, 'square', 0.08, 0.18, null, 1120);   // E5
+                // Phrase 2: decisive conclusion motif
+                sched(523.25, 'square', 0.08, 0.18, null, 1300);   // C5
+                sched(659.25, 'square', 0.08, 0.18, null, 1420);   // E5
+                sched(783.99, 'square', 0.10, 0.20, null, 1540);   // G5
+                sched(1046.5, 'square', 0.14, 0.22, null, 1680);   // C6
+                sched(1318.5, 'square', 0.14, 0.22, null, 1860);   // E6
+                sched(1567.9, 'square', 0.16, 0.18, null, 2040);   // G6
+                sched(2093.0, 'square', 0.50, 0.24, null, 2220);   // C7 – glorious finish
+
+                // ── BASS / HARMONY (triangle wave – warm, not harsh) ─────────────
+                sched(130.81, 'triangle', 0.22, 0.14, null,   0);  // C3
+                sched(196.00, 'triangle', 0.22, 0.14, null, 280);  // G3
+                sched(261.63, 'triangle', 0.22, 0.16, null, 420);  // C4
+                sched(196.00, 'triangle', 0.18, 0.14, null, 700);  // G3
+                sched(174.61, 'triangle', 0.18, 0.14, null, 840);  // F3
+                sched(196.00, 'triangle', 0.18, 0.14, null, 980);  // G3
+                sched(130.81, 'triangle', 0.22, 0.16, null,1300);  // C3
+                sched(196.00, 'triangle', 0.22, 0.16, null,1540);  // G3
+                sched(130.81, 'triangle', 0.50, 0.18, null,1860);  // C3 – hold
+
+                // ── COUNTER-MELODY (sine – bright sparkle layer) ─────────────────
+                sched(1318.5, 'sine', 0.10, 0.09, null,  350);     // E6 shimmer
+                sched(1174.7, 'sine', 0.10, 0.09, null,  560);     // D6
+                sched(1046.5, 'sine', 0.14, 0.10, null,  770);     // C6
+                sched(1318.5, 'sine', 0.10, 0.09, null, 1050);     // E6 shimmer
+                sched(1567.9, 'sine', 0.14, 0.11, null, 1680);     // G6
+                sched(2093.0, 'sine', 0.40, 0.12, null, 2100);     // C7 sparkle top
+
+                // ── DRUM ACCENTS (triangle pitch-drop – satisfying punch, no noise) ──
+                [0, 280, 700, 1120, 1540, 2220].forEach(ms => {
+                    sched(80, 'triangle', 0.06, 0.28, 40, ms);     // Kick: slide to 40 Hz
+                });
+                [140, 420, 840, 1300, 1860].forEach(ms => {
+                    sched(220, 'triangle', 0.05, 0.14, 180, ms);   // Snare accent
+                });
+            }
+
             playKiBlast() {
                 this.playTone(600, 'sawtooth', 0.18, 0.05, 200);
             }
@@ -1117,17 +1374,336 @@
                     clearInterval(this.musicInterval);
                     this.musicInterval = null;
                 }
+                this.stopStormMusic();
+            }
+
+            /**
+             * Dramatic looping storm music — tense, driving, chromatic.
+             * Uses square (melody) + triangle (bass) + short sawtooth bursts for power.
+             */
+            startStormMusic() {
+                this.init();
+                this.stopStormMusic(); // clear any existing
+                if (this.musicInterval) clearInterval(this.musicInterval); // stop normal music too
+                this.musicInterval = null;
+
+                // Storm melody: tense chromatic descent motif that loops
+                // Notes chosen to feel ominous and mounting
+                const STORM_MELODY = [
+                    // Bar 1 – opening tension
+                    { f: 369.99, t: 'square', d: 0.12, v: 0.10 }, // F#4
+                    { f: 349.23, t: 'square', d: 0.10, v: 0.09 }, // F4
+                    { f: 329.63, t: 'square', d: 0.10, v: 0.09 }, // E4
+                    { f: 311.13, t: 'square', d: 0.12, v: 0.10 }, // D#4
+                    // Bar 2 – rising urgency
+                    { f: 369.99, t: 'square', d: 0.08, v: 0.10 }, // F#4
+                    { f: 415.30, t: 'square', d: 0.08, v: 0.11 }, // G#4
+                    { f: 369.99, t: 'square', d: 0.08, v: 0.10 }, // F#4
+                    { f: 0,      t: 'square', d: 0.08, v: 0.00 }, // REST
+                    // Bar 3 – dramatic drop
+                    { f: 493.88, t: 'square', d: 0.14, v: 0.12 }, // B4
+                    { f: 440.00, t: 'square', d: 0.10, v: 0.11 }, // A4
+                    { f: 415.30, t: 'square', d: 0.10, v: 0.10 }, // G#4
+                    { f: 369.99, t: 'square', d: 0.10, v: 0.10 }, // F#4
+                    // Bar 4 – resolve & loop
+                    { f: 293.66, t: 'square', d: 0.18, v: 0.11 }, // D4
+                    { f: 311.13, t: 'square', d: 0.10, v: 0.10 }, // D#4
+                    { f: 329.63, t: 'square', d: 0.10, v: 0.09 }, // E4
+                    { f: 0,      t: 'square', d: 0.10, v: 0.00 }, // REST
+                ];
+
+                // Bass walk (triangle) – low ominous pulse
+                const STORM_BASS = [
+                    { f: 61.74,  d: 0.18 }, // B1
+                    { f: 73.42,  d: 0.16 }, // D2
+                    { f: 61.74,  d: 0.18 }, // B1
+                    { f: 55.00,  d: 0.18 }, // A1
+                    { f: 61.74,  d: 0.14 }, // B1
+                    { f: 65.41,  d: 0.14 }, // C2
+                    { f: 61.74,  d: 0.14 }, // B1
+                    { f: 0,      d: 0.14 }, // REST
+                    { f: 82.41,  d: 0.18 }, // E2
+                    { f: 73.42,  d: 0.14 }, // D2
+                    { f: 65.41,  d: 0.14 }, // C2
+                    { f: 61.74,  d: 0.14 }, // B1
+                    { f: 49.00,  d: 0.22 }, // G1 – deep rumble
+                    { f: 55.00,  d: 0.14 }, // A1
+                    { f: 61.74,  d: 0.14 }, // B1
+                    { f: 0,      d: 0.14 }, // REST
+                ];
+
+                const TEMPO_MS = 130; // ms per beat
+                let stepIndex = 0;
+
+                this.stormMusicInterval = setInterval(() => {
+                    if (this.isMuted) return;
+                    const step = stepIndex % STORM_MELODY.length;
+
+                    // Melody
+                    const mel = STORM_MELODY[step];
+                    if (mel.f > 0) {
+                        this.playTone(mel.f, mel.t, mel.d, mel.v);
+                    }
+
+                    // Bass
+                    const bas = STORM_BASS[step];
+                    if (bas && bas.f > 0) {
+                        this.playTone(bas.f, 'triangle', bas.d * 1.1, 0.13);
+                    }
+
+                    // Occasional power stab (every 4 beats on the downbeat)
+                    if (step % 4 === 0) {
+                        this.playTone(185.00, 'triangle', 0.06, 0.16); // F#3 stab
+                    }
+
+                    stepIndex++;
+                }, TEMPO_MS);
+            }
+
+            stopStormMusic() {
+                if (this.stormMusicInterval) {
+                    clearInterval(this.stormMusicInterval);
+                    this.stormMusicInterval = null;
+                }
             }
 
             toggle() {
                 this.isMuted = !this.isMuted;
-                if (this.isMuted) this.stopMusic();
+                if (this.isMuted) { this.stopMusic(); this.stopStormMusic(); }
                 else this.startMusic();
                 return this.isMuted;
             }
         }
 
         const sound = new DBZSynth();
+
+        // Shenron Serpentine 3D Class (Upgraded)
+        class Shenron {
+            constructor(scene) {
+                this.scene = scene;
+                this.mesh = new THREE.Group();
+                this.segments = [];
+                this.history = [];
+                this.historyMaxSize = 300; // Expanded history buffer for 28 segments
+                
+                // Flight parameters
+                this.angle = 0;
+                this.radius = 210;
+                this.yPos = 40;
+                this.speed = 0.8; 
+                this.state = 'flying_outer'; 
+                this.hoverAngle = 0;
+                this.targetPos = new THREE.Vector3();
+                this.tempLookAt = new THREE.Vector3();
+                this.undulation = 0;
+
+                this.buildMesh();
+                this.scene.add(this.mesh);
+            }
+
+            buildMesh() {
+                // Build head
+                const headGroup = new THREE.Group();
+                
+                // Head Main Green Box (Lego style!)
+                const headBoxGeom = new THREE.BoxGeometry(2.0, 1.4, 2.8);
+                const greenMat = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.5, metalness: 0.1 });
+                const headBox = new THREE.Mesh(headBoxGeom, greenMat);
+                headBox.castShadow = true;
+                headBox.receiveShadow = true;
+                headGroup.add(headBox);
+
+                // Jaw Green Box (lower jaw)
+                const jawGeom = new THREE.BoxGeometry(1.8, 0.6, 2.2);
+                const jaw = new THREE.Mesh(jawGeom, greenMat);
+                jaw.position.set(0, -0.7, 0.3);
+                jaw.castShadow = true;
+                jaw.receiveShadow = true;
+                headGroup.add(jaw);
+
+                // Snout Green Box
+                const snoutGeom = new THREE.BoxGeometry(1.6, 0.8, 1.8);
+                const snout = new THREE.Mesh(snoutGeom, greenMat);
+                snout.position.set(0, 0.3, 1.8);
+                snout.castShadow = true;
+                snout.receiveShadow = true;
+                headGroup.add(snout);
+
+                // Red glowing eyes
+                const eyeGeom = new THREE.BoxGeometry(0.4, 0.4, 0.4);
+                const redMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+                const eyeL = new THREE.Mesh(eyeGeom, redMat);
+                eyeL.position.set(-0.75, 0.4, 1.2);
+                const eyeR = new THREE.Mesh(eyeGeom, redMat);
+                eyeR.position.set(0.75, 0.4, 1.2);
+                headGroup.add(eyeL, eyeR);
+
+                // Golden/Brown horns (antlers)
+                const hornMat = new THREE.MeshStandardMaterial({ color: 0xeab308, roughness: 0.4 });
+                const hornBaseL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.2, 0.3), hornMat);
+                hornBaseL.position.set(-0.6, 1.2, -0.6);
+                hornBaseL.rotation.z = -0.3;
+                hornBaseL.rotation.x = -0.4;
+                
+                const hornTipL = new THREE.Mesh(new THREE.BoxGeometry(0.25, 1.0, 0.25), hornMat);
+                hornTipL.position.set(-0.9, 2.0, -1.0);
+                hornTipL.rotation.z = -0.5;
+                hornTipL.rotation.x = -0.6;
+                
+                const hornBaseR = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.2, 0.3), hornMat);
+                hornBaseR.position.set(0.6, 1.2, -0.6);
+                hornBaseR.rotation.z = 0.3;
+                hornBaseR.rotation.x = -0.4;
+
+                const hornTipR = new THREE.Mesh(new THREE.BoxGeometry(0.25, 1.0, 0.25), hornMat);
+                hornTipR.position.set(0.9, 2.0, -1.0);
+                hornTipR.rotation.z = 0.5;
+                hornTipR.rotation.x = -0.6;
+
+                headGroup.add(hornBaseL, hornTipL, hornBaseR, hornTipR);
+
+                // Golden Whiskers
+                const whiskerGeom = new THREE.CylinderGeometry(0.08, 0.08, 3.5);
+                whiskerGeom.rotateX(Math.PI / 2);
+                const whiskerL = new THREE.Mesh(whiskerGeom, hornMat);
+                whiskerL.position.set(-0.9, -0.2, 2.2);
+                whiskerL.rotation.y = -0.4;
+                whiskerL.rotation.x = 0.2;
+                
+                const whiskerR = new THREE.Mesh(whiskerGeom, hornMat);
+                whiskerR.position.set(0.9, -0.2, 2.2);
+                whiskerR.rotation.y = 0.4;
+                whiskerR.rotation.x = 0.2;
+                
+                headGroup.add(whiskerL, whiskerR);
+
+                // Scale head by 1.6x to make Shenron massive
+                headGroup.scale.set(1.6, 1.6, 1.6);
+
+                // Add head to main mesh
+                this.mesh.add(headGroup);
+                this.head = headGroup;
+
+                // Build 28 body segments (twice as long)
+                const bellyMat = new THREE.MeshStandardMaterial({ color: 0xeab308, roughness: 0.6 });
+                const finMat = new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.4 });
+                
+                const segmentCount = 28;
+                for (let i = 0; i < segmentCount; i++) {
+                    const segGroup = new THREE.Group();
+                    
+                    const factor = 1.0 - (i / segmentCount) * 0.45;
+                    
+                    const bodyChunk = new THREE.Mesh(new THREE.BoxGeometry(1.8 * factor, 1.4 * factor, 1.8 * factor), greenMat);
+                    bodyChunk.castShadow = true;
+                    bodyChunk.receiveShadow = true;
+                    segGroup.add(bodyChunk);
+
+                    const bellyPlate = new THREE.Mesh(new THREE.BoxGeometry(1.4 * factor, 0.2 * factor, 1.4 * factor), bellyMat);
+                    bellyPlate.position.y = -0.7 * factor;
+                    bellyPlate.castShadow = true;
+                    bellyPlate.receiveShadow = true;
+                    segGroup.add(bellyPlate);
+
+                    const fin = new THREE.Mesh(new THREE.BoxGeometry(0.3 * factor, 0.8 * factor, 1.0 * factor), finMat);
+                    fin.position.y = 0.9 * factor;
+                    fin.position.z = -0.2 * factor;
+                    fin.rotation.x = 0.3;
+                    fin.castShadow = true;
+                    fin.receiveShadow = true;
+                    segGroup.add(fin);
+
+                    // Scale body segments by 1.6x as well
+                    segGroup.scale.set(1.6, 1.6, 1.6);
+
+                    this.scene.add(segGroup);
+                    this.segments.push(segGroup);
+                }
+            }
+
+            summon(playerPos) {
+                if (this.state !== 'flying_outer') return;
+                this.state = 'descending';
+                this.speed = 1.5; 
+                const basePos = playerPos || new THREE.Vector3(0, 1.55, 0);
+                this.targetPos.copy(basePos);
+                this.targetPos.z -= 13; // Target position 13 units in front (North)
+                this.targetPos.y += 4.5; // Hover altitude target
+            }
+
+            update(delta, playerPos) {
+                this.undulation += delta * 3.5;
+
+                if (this.state === 'flying_outer') {
+                    this.angle += delta * 0.08;
+                    this.yPos = 40 + Math.sin(this.undulation * 0.4) * 6;
+                    
+                    const targetX = Math.cos(this.angle) * this.radius;
+                    const targetZ = Math.sin(this.angle) * this.radius;
+                    
+                    const nextPos = new THREE.Vector3(targetX, this.yPos, targetZ);
+                    this.head.position.lerp(nextPos, 0.04);
+                    this.head.lookAt(nextPos);
+                }
+                else if (this.state === 'descending') {
+                    this.angle += delta * 0.38; 
+                    this.yPos = THREE.MathUtils.lerp(this.yPos, this.targetPos.y, 0.015);
+                    this.radius = THREE.MathUtils.lerp(this.radius, 32, 0.015);
+                    
+                    const targetX = Math.cos(this.angle) * this.radius + this.targetPos.x;
+                    const targetZ = Math.sin(this.angle) * this.radius + this.targetPos.z;
+                    
+                    const nextPos = new THREE.Vector3(targetX, this.yPos, targetZ);
+                    this.head.position.lerp(nextPos, 0.08);
+                    this.head.lookAt(nextPos);
+
+                    const dist = this.head.position.distanceTo(this.targetPos);
+                    if (dist < 42 && Math.abs(this.yPos - this.targetPos.y) < 1.5) {
+                        this.state = 'hovering';
+                        this.hoverAngle = this.angle;
+                    }
+                }
+                else if (this.state === 'hovering') {
+                    // Slithering figure-8 weaving pattern in front of player
+                    const t = this.undulation * 0.6;
+                    const targetX = playerPos.x + Math.sin(t) * 4.5;
+                    const targetY = playerPos.y + 4.5 + Math.cos(t * 2) * 1.8;
+                    const targetZ = playerPos.z - 13 + Math.sin(t * 2) * 2.5;
+                    
+                    const nextPos = new THREE.Vector3(targetX, targetY, targetZ);
+                    this.head.position.lerp(nextPos, 0.08);
+                    
+                    const lookTarget = playerPos.clone().add(new THREE.Vector3(0, 1.2, 0));
+                    this.head.lookAt(lookTarget);
+                }
+
+                this.history.unshift({
+                    pos: this.head.position.clone(),
+                    rot: this.head.rotation.clone()
+                });
+
+                if (this.history.length > this.historyMaxSize) {
+                    this.history.pop();
+                }
+
+                const delayStep = 7; // Increased delay spacing for larger/longer segments
+                for (let i = 0; i < this.segments.length; i++) {
+                    const seg = this.segments[i];
+                    const historyIdx = (i + 1) * delayStep;
+                    
+                    if (historyIdx < this.history.length) {
+                        const hist = this.history[historyIdx];
+                        seg.position.copy(hist.pos);
+                        seg.rotation.copy(hist.rot);
+                    } else {
+                        // Spread out initial positions slightly behind the head
+                        const backDir = new THREE.Vector3(0, 0, 1).applyEuler(this.head.rotation);
+                        seg.position.copy(this.head.position).addScaledVector(backDir, (i + 1) * 2.2);
+                        seg.rotation.copy(this.head.rotation);
+                    }
+                }
+            }
+        }
 
         // 3D Engine Class
         class DBZGame {
@@ -1155,18 +1731,40 @@
                 this.particles = [];
                 this.dragonBalls = [];
                 this.crystals = [];
-                this.senzuBeans = [];
                 this.capsules = []; // New Capsule Corp items list
                 this.saibamen = [];
                 this.environmentElements = [];
 
+                // PvP Mode state variables
+                this.hp = 100;
+                this.maxHp = 100;
+                this.dbProtectionTimer = 0;
+                this.protectionShieldMesh = null;
+                this.summonTimer = 7.0;
+                this.wasInterrupted = false;
+                this.lastSummonProgressTime = 0;
+                this.lastBeepSec = 8;
+                this.lastRemoteBeepSec = 8;
+                this.localTrailHistory = [];
+                this.localTrailMeshes = [];
+                this.dragonBallPositions = {};
+
                 // Controls
                 this.keys = {};
+                this.keyboardKeys = {};
                 this.mouseClicks = {};
                 this.joystickInput = { x: 0, z: 0 };
                 this.isJoystickDragging = false;
                 this.lastFlyToggleTime = 0;
-                this.showHelp = true;
+                this.showHelp = false;
+                this.initialHelpActive = true;
+                this.helpFadeTimeout = null;
+                
+                // Dynamic HUD state
+                this.hudTimeoutInfo = null;
+                this.hudTimeoutStatus = null;
+                this.hudPermanentlyVisible = false;
+                this.gpStartPrev = false;
                 this.gamepadInput = null; // Track analog gamepad movement sticks
                 this.gpFlyPrev = false; // Track L1 flight toggle on gamepad
                 this.gpJumpPrev = false;
@@ -1182,7 +1780,7 @@
                 // Player physics
                 this.playerGroup = null;
                 this.physics = {
-                    pos: new THREE.Vector3(0, 1.2, 10),
+                    pos: new THREE.Vector3(0, 1.55, 10),
                     vel: new THREE.Vector3(0, 0, 0),
                     rotY: 0,
                     grounded: true,
@@ -1204,6 +1802,14 @@
                 this.isMultiplayer = false;
                 this.roomId = "dbz-room";
                 this.lastSendTime = 0;
+
+                // Shenron & Lightning & Procedural map
+                this.shenron = null;
+                this.lightningIntensity = 0;
+                this.platforms = [];
+                this.rng = null;
+                this.stormPhase = 'none';
+                this.stormTimer = 0;
             }
 
             init() {
@@ -1215,7 +1821,8 @@
                 this.clock = new THREE.Clock();
 
                 // Camera
-                this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+                const initialAspect = window.innerWidth / window.innerHeight;
+                this.camera = new THREE.PerspectiveCamera(initialAspect < 1 ? 75 : 60, initialAspect, 0.1, 1000);
                 this.camera.position.set(0, 13, 16);
 
                 // Renderer
@@ -1225,8 +1832,20 @@
                 this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
                 document.body.appendChild(this.renderer.domElement);
 
+                // Seed determination: synced 30-min block for multiplayer, URL hash for singleplayer/reloads
+                let seed = Math.floor(Date.now() / 1800000);
+                if (window.location.hash && window.location.hash.includes('seed=')) {
+                    const match = window.location.hash.match(/seed=(\d+)/);
+                    if (match) seed = parseInt(match[1]);
+                }
+                this.rng = new SeededRandom(seed);
+                this.platforms = [];
+
                 // Lighting
                 this.setupLights();
+
+                // Initialize Shenron
+                this.shenron = new Shenron(this.scene);
 
                 // Build Tropical Islands
                 this.buildEnvironment();
@@ -1234,15 +1853,20 @@
                 // Collectibles
                 this.spawnDragonBalls();
                 this.spawnCrystals(250);
-                this.spawnSenzuBeans(50);
                 this.spawnCapsules(30);
+
+                // Pre-create local player Dragon Ball trailing meshes
+                this.createLocalTrailMeshes();
 
                 // Inputs
                 this.setupControls();
 
                 // Handle resize
                 window.addEventListener('resize', () => {
-                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    const aspect = window.innerWidth / window.innerHeight;
+                    this.camera.aspect = aspect;
+                    // Dynamically increase FOV in portrait mode to keep the view spacious
+                    this.camera.fov = aspect < 1 ? 75 : 60;
                     this.camera.updateProjectionMatrix();
                     this.renderer.setSize(window.innerWidth, window.innerHeight);
                 });
@@ -1270,22 +1894,22 @@
             }
 
             setupLights() {
-                const ambient = new THREE.AmbientLight(0xffffff, 0.35);
-                this.scene.add(ambient);
+                this.ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
+                this.scene.add(this.ambientLight);
 
-                const sun = new THREE.DirectionalLight(0xffd1a9, 0.55);
-                sun.position.set(60, 120, 40);
-                sun.castShadow = true;
-                sun.shadow.mapSize.width = 1024;
-                sun.shadow.mapSize.height = 1024;
-                sun.shadow.camera.near = 0.5;
-                sun.shadow.camera.far = 400;
+                this.sunLight = new THREE.DirectionalLight(0xffd1a9, 0.55);
+                this.sunLight.position.set(60, 120, 40);
+                this.sunLight.castShadow = true;
+                this.sunLight.shadow.mapSize.width = 1024;
+                this.sunLight.shadow.mapSize.height = 1024;
+                this.sunLight.shadow.camera.near = 0.5;
+                this.sunLight.shadow.camera.far = 400;
                 const d = 120;
-                sun.shadow.camera.left = -d;
-                sun.shadow.camera.right = d;
-                sun.shadow.camera.top = d;
-                sun.shadow.camera.bottom = -d;
-                this.scene.add(sun);
+                this.sunLight.shadow.camera.left = -d;
+                this.sunLight.shadow.camera.right = d;
+                this.sunLight.shadow.camera.top = d;
+                this.sunLight.shadow.camera.bottom = -d;
+                this.scene.add(this.sunLight);
             }
 
             createLegoBox(w, h, d, color) {
@@ -1314,6 +1938,8 @@
                 grid.position.y = 0.02;
                 this.scene.add(grid);
 
+                this.platforms = [];
+
                 // Helper to create grass-topped tropical islands
                 const createGrassIsland = (x, y, z, w, h, d, isFloating = false) => {
                     const islandGroup = new THREE.Group();
@@ -1323,7 +1949,7 @@
                     const body = this.createLegoBox(w, h, d, 0x8b5a2b);
                     islandGroup.add(body);
 
-                    // Thin lush green grass top layer - natural green (0x4ca64c)
+                    // Thin lush green grass top layer
                     const grassHeight = 0.35;
                     const grass = this.createLegoBox(w + 0.1, grassHeight, d + 0.1, 0x4ca64c);
                     grass.position.y = h/2 + grassHeight/2;
@@ -1334,54 +1960,267 @@
 
                     // Spawn Lego Trees
                     if (w >= 10) {
-                        const divisor = isFloating ? 3.2 : 5.5; // denser trees on floating rocks!
+                        const divisor = isFloating ? 3.2 : 5.5; 
                         const treesCount = Math.floor(w / divisor);
                         for(let i=0; i<treesCount; i++) {
                             this.spawnLegoTree(
-                                x + (Math.random()-0.5)*(w-3), 
+                                x + (this.rng.next()-0.5)*(w-3), 
                                 y + grassHeight, 
-                                z + (Math.random()-0.5)*(d-3)
+                                z + (this.rng.next()-0.5)*(d-3)
                             );
                         }
                     }
+
+                    // Register platform collision coordinates
+                    const topY = y + 0.35;
+                    if (w > 100) {
+                        // Center island (scattered sampling points)
+                        this.platforms.push({ x: x, y: topY, z: z, w: w, d: d, h: h + 0.35 });
+                        this.platforms.push({ x: x + w/4, y: topY, z: z + d/4, w: w, d: d, h: h + 0.35 });
+                        this.platforms.push({ x: x - w/4, y: topY, z: z - d/4, w: w, d: d, h: h + 0.35 });
+                        this.platforms.push({ x: x + w/4, y: topY, z: z - d/4, w: w, d: d, h: h + 0.35 });
+                        this.platforms.push({ x: x - w/4, y: topY, z: z + d/4, w: w, d: d, h: h + 0.35 });
+                        this.platforms.push({ x: x + w/2.5, y: topY, z: z, w: w, d: d, h: h + 0.35 });
+                        this.platforms.push({ x: x - w/2.5, y: topY, z: z, w: w, d: d, h: h + 0.35 });
+                        this.platforms.push({ x: x, y: topY, z: z + d/2.5, w: w, d: d, h: h + 0.35 });
+                        this.platforms.push({ x: x, y: topY, z: z - d/2.5, w: w, d: d, h: h + 0.35 });
+                    } else if (w >= 70) {
+                        // Outer islands
+                        this.platforms.push({ x: x, y: topY, z: z, w: w, d: d, h: h + 0.35 });
+                        this.platforms.push({ x: x + w/3, y: topY, z: z, w: w, d: d, h: h + 0.35 });
+                        this.platforms.push({ x: x - w/3, y: topY, z: z, w: w, d: d, h: h + 0.35 });
+                        this.platforms.push({ x: x, y: topY, z: z + d/3, w: w, d: d, h: h + 0.35 });
+                        this.platforms.push({ x: x, y: topY, z: z - d/3, w: w, d: d, h: h + 0.35 });
+                    } else {
+                        // Small/floating platforms
+                        this.platforms.push({ x: x, y: topY, z: z, w: w, d: d, h: h + 0.35 });
+                    }
                 };
 
-                // MAIN ISLAND - MASSIVE starting ground Y=1.2 (220x220)
-                createGrassIsland(0, 1.2, 0, 220, 1.2, 220);
+                // MAIN ISLAND - starting ground Y=1.2 (random size 200 to 230)
+                const mainSize = Math.floor(this.rng.range(200, 230));
+                createGrassIsland(0, 1.2, 0, mainSize, 1.2, mainSize);
 
-                // FOUR CONNECTED LARGE ISLANDS - 90x90 each, placed further at offset 170
-                createGrassIsland(170, 1.2, 0, 90, 1.2, 90);   // East
-                createGrassIsland(-170, 1.2, 0, 90, 1.2, 90);  // West
-                createGrassIsland(0, 1.2, 170, 90, 1.2, 90);   // South
-                createGrassIsland(0, 1.2, -170, 90, 1.2, 90);  // North
+                // FOUR CONNECTED LARGE ISLANDS - random sizes, random offsets/angles
+                const directions = [0, Math.PI / 2, Math.PI, -Math.PI / 2];
+                const outerIslandCenters = [];
 
-                // BRIDGES (arches) connecting center to large islands - width 12, length 30 at 122.5
-                const createBridge = (x, y, z, w, h, d, rotY = 0) => {
-                    const bBody = this.createLegoBox(w, h, d, 0x8b5a2b);
-                    bBody.position.set(x, y, z);
-                    bBody.rotation.y = rotY;
-                    const bGrass = this.createLegoBox(w + 0.1, 0.25, d + 0.1, 0x4ca64c);
-                    bGrass.position.set(x, y + h/2 + 0.125, z);
-                    bGrass.rotation.y = rotY;
-                    this.scene.add(bBody, bGrass);
-                };
+                directions.forEach(baseAngle => {
+                    const angle = baseAngle + this.rng.range(-0.15, 0.15); 
+                    const dist = this.rng.range(155, 185);
+                    const size = Math.floor(this.rng.range(75, 95));
 
-                createBridge(122.5, 1.2, 0, 30, 0.8, 12);      // East bridge
-                createBridge(-122.5, 1.2, 0, 30, 0.8, 12);     // West bridge
-                createBridge(0, 1.2, 122.5, 12, 0.8, 30);      // South bridge
-                createBridge(0, 1.2, -122.5, 12, 0.8, 30);     // North bridge
+                    const ox = Math.cos(angle) * dist;
+                    const oz = Math.sin(angle) * dist;
 
-                // 7 High Floating Islands (above the archipelago) - enlarged and moved to the side
-                createGrassIsland(90, 10.0, 90, 18, 3.0, 18, true);      // Platform 1 (floor ~10.35)
-                createGrassIsland(-110, 12.0, -80, 22, 3.5, 18, true);  // Platform 2 (floor ~12.35)
-                createGrassIsland(-90, 8.0, 110, 16, 2.5, 16, true);     // Platform 3 (floor ~8.35)
-                createGrassIsland(130, 16.0, -90, 24, 4.0, 24, true);  // Platform 4 (floor ~16.35)
-                createGrassIsland(-140, 15.0, 140, 20, 3.5, 20, true);  // Platform 5 (floor ~15.35)
-                createGrassIsland(150, 14.0, 150, 18, 3.0, 18, true);   // Platform 6 (floor ~14.35)
-                createGrassIsland(-160, 18.0, -160, 20, 3.5, 20, true); // Platform 7 (floor ~18.35)
+                    createGrassIsland(ox, 1.2, oz, size, 1.2, size);
+                    outerIslandCenters.push({ x: ox, z: oz, size: size });
 
-                // High stone arch spanning in the sky - shifted and enlarged
-                createBridge(-75, 10.0, -52.5, 45, 2.5, 6.5, Math.PI / 4);
+                    // Dynamic angled bridge connecting center island to this outer island
+                    const bridgeLength = dist - mainSize/2 - size/2;
+                    const bridgeMidDist = mainSize/2 + bridgeLength/2;
+                    
+                    const bx = Math.cos(angle) * bridgeMidDist;
+                    const bz = Math.sin(angle) * bridgeMidDist;
+                    const bridgeWidth = 12;
+
+                    const createProceduralBridge = (x, y, z, w, h, d, rotY) => {
+                        const bBody = this.createLegoBox(w, h, d, 0x8b5a2b);
+                        bBody.position.set(x, y, z);
+                        bBody.rotation.y = rotY;
+                        bBody.castShadow = true;
+                        bBody.receiveShadow = true;
+                        
+                        const bGrass = this.createLegoBox(w + 0.1, 0.25, d + 0.1, 0x4ca64c);
+                        bGrass.position.set(x, y + h/2 + 0.125, z);
+                        bGrass.rotation.y = rotY;
+                        bGrass.castShadow = true;
+                        bGrass.receiveShadow = true;
+                        this.scene.add(bBody, bGrass);
+                        
+                        // Register bridge platform (height 0.8 body + 0.25 grass = 1.05 total height)
+                        this.platforms.push({ x: x, y: y + h/2 + 0.25, z: z, w: w, d: d, h: h + 0.25 });
+                    };
+
+                    createProceduralBridge(bx, 0.9, bz, bridgeLength, 0.8, bridgeWidth, -angle);
+                });
+
+                // FOUR CORNER DIAGONAL ISLANDS
+                const corners = [
+                    { x: 1, z: -1 },
+                    { x: -1, z: -1 },
+                    { x: 1, z: 1 },
+                    { x: -1, z: 1 }
+                ];
+                corners.forEach(c => {
+                    const cx = c.x * this.rng.range(105, 125);
+                    const cz = c.z * this.rng.range(105, 125);
+                    const size = Math.floor(this.rng.range(40, 50));
+                    createGrassIsland(cx, 1.2, cz, size, 1.2, size);
+                });
+
+                // 7-9 Floating Islands (random positions & heights)
+                const floatingCount = Math.floor(this.rng.range(7, 10));
+                for (let i = 0; i < floatingCount; i++) {
+                    const angle = this.rng.range(0, Math.PI * 2);
+                    const r = this.rng.range(90, 160);
+                    const fx = Math.cos(angle) * r;
+                    const fz = Math.sin(angle) * r;
+                    const fy = this.rng.range(8.0, 20.0);
+                    const fw = Math.floor(this.rng.range(15, 24));
+                    const fd = Math.floor(this.rng.range(15, 24));
+                    const fh = this.rng.range(2.5, 4.0);
+                    
+                    createGrassIsland(fx, fy, fz, fw, fh, fd, true);
+                }
+
+                // High stone arch spanning in the sky (procedurally positioned)
+                const archAngle = this.rng.range(0, Math.PI * 2);
+                const archDist = this.rng.range(50, 80);
+                const ax = Math.cos(archAngle) * archDist;
+                const az = Math.sin(archAngle) * archDist;
+                
+                const alignZ = this.rng.next() < 0.5;
+                const rotY = alignZ ? 0 : Math.PI / 2;
+                
+                const archW = alignZ ? 45 : 6.5;
+                const archD = alignZ ? 6.5 : 45;
+                
+                const bBody = this.createLegoBox(archW, 2.5, archD, 0x8b5a2b);
+                bBody.position.set(ax, 10.0, az);
+                bBody.rotation.y = rotY;
+                bBody.castShadow = true;
+                bBody.receiveShadow = true;
+
+                const bGrass = this.createLegoBox(archW + 0.1, 0.25, archD + 0.1, 0x4ca64c);
+                bGrass.position.set(ax, 11.375, az);
+                bGrass.rotation.y = rotY;
+                bGrass.castShadow = true;
+                bGrass.receiveShadow = true;
+                
+                this.scene.add(bBody, bGrass);
+                this.platforms.push({ x: ax, y: 11.5, z: az, w: archW, d: archD, h: 2.75 });
+
+                // Build Center Summoning Altar / Shrine
+                const altarGroup = new THREE.Group();
+                altarGroup.position.set(0, 1.55, 0);
+
+                const padGeom = new THREE.CylinderGeometry(5.2, 5.2, 0.45, 24);
+                const padMat = new THREE.MeshStandardMaterial({ color: 0x3f3f46, roughness: 0.85 });
+                const pad = new THREE.Mesh(padGeom, padMat);
+                pad.position.y = 0.225;
+                pad.receiveShadow = true;
+                pad.castShadow = true;
+                altarGroup.add(pad);
+
+                // Green zone beam
+                const beamGeom = new THREE.CylinderGeometry(4.8, 4.8, 12, 16, 1, true);
+                const beamMat = new THREE.MeshBasicMaterial({
+                    color: 0x22c55e,
+                    transparent: true,
+                    opacity: 0.16,
+                    side: THREE.DoubleSide,
+                    depthWrite: false
+                });
+                const altarBeam = new THREE.Mesh(beamGeom, beamMat);
+                altarBeam.position.y = 6.0;
+                altarGroup.add(altarBeam);
+                this.altarBeam = altarBeam; 
+
+                // Small decorative pillars
+                const pillarGeom = new THREE.BoxGeometry(0.5, 1.8, 0.5);
+                const pillarMat = new THREE.MeshStandardMaterial({ color: 0x27272a, roughness: 0.9 });
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i / 6) * Math.PI * 2;
+                    const pillar = new THREE.Mesh(pillarGeom, pillarMat);
+                    pillar.position.set(Math.cos(angle) * 4.8, 0.9, Math.sin(angle) * 4.8);
+                    pillar.castShadow = true;
+                    pillar.receiveShadow = true;
+                    altarGroup.add(pillar);
+                }
+
+                this.scene.add(altarGroup);
+                this.environmentElements.push(altarGroup);
+
+                // Spawn Lego Clouds in the sky
+                this.spawnLegoClouds();
+            }
+
+            spawnLegoClouds() {
+                const cloudCount = 8;
+                const cloudMat = new THREE.MeshStandardMaterial({ 
+                    color: 0xffffff, 
+                    roughness: 0.85, 
+                    metalness: 0.1,
+                    transparent: true,
+                    opacity: 0.96
+                });
+
+                for (let i = 0; i < cloudCount; i++) {
+                    const cloudGroup = new THREE.Group();
+                    
+                    // Procedural positions scattered in the skybox
+                    const x = this.rng.range(-150, 150);
+                    const z = this.rng.range(-150, 150);
+                    const y = this.rng.range(30, 42); // Near the top of reachable skybox
+                    
+                    // Main central block of the cloud
+                    const mainW = Math.floor(this.rng.range(16, 26));
+                    const mainD = Math.floor(this.rng.range(12, 18));
+                    const mainH = this.rng.range(2.0, 3.5);
+                    
+                    const mainMesh = new THREE.Mesh(new THREE.BoxGeometry(mainW, mainH, mainD), cloudMat);
+                    mainMesh.castShadow = true;
+                    mainMesh.receiveShadow = true;
+                    cloudGroup.add(mainMesh);
+                    
+                    // Left offset block
+                    const leftW = mainW * 0.6;
+                    const leftD = mainD * 0.8;
+                    const leftH = mainH * 0.75;
+                    const leftMesh = new THREE.Mesh(new THREE.BoxGeometry(leftW, leftH, leftD), cloudMat);
+                    leftMesh.position.set(-mainW/3 - this.rng.range(1, 3), -mainH*0.1, this.rng.range(-2, 2));
+                    leftMesh.castShadow = true;
+                    leftMesh.receiveShadow = true;
+                    cloudGroup.add(leftMesh);
+                    
+                    // Right offset block
+                    const rightW = mainW * 0.55;
+                    const rightD = mainD * 0.75;
+                    const rightH = mainH * 0.8;
+                    const rightMesh = new THREE.Mesh(new THREE.BoxGeometry(rightW, rightH, rightD), cloudMat);
+                    rightMesh.position.set(mainW/3 + this.rng.range(1, 3), -mainH*0.1, this.rng.range(-2, 2));
+                    rightMesh.castShadow = true;
+                    rightMesh.receiveShadow = true;
+                    cloudGroup.add(rightMesh);
+
+                    // Top puff block
+                    const topW = mainW * 0.45;
+                    const topD = mainD * 0.55;
+                    const topH = mainH * 0.6;
+                    const topMesh = new THREE.Mesh(new THREE.BoxGeometry(topW, topH, topD), cloudMat);
+                    topMesh.position.set(this.rng.range(-2, 2), mainH/2, this.rng.range(-2, 2));
+                    topMesh.castShadow = true;
+                    topMesh.receiveShadow = true;
+                    cloudGroup.add(topMesh);
+
+                    // Position the entire group
+                    cloudGroup.position.set(x, y, z);
+                    this.scene.add(cloudGroup);
+                    this.environmentElements.push(cloudGroup);
+                    
+                    // Register the cloud as a walkable platform in the sky!
+                    const cloudTopY = y + mainH/2;
+                    const totalW = mainW + leftW/2 + rightW/2;
+                    this.platforms.push({
+                        x: x,
+                        y: cloudTopY,
+                        z: z,
+                        w: totalW,
+                        d: mainD + 2,
+                        h: mainH + 1.0
+                    });
+                }
             }
 
             spawnLegoTree(x, y, z) {
@@ -1405,52 +2244,70 @@
             }
 
             getGamePlatforms() {
-                return [
-                    // 7 High Floating Islands - updated heights & coords
-                    { x: 90, y: 10.35, z: 90 },
-                    { x: -110, y: 12.35, z: -80 },
-                    { x: -90, y: 8.35, z: 110 },
-                    { x: 130, y: 16.35, z: -90 },
-                    { x: -140, y: 15.35, z: 140 },
-                    { x: 150, y: 14.35, z: 150 },
-                    { x: -160, y: 18.35, z: -160 },
-                    // Main Center Island (dispersed points on 220x220)
-                    { x: 0, y: 1.55, z: 0 },
-                    { x: 50, y: 1.55, z: 50 },
-                    { x: -50, y: 1.55, z: -50 },
-                    { x: 50, y: 1.55, z: -50 },
-                    { x: -50, y: 1.55, z: 50 },
-                    { x: 90, y: 1.55, z: 0 },
-                    { x: -90, y: 1.55, z: 0 },
-                    { x: 0, y: 1.55, z: 90 },
-                    { x: 0, y: 1.55, z: -90 },
-                    // Outer Islands (90x90 at offset 170)
-                    { x: 170, y: 1.55, z: 0 },
-                    { x: 170, y: 1.55, z: 30 },
-                    { x: 170, y: 1.55, z: -30 },
-                    { x: -170, y: 1.55, z: 0 },
-                    { x: -170, y: 1.55, z: 30 },
-                    { x: -170, y: 1.55, z: -30 },
-                    { x: 0, y: 1.55, z: 170 },
-                    { x: 30, y: 1.55, z: 170 },
-                    { x: -30, y: 1.55, z: 170 },
-                    { x: 0, y: 1.55, z: -170 },
-                    { x: 30, y: 1.55, z: -170 },
-                    { x: -30, y: 1.55, z: -170 },
-                    // Bridges at 122.5
-                    { x: 122.5, y: 1.85, z: 0 },
-                    { x: -122.5, y: 1.85, z: 0 },
-                    { x: 0, y: 1.85, z: 122.5 },
-                    { x: 0, y: 1.85, z: -122.5 }
-                ];
+                return this.platforms || [];
+            }
+
+            getRandomCollectiblePosition() {
+                const platformCords = this.getGamePlatforms();
+                const p = platformCords[Math.floor(Math.random() * platformCords.length)];
+                
+                let scatter = 4;
+                if (p.x === 0 && p.z === 0) {
+                    scatter = 50;
+                } else if (p.y === 1.55) {
+                    if (p.w) {
+                        scatter = Math.min(p.w, p.d) * 0.4;
+                    } else {
+                        scatter = 5;
+                    }
+                } else if (p.y > 5) {
+                    scatter = p.w ? p.w * 0.35 : 6; 
+                }
+
+                let rx, rz;
+                let attempts = 0;
+                let playerDist = 999;
+                
+                do {
+                    rx = p.x + (Math.random() - 0.5) * scatter * 2;
+                    rz = p.z + (Math.random() - 0.5) * scatter * 2;
+                    attempts++;
+                    
+                    if (this.physics && this.physics.pos) {
+                        playerDist = Math.hypot(rx - this.physics.pos.x, rz - this.physics.pos.z);
+                    }
+                } while (
+                    (Math.hypot(rx - 0, rz - 10) < 8 || playerDist < 10) && 
+                    attempts < 15
+                );
+
+                return { x: rx, y: p.y, z: rz };
             }
 
             spawnDragonBalls() {
-                DB_LOCATIONS.forEach((pos, i) => {
+                // Shuffle copy of platforms to select 7 unique ones
+                const platforms = this.platforms.slice();
+                for (let i = platforms.length - 1; i > 0; i--) {
+                    const j = Math.floor(this.rng.next() * (i + 1));
+                    const temp = platforms[i];
+                    platforms[i] = platforms[j];
+                    platforms[j] = temp;
+                }
+
+                this.dbLocations = [];
+                for (let i = 0; i < 7; i++) {
+                    const p = platforms[i % platforms.length];
+                    let offsetMax = 4;
+                    if (p.x === 0 && p.z === 0) offsetMax = 30;
+                    const rx = p.x + (this.rng.next() - 0.5) * offsetMax;
+                    const rz = p.z + (this.rng.next() - 0.5) * offsetMax;
+                    this.dbLocations.push(new THREE.Vector3(rx, p.y, rz));
+                }
+
+                this.dbLocations.forEach((pos, i) => {
                     const ball = new THREE.Group();
                     ball.position.copy(pos);
 
-                    // Giant size 1.8 (from 1.2) for extreme visibility
                     const geom = new THREE.SphereGeometry(1.8, 16, 16);
                     const mat = new THREE.MeshStandardMaterial({ 
                         color: 0xff8800, 
@@ -1462,13 +2319,11 @@
                     sphere.castShadow = true;
                     ball.add(sphere);
 
-                    // High power orange light (2.5 intensity, 18 range)
                     const light = new THREE.PointLight(0xff8800, 2.5, 18);
                     ball.add(light);
 
-                    // Glowing sky beacon Cylinder pointing straight up
                     const beamGeom = new THREE.CylinderGeometry(0.2, 0.8, 80, 8, 1, true);
-                    beamGeom.translate(0, 40, 0); // Bottom starts at Dragon Ball pos
+                    beamGeom.translate(0, 40, 0); 
                     const beamMat = new THREE.MeshBasicMaterial({
                         color: 0xffaa00,
                         transparent: true,
@@ -1485,17 +2340,18 @@
                         pulseOffset: Math.random() * Math.PI,
                         rotSpeed: 0.02 + Math.random() * 0.02,
                         light: light,
-                        sphere: sphere
+                        sphere: sphere,
+                        originalY: pos.y
                     };
 
                     this.scene.add(ball);
                     this.dragonBalls.push(ball);
+                    this.dragonBallPositions[i + 1] = pos.clone();
                 });
             }
 
             spawnCrystals(count) {
                 const geom = new THREE.OctahedronGeometry(0.45, 0);
-                const platformCords = this.getGamePlatforms();
                 
                 for (let i = 0; i < count; i++) {
                     const color = Math.random() < 0.5 ? 0x8a2be2 : 0x00ffff; 
@@ -1507,29 +2363,13 @@
                     });
                     const crystal = new THREE.Mesh(geom, mat);
                     
-                    const p = platformCords[Math.floor(Math.random() * platformCords.length)];
-                    let scatter = 4;
-                    if (p.x === 0 && p.z === 0) {
-                        scatter = 50;
-                    } else if (Math.abs(p.x) === 25 || Math.abs(p.z) === 25) {
-                        scatter = 35;
-                    } else if (Math.abs(p.x) === 40 || Math.abs(p.z) === 40) {
-                        scatter = 40;
-                    } else if (Math.abs(p.x) === 85 || Math.abs(p.z) === 85) {
-                        scatter = 20;
-                    } else if (Math.abs(p.x) === 58.75 || Math.abs(p.z) === 58.75) {
-                        scatter = 1.5;
-                    }
-                    
-                    const rx = p.x + (Math.random() - 0.5) * scatter;
-                    const rz = p.z + (Math.random() - 0.5) * scatter;
-                    const ry = p.y;
+                    const pos = this.getRandomCollectiblePosition();
 
-                    crystal.position.set(rx, ry, rz);
+                    crystal.position.set(pos.x, pos.y, pos.z);
                     crystal.userData = {
                         rotY: 0.015 + Math.random() * 0.02,
                         bobOffset: Math.random() * Math.PI,
-                        originalY: ry
+                        originalY: pos.y
                     };
 
                     this.scene.add(crystal);
@@ -1537,53 +2377,24 @@
                 }
             }
 
-            spawnSenzuBeans(count) {
-                const geom = new THREE.CylinderGeometry(0.2, 0.2, 0.5, 8);
-                const mat = new THREE.MeshStandardMaterial({
-                    color: 0x4ade80,
-                    emissive: 0x22c55e,
-                    roughness: 0.2,
-                    metalness: 0.5
+            createLocalTrailMeshes() {
+                const geom = new THREE.SphereGeometry(0.25, 8, 8);
+                const mat = new THREE.MeshStandardMaterial({ 
+                    color: 0xff7700, 
+                    emissive: 0xff3300, 
+                    roughness: 0.1, 
+                    metalness: 0.1 
                 });
-
-                const platformCords = this.getGamePlatforms();
-
-                for (let i = 0; i < count; i++) {
-                    const bean = new THREE.Mesh(geom, mat);
-                    bean.rotation.z = Math.PI / 2;
-
-                    const p = platformCords[Math.floor(Math.random() * platformCords.length)];
-                    let scatter = 4;
-                    if (p.x === 0 && p.z === 0) {
-                        scatter = 50;
-                    } else if (Math.abs(p.x) === 25 || Math.abs(p.z) === 25) {
-                        scatter = 35;
-                    } else if (Math.abs(p.x) === 40 || Math.abs(p.z) === 40) {
-                        scatter = 40;
-                    } else if (Math.abs(p.x) === 85 || Math.abs(p.z) === 85) {
-                        scatter = 20;
-                    } else if (Math.abs(p.x) === 58.75 || Math.abs(p.z) === 58.75) {
-                        scatter = 1.5;
-                    }
-
-                    const rx = p.x + (Math.random() - 0.5) * scatter;
-                    const rz = p.z + (Math.random() - 0.5) * scatter;
-                    const ry = p.y;
-
-                    bean.position.set(rx, ry, rz);
-                    bean.userData = {
-                        rotY: 0.01 + Math.random() * 0.01,
-                        bobOffset: Math.random() * Math.PI,
-                        originalY: ry
-                    };
-
-                    this.scene.add(bean);
-                    this.senzuBeans.push(bean);
+                for (let i = 0; i < 7; i++) {
+                    const mesh = new THREE.Mesh(geom, mat);
+                    mesh.castShadow = true;
+                    mesh.visible = false;
+                    this.scene.add(mesh);
+                    this.localTrailMeshes.push(mesh);
                 }
             }
 
             spawnCapsules(count) {
-                const platformCords = this.getGamePlatforms();
                 const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3, metalness: 0.2 });
                 const cylGeom = new THREE.CylinderGeometry(0.22, 0.22, 0.45, 8);
                 const sphGeom = new THREE.SphereGeometry(0.22, 8, 8);
@@ -1613,25 +2424,10 @@
                     light.position.y = 0;
                     group.add(light);
 
-                    const p = platformCords[Math.floor(Math.random() * platformCords.length)];
-                    let scatter = 4;
-                    if (p.x === 0 && p.z === 0) {
-                        scatter = 50;
-                    } else if (Math.abs(p.x) === 25 || Math.abs(p.z) === 25) {
-                        scatter = 35;
-                    } else if (Math.abs(p.x) === 40 || Math.abs(p.z) === 40) {
-                        scatter = 40;
-                    } else if (Math.abs(p.x) === 85 || Math.abs(p.z) === 85) {
-                        scatter = 20;
-                    } else if (Math.abs(p.x) === 58.75 || Math.abs(p.z) === 58.75) {
-                        scatter = 1.5;
-                    }
+                    const pos = this.getRandomCollectiblePosition();
+                    const ry = pos.y + 0.35; 
 
-                    const rx = p.x + (Math.random() - 0.5) * scatter;
-                    const rz = p.z + (Math.random() - 0.5) * scatter;
-                    const ry = p.y + 0.35; 
-
-                    group.position.set(rx, ry, rz);
+                    group.position.set(pos.x, ry, pos.z);
                     
                     group.rotation.x = Math.PI / 6;
                     group.rotation.z = Math.PI / 12;
@@ -1766,17 +2562,8 @@
                 }
                 group.add(hairGroup);
 
-                // Aura Cylinder
-                const auraGeo = new THREE.ConeGeometry(2.0, 4.0, 8, 1, true);
-                const auraMat = new THREE.MeshBasicMaterial({ 
-                    color: form.auraColor, 
-                    transparent: true, 
-                    opacity: 0.16,
-                    side: THREE.DoubleSide,
-                    blending: THREE.AdditiveBlending
-                });
-                const aura = new THREE.Mesh(auraGeo, auraMat);
-                aura.position.y = 1.0;
+                // Aura dummy group to prevent crashes
+                const aura = new THREE.Group();
                 aura.visible = (ssj > 0);
                 group.add(aura);
                 // Super Saiyan physical light glow
@@ -1833,6 +2620,40 @@
                     }
                     sound.init(); 
 
+                    // Restart game from Victory screen on Enter / Space
+                    if (this.isWon && (e.key === 'Enter' || e.key === ' ')) {
+                        location.reload();
+                        return;
+                    }
+
+                    // Character Select Lobby Keyboard Navigation
+                    if (!this.gameStarted) {
+                        const activeEl = document.activeElement;
+                        const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+                        
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            this.startLobbyGame();
+                            return;
+                        }
+
+                        if (!isTyping) {
+                            if (e.key === 'ArrowLeft' || key === 'a') {
+                                this.navigateLobbyRoster(-1);
+                            } else if (e.key === 'ArrowRight' || key === 'd') {
+                                this.navigateLobbyRoster(1);
+                            } else if (e.key === 'ArrowUp' || key === 'w') {
+                                this.navigateLobbyRoster(-2); // up moves by -2
+                            } else if (e.key === 'ArrowDown' || key === 's') {
+                                this.navigateLobbyRoster(2);  // down moves by 2
+                            } else if (e.key === ' ' || e.code === 'Space') {
+                                e.preventDefault();
+                                this.startLobbyGame();
+                            }
+                        }
+                        return;
+                    }
+
                     if (e.key === ' ' || e.code === 'Space') {
                         const now = performance.now();
                         if (now - this.lastFlyToggleTime < 280) {
@@ -1853,17 +2674,22 @@
                     if (e.key.toLowerCase() === 'x' || e.code === 'KeyX') {
                         this.changeSSJLevel(1);
                     }
-                    if (e.key.toLowerCase() === 'q' || e.code === 'KeyQ') {
-                        this.performVanish();
+                    if (e.key.toLowerCase() === 'r' || e.code === 'KeyR') {
+                        this.performMelee();
+                    }
+                    if (e.key.toLowerCase() === 't' || e.code === 'KeyT') {
+                        this.performKiBlast();
                     }
                 });
 
                 window.addEventListener('keyup', e => {
                     const key = e.key.toLowerCase();
                     this.keys[key] = false;
+                    this.keyboardKeys[key] = false;
                     if (e.code) {
                         const codeKey = e.code.replace('Key', '').toLowerCase();
                         this.keys[codeKey] = false;
+                        this.keyboardKeys[codeKey] = false;
                     }
                 });
 
@@ -1886,7 +2712,27 @@
                 });
 
                 document.getElementById('victory-restart-btn').addEventListener('click', () => {
-                    location.reload();
+                    // Flash screen white before reloading
+                    const flashDiv = document.createElement('div');
+                    flashDiv.style.position = 'fixed';
+                    flashDiv.style.top = '0';
+                    flashDiv.style.left = '0';
+                    flashDiv.style.width = '100%';
+                    flashDiv.style.height = '100%';
+                    flashDiv.style.backgroundColor = '#ffffff';
+                    flashDiv.style.zIndex = '9999';
+                    flashDiv.style.transition = 'opacity 0.5s ease';
+                    document.body.appendChild(flashDiv);
+                    
+                    if (typeof sound !== 'undefined') {
+                        sound.playTransform();
+                    }
+                    
+                    setTimeout(() => {
+                        // Append random seed hash before reloading to guarantee a different map layout on local restarts!
+                        window.location.hash = 'seed=' + Math.floor(Math.random() * 10000000);
+                        window.location.reload();
+                    }, 500);
                 });
 
                 const soundBtn = document.getElementById('sound-btn');
@@ -1900,24 +2746,89 @@
                 const helpBtn = document.getElementById('help-btn');
                 helpBtn.classList.add('active');
                 helpBtn.addEventListener('click', () => {
+                    if (this.helpFadeTimeout) {
+                        clearTimeout(this.helpFadeTimeout);
+                        this.helpFadeTimeout = null;
+                    }
+                    this.initialHelpActive = false;
                     this.showHelp = !this.showHelp;
-                    const helpOverlay = document.getElementById('help-overlay');
                     if (this.showHelp) {
-                        helpOverlay.style.display = "flex";
                         helpBtn.classList.add('active');
                     } else {
-                        helpOverlay.style.display = "none";
                         helpBtn.classList.remove('active');
                     }
                 });
 
-                // Mobile Virtual Buttons
-                document.getElementById('touch-charge').addEventListener('touchstart', () => { this.physics.isCharging = true; });
-                document.getElementById('touch-charge').addEventListener('touchend', () => { this.physics.isCharging = false; });
-                
-                document.getElementById('touch-fly').addEventListener('touchstart', () => { this.toggleFlight(); });
-                document.getElementById('touch-attack').addEventListener('touchstart', () => { this.performMelee(); });
-                document.getElementById('touch-special').addEventListener('touchstart', () => { this.performKiBlast(); });
+                // Scouter HUD Toggle Button
+                const scouterBtn = document.getElementById('scouter-btn');
+                scouterBtn.addEventListener('click', () => {
+                    this.hudPermanentlyVisible = !this.hudPermanentlyVisible;
+                    if (this.hudPermanentlyVisible) {
+                        document.body.classList.remove('hud-info-hidden', 'hud-status-hidden');
+                        scouterBtn.classList.add('hud-active');
+                    } else {
+                        document.body.classList.add('hud-info-hidden', 'hud-status-hidden');
+                        scouterBtn.classList.remove('hud-active');
+                    }
+                    sound.init();
+                    sound.playWhoosh();
+                });
+
+                // Helper to add touch buttons listeners with preventDefault & touchcancel to prevent lag or stuck states
+                const bindTouchBtn = (id, startCallback, endCallback) => {
+                    const btn = document.getElementById(id);
+                    if (!btn) return;
+                    btn.addEventListener('touchstart', e => {
+                        e.preventDefault();
+                        sound.init();
+                        if (startCallback) startCallback();
+                    }, { passive: false });
+                    if (endCallback) {
+                        btn.addEventListener('touchend', e => {
+                            e.preventDefault();
+                            endCallback();
+                        }, { passive: false });
+                        btn.addEventListener('touchcancel', e => {
+                            e.preventDefault();
+                            endCallback();
+                        }, { passive: false });
+                    }
+                };
+
+                bindTouchBtn('touch-charge', 
+                    () => { this.physics.isCharging = true; }, 
+                    () => { this.physics.isCharging = false; }
+                );
+
+                bindTouchBtn('touch-transform', () => {
+                    this.transformMobile();
+                });
+
+                bindTouchBtn('touch-fly-up', 
+                    () => {
+                        if (!this.physics.flying) {
+                            this.physics.flying = true;
+                            this.physics.vel.set(0, 0, 0);
+                            this.announce("מעוף פעיל! 💨");
+                            sound.playWhoosh();
+                        }
+                        this.keys['e'] = true;
+                    }, 
+                    () => { this.keys['e'] = false; }
+                );
+
+                bindTouchBtn('touch-fly-down', 
+                    () => { this.keys['f'] = true; }, 
+                    () => { this.keys['f'] = false; }
+                );
+
+                bindTouchBtn('touch-special', () => {
+                    this.performKiBlast();
+                });
+
+                bindTouchBtn('touch-attack', () => {
+                    this.performMelee();
+                });
 
                 // Mobile Joystick
                 const joystick = document.getElementById('touch-joystick');
@@ -1945,18 +2856,35 @@
                 };
 
                 joystick.addEventListener('touchstart', e => {
+                    e.preventDefault();
                     this.isJoystickDragging = true;
                     handleJoystick(e.touches[0]);
-                });
+                }, { passive: false });
+
                 joystick.addEventListener('touchmove', e => {
+                    e.preventDefault();
                     if (this.isJoystickDragging) handleJoystick(e.touches[0]);
-                });
-                joystick.addEventListener('touchend', () => {
+                }, { passive: false });
+
+                const stopJoystick = (e) => {
+                    e.preventDefault();
                     this.isJoystickDragging = false;
                     knob.style.transform = 'translate(0px, 0px)';
                     this.joystickInput.x = 0;
                     this.joystickInput.z = 0;
-                });
+                };
+
+                joystick.addEventListener('touchend', stopJoystick, { passive: false });
+                joystick.addEventListener('touchcancel', stopJoystick, { passive: false });
+            }
+
+            transformMobile() {
+                const config = CHAR_CONFIG[this.myCharId];
+                if (this.ssjLevel >= config.forms.length - 1) {
+                    this.changeSSJLevel(-this.ssjLevel); // Cycle back to base form
+                } else {
+                    this.changeSSJLevel(1); // Advance to next form
+                }
             }
 
             toggleFlight() {
@@ -2002,6 +2930,9 @@
                     
                     const form = config.forms[this.ssjLevel];
                     this.announce(`שינוי צורה: ${form.name}! 🔥`);
+                    
+                    // Show stats/form name HUD temporarily on transformation
+                    this.showPlayerInfoTemporarily(4000);
 
                     // Sync transform state
                     this.sendNetworkMessage({
@@ -2042,6 +2973,18 @@
 
                 document.getElementById('hud').style.opacity = '1';
                 document.getElementById('hud-char-name').textContent = CHAR_CONFIG[this.myCharId].name + " (" + this.myName + ")";
+
+                // Hide HUD panels by default and trigger initial brief reveal for orientation
+                document.body.classList.add('hud-info-hidden', 'hud-status-hidden');
+                this.showPlayerInfoTemporarily(4000);
+                this.showStatusPanelTemporarily(4000);
+
+                // Auto-fade controls help overlay after 10 seconds
+                this.helpFadeTimeout = setTimeout(() => {
+                    this.initialHelpActive = false;
+                    const helpBtn = document.getElementById('help-btn');
+                    if (helpBtn) helpBtn.classList.remove('active');
+                }, 10000);
 
                 this.updateLocalCharacterMesh();
 
@@ -2124,9 +3067,9 @@
 
             spawnSaibamen() {
                 const locations = [
-                    new THREE.Vector3(25, 1.2, -18),
-                    new THREE.Vector3(-25, 1.2, 22),
-                    new THREE.Vector3(35, 1.2, 35)
+                    new THREE.Vector3(25, 1.55, -18),
+                    new THREE.Vector3(-25, 1.55, 22),
+                    new THREE.Vector3(35, 1.55, 35)
                 ];
 
                 locations.forEach((pos, i) => {
@@ -2177,6 +3120,12 @@
                     if (this.remotePlayers[id].label && this.remotePlayers[id].label.parentNode) {
                         this.remotePlayers[id].label.parentNode.removeChild(this.remotePlayers[id].label);
                     }
+                    if (this.remotePlayers[id].trailMeshes) {
+                        this.remotePlayers[id].trailMeshes.forEach(mesh => this.scene.remove(mesh));
+                    }
+                    if (this.remotePlayers[id].protectionMesh) {
+                        this.scene.remove(this.remotePlayers[id].protectionMesh);
+                    }
                 }
 
                 const labelDiv = document.createElement('div');
@@ -2186,6 +3135,23 @@
 
                 const mesh = this.buildLegoCharacter(charId, ssj);
                 this.scene.add(mesh);
+
+                // Create Dragon Ball trailing spheres for this remote player
+                const trailMeshes = [];
+                const tGeom = new THREE.SphereGeometry(0.25, 8, 8);
+                const tMat = new THREE.MeshStandardMaterial({ 
+                    color: 0xff7700, 
+                    emissive: 0xff3300, 
+                    roughness: 0.1, 
+                    metalness: 0.1 
+                });
+                for (let i = 0; i < 7; i++) {
+                    const m = new THREE.Mesh(tGeom, tMat);
+                    m.castShadow = true;
+                    m.visible = false;
+                    this.scene.add(m);
+                    trailMeshes.push(m);
+                }
 
                 this.remotePlayers[id] = {
                     name: name,
@@ -2197,7 +3163,13 @@
                     targetPos: new THREE.Vector3(0,0,0),
                     rotY: 0,
                     targetRotY: 0,
-                    lastUpdateTime: performance.now()
+                    lastUpdateTime: performance.now(),
+                    hp: 100,
+                    collectedBalls: new Set(),
+                    trailHistory: [],
+                    trailMeshes: trailMeshes,
+                    dbProtectionTimer: 0,
+                    protectionMesh: null
                 };
 
                 this.updateRoomStats();
@@ -2216,12 +3188,19 @@
                         type: "sync",
                         name: this.myName,
                         charId: this.myCharId,
-                        ssj: this.ssjLevel
+                        ssj: this.ssjLevel,
+                        hp: this.hp,
+                        heldBalls: [...this.collectedBalls]
                     });
                 }
 
                 else if (msg.type === "sync") {
                     this.spawnRemotePlayer(id, msg.name, msg.charId, msg.ssj);
+                    const p = this.remotePlayers[id];
+                    if (p) {
+                        p.hp = msg.hp || 100;
+                        p.collectedBalls = new Set(msg.heldBalls || []);
+                    }
                 }
 
                 else if (msg.type === "move") {
@@ -2236,6 +3215,9 @@
                         player.lastUpdateTime = performance.now();
                         player.flying = msg.flying || false;
                         player.isMoving = msg.isMoving || false;
+                        player.ssj = msg.ssj || 0;
+                        player.hp = msg.hp || 100;
+                        player.collectedBalls = new Set(msg.heldBalls || []);
                         
                         if (player.mesh.userData && player.mesh.userData.aura) {
                             player.mesh.userData.aura.visible = (msg.ssj > 0);
@@ -2259,12 +3241,114 @@
                 else if (msg.type === "attack") {
                     const player = this.remotePlayers[id];
                     if (player) {
-                        this.triggerRemoteAttackFX(player, msg.attackType);
+                        this.triggerRemoteAttackFX(player, msg.attackType, id);
                     }
                 }
 
                 else if (msg.type === "collect") {
-                    this.registerBallCollection(msg.ballIndex);
+                    const player = this.remotePlayers[id];
+                    if (player) {
+                        if (!player.collectedBalls) player.collectedBalls = new Set();
+                        player.collectedBalls.add(msg.ballIndex);
+                        this.announce(`הלוחם ${player.name} אסף את כדור הדרקון ה-${msg.ballIndex}! 🐉`);
+                        
+                        if (player.collectedBalls.size === 7 && this.stormPhase === 'none') {
+                            this.stormPhase = 'storming';
+                            this.stormTimer = 0;
+                            sound.stopMusic();
+                            sound.playTransform();
+                            if (this.shenron) {
+                                this.shenron.summon(player.mesh.position);
+                            }
+                            this.announce(`סופה מתחילה! הלוחם ${player.name} מחזיק בכל 7 כדורי הדרקון! 🐉`);
+                        }
+                    }
+                }
+
+                else if (msg.type === "pvp_hit") {
+                    if (msg.targetId === this.mqttClientId) {
+                        this.takeDamage(msg.damage, msg.senderId);
+                    } else {
+                        const victim = this.remotePlayers[msg.targetId];
+                        if (victim) {
+                            victim.hp = Math.max(0, (victim.hp || 100) - msg.damage);
+                        }
+                    }
+                }
+
+                else if (msg.type === "db_drop") {
+                    const player = this.remotePlayers[id];
+                    if (player && player.collectedBalls) {
+                        player.collectedBalls.delete(msg.ballIndex);
+                    }
+                    if (player) {
+                        player.dbProtectionTimer = 5.0;
+                    }
+                    const dropPos = new THREE.Vector3(msg.pos.x, msg.pos.y, msg.pos.z);
+                    this.dragonBallPositions[msg.ballIndex] = dropPos;
+                    
+                    const ball = this.dragonBalls[msg.ballIndex - 1];
+                    if (ball) {
+                        ball.position.copy(dropPos);
+                        ball.userData.originalY = dropPos.y;
+                        ball.visible = true;
+                    }
+                    const name = player ? player.name : "לוחם";
+                    this.announce(`כדור הדרקון ה-${msg.ballIndex} נשמט מהלוחם ${name}! ⚠️`);
+                }
+
+                else if (msg.type === "summon_started") {
+                    this.stormPhase = 'storming';
+                    this.stormTimer = 0;
+                    sound.startStormMusic(); // Switch to dramatic storm music
+                    const summoner = this.remotePlayers[id] || { name: "לוחם" };
+                    this.announce(`סופה מתחילה! הלוחם ${summoner.name} איחד את כדורי הדרקון! 🐉`);
+                    if (this.shenron) {
+                        const pos = this.remotePlayers[id] ? this.remotePlayers[id].mesh.position : new THREE.Vector3(0, 1.55, 0);
+                        this.shenron.summon(pos);
+                    }
+                }
+
+                else if (msg.type === "summon_progress") {
+                    this.lastSummonProgressTime = performance.now();
+                    const el = document.getElementById('summon-countdown');
+                    const sec = Math.ceil(msg.progress);
+                    
+                    if (sec < this.lastRemoteBeepSec && sec >= 1) {
+                        this.lastRemoteBeepSec = sec;
+                        sound.playTone(660, 'sine', 0.12, 0.08); // quieter tone for remote countdown ticks
+                    }
+                    
+                    if (el) {
+                        el.style.display = 'block';
+                        const name = msg.winnerName || (this.remotePlayers[msg.summonerId] ? this.remotePlayers[msg.summonerId].name : "לוחם");
+                        if (sec > 0) {
+                            el.textContent = `הלוחם ${name} מזמן את שנרון: ${sec}... 🐉`;
+                        } else {
+                            el.textContent = `שנרון! 🐉`;
+                        }
+                        el.style.color = '#ff3b30';
+                    }
+                }
+
+                else if (msg.type === "summon_paused") {
+                    this.lastSummonProgressTime = performance.now();
+                    this.lastRemoteBeepSec = Math.ceil(msg.progress) + 1;
+                    
+                    const el = document.getElementById('summon-countdown');
+                    if (el) {
+                        el.style.display = 'block';
+                        const sec = Math.ceil(msg.progress);
+                        el.textContent = `הזימון הופסק! נותרו: ${sec} שניות`;
+                        el.style.color = '#94a3b8';
+                    }
+                }
+
+                else if (msg.type === "summon_success") {
+                    const winnerName = msg.winnerName || "לוחם";
+                    this.isWon = true;
+                    this.stormPhase = 'cleared';
+                    this.triggerVictorySequence(winnerName);
                 }
 
                 else if (msg.type === "leave") {
@@ -2274,6 +3358,12 @@
                         this.scene.remove(player.mesh);
                         if (player.label && player.label.parentNode) {
                             player.label.parentNode.removeChild(player.label);
+                        }
+                        if (player.trailMeshes) {
+                            player.trailMeshes.forEach(mesh => this.scene.remove(mesh));
+                        }
+                        if (player.protectionMesh) {
+                            this.scene.remove(player.protectionMesh);
                         }
                         delete this.remotePlayers[id];
                         this.updateRoomStats();
@@ -2291,47 +3381,120 @@
 
             performMelee() {
                 if (this.physics.isCharging) return;
+                
                 this.physics.isStriking = 10; 
                 sound.playWhoosh();
-                this.cameraShake(2.5); // subtle shake on punch!
+                
+                const config = CHAR_CONFIG[this.myCharId];
+                const form = config.forms[Math.min(this.ssjLevel, config.forms.length - 1)];
 
-                // Create Lego Marvel style shockwave ring in front of fist
-                const dir = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.physics.rotY).normalize();
-                const punchPos = this.physics.pos.clone().addScaledVector(dir, 1.2);
-                punchPos.y += 1.2;
+                let vy = 0;
+                if (this.physics.flying) {
+                    if (this.keys['e']) vy = 0.6;
+                    if (this.keys['f']) vy = -0.6;
+                }
+                
+                const dir = new THREE.Vector3(0, vy, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.physics.rotY).normalize();
+                const startPos = this.physics.pos.clone();
+                const dashDist = 5.0; // Dash 5 units forward!
+                
+                // Spawn Z-vanish afterimages along the path
+                for (let step = 1; step <= 3; step++) {
+                    const trailPos = startPos.clone().addScaledVector(dir, (dashDist / 3) * step);
+                    trailPos.y += 0.8;
+                    
+                    const tGeo = new THREE.BoxGeometry(1.2, 1.8, 0.8);
+                    const tMat = new THREE.MeshBasicMaterial({
+                        color: this.ssjLevel > 0 ? form.auraColor : 0x00ffff,
+                        transparent: true,
+                        opacity: 0.45,
+                        blending: THREE.AdditiveBlending
+                    });
+                    const tMesh = new THREE.Mesh(tGeo, tMat);
+                    tMesh.position.copy(trailPos);
+                    tMesh.rotation.y = this.physics.rotY;
+                    this.scene.add(tMesh);
+                    
+                    this.particles.push({
+                        type: 'mesh',
+                        mesh: tMesh,
+                        vel: new THREE.Vector3(0, 0, 0),
+                        life: 0.3,
+                        decay: 0.08
+                    });
+                }
 
-                const punchGeom = new THREE.RingGeometry(0.1, 1.0, 16);
-                const punchMat = new THREE.MeshBasicMaterial({ 
-                    color: 0xffcc00, 
+                // Update position
+                const endPos = startPos.clone().addScaledVector(dir, dashDist);
+                // Clamp boundaries
+                endPos.x = Math.max(-240, Math.min(240, endPos.x));
+                endPos.z = Math.max(-240, Math.min(240, endPos.z));
+                // Clamp Y height to not sink under floor
+                endPos.y = Math.max(1.55, Math.min(50, endPos.y));
+                
+                this.physics.pos.copy(endPos);
+                if (this.playerGroup) {
+                    this.playerGroup.position.copy(this.physics.pos);
+                }
+
+                // Big shockwave ring at end point
+                const shockPos = this.physics.pos.clone();
+                shockPos.y += 1.0;
+                
+                const shockGeom = new THREE.RingGeometry(0.25, 2.5, 16);
+                const shockMat = new THREE.MeshBasicMaterial({ 
+                    color: this.ssjLevel > 0 ? form.auraColor : 0xffcc00, 
                     transparent: true, 
-                    opacity: 0.85,
+                    opacity: 0.9,
                     side: THREE.DoubleSide,
                     blending: THREE.AdditiveBlending
                 });
-                const punchMesh = new THREE.Mesh(punchGeom, punchMat);
-                punchMesh.position.copy(punchPos);
-                punchMesh.lookAt(punchPos.clone().add(dir));
-                this.scene.add(punchMesh);
+                const shockMesh = new THREE.Mesh(shockGeom, shockMat);
+                shockMesh.position.copy(shockPos);
+                shockMesh.lookAt(shockPos.clone().add(dir));
+                this.scene.add(shockMesh);
 
                 this.particles.push({
                     type: 'mesh',
-                    mesh: punchMesh,
-                    vel: new THREE.Vector3(0,0,0),
-                    scaleSpeed: 0.22,
-                    life: 1.0,
-                    decay: 0.15
+                    mesh: shockMesh,
+                    vel: new THREE.Vector3(0, 0, 0),
+                    scaleSpeed: 0.15,
+                    life: 0.8,
+                    decay: 0.1
                 });
 
+                this.cameraShake(5.0); // bigger shake on dash punch!
+
+                // Right arm punch animation posture
                 if (this.playerGroup && this.playerGroup.userData.rArm) {
                     this.playerGroup.userData.rArm.rotation.x = -Math.PI / 2;
                 }
 
+                // Damage collision logic at end of dash
                 if (!this.isMultiplayer) {
                     this.saibamen.forEach(saiba => {
                         const dist = this.physics.pos.distanceTo(saiba.position);
-                        if (dist < 2.5) {
-                            this.damageTarget(saiba, 20 + this.ssjLevel * 10);
-                            this.cameraShake(4.5); // extra screen shake on hit!
+                        if (dist < 4.5) {
+                            this.damageTarget(saiba, 30 + this.ssjLevel * 15);
+                            this.cameraShake(9.0); // massive shake on direct hit!
+                            this.createExplosionSparks(saiba.position, 0xffaa00, 15);
+                        }
+                    });
+                } else {
+                    // Multiplayer melee collision check
+                    Object.keys(this.remotePlayers).forEach(id => {
+                        const rp = this.remotePlayers[id];
+                        if (rp.dbProtectionTimer > 0 || rp.hp <= 0) return;
+                        
+                        const dist = this.physics.pos.distanceTo(rp.mesh.position);
+                        if (dist < 4.5) {
+                            this.sendNetworkMessage({
+                                type: "pvp_hit",
+                                targetId: id,
+                                damage: 30 + this.ssjLevel * 15
+                            });
+                            this.createExplosionSparks(rp.mesh.position, 0xff5500, 12);
+                            this.cameraShake(5.0);
                         }
                     });
                 }
@@ -2348,11 +3511,12 @@
                 sound.playKiBlast();
                 this.announce("מטח קי! 💥");
 
-                const dir = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.physics.rotY).normalize();
+                const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.physics.rotY).normalize();
                 const spawnPos = this.physics.pos.clone().addScaledVector(dir, 1.2);
                 spawnPos.y += 1.2;
 
-                const proj = this.createKiSphere(spawnPos, dir, 0.4, 0.35, 0x00ffff);
+                const proj = this.createKiSphere(spawnPos, dir, 0.85, 0.35, 0x00ffff);
+                proj.ownerId = "local";
                 this.projectiles.push(proj);
 
                 this.sendNetworkMessage({
@@ -2374,12 +3538,34 @@
                     this.announce("האאאאא! 🌊");
                     this.cameraShake(15);
 
-                    const dir = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.physics.rotY).normalize();
+                    const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.physics.rotY).normalize();
                     const beamPos = this.physics.pos.clone().addScaledVector(dir, 2.5);
                     beamPos.y += 1.2;
 
                     const beam = this.createKamehamehaBeam(beamPos, dir);
+                    beam.ownerId = "local";
                     this.projectiles.push(beam);
+
+                    if (this.isMultiplayer) {
+                        // Kamehameha PvP hits
+                        Object.keys(this.remotePlayers).forEach(id => {
+                            const rp = this.remotePlayers[id];
+                            if (rp.dbProtectionTimer > 0 || rp.hp <= 0) return;
+                            
+                            const diff = rp.mesh.position.clone().sub(this.physics.pos);
+                            const dist = diff.length();
+                            if (dist < 40) {
+                                const angle = diff.normalize().angleTo(dir);
+                                if (angle < 0.25) { 
+                                    this.sendNetworkMessage({
+                                        type: "pvp_hit",
+                                        targetId: id,
+                                        damage: 60 + this.ssjLevel * 20
+                                    });
+                                }
+                            }
+                        });
+                    }
 
                     if (!this.isMultiplayer) {
                         this.saibamen.forEach(saiba => {
@@ -2441,6 +3627,20 @@
                                 this.damageTarget(saiba, 100);
                             }
                         });
+                    } else {
+                        // Spirit Bomb PvP hits
+                        Object.keys(this.remotePlayers).forEach(id => {
+                            const rp = this.remotePlayers[id];
+                            if (rp.dbProtectionTimer > 0 || rp.hp <= 0) return;
+                            const dist = explPos.distanceTo(rp.mesh.position);
+                            if (dist < 15.0) {
+                                this.sendNetworkMessage({
+                                    type: "pvp_hit",
+                                    targetId: id,
+                                    damage: 80
+                                });
+                            }
+                        });
                     }
                 }, 1600);
 
@@ -2450,27 +3650,7 @@
                 });
             }
 
-            performVanish() {
-                if (!this.gameStarted || this.physics.isCharging) return;
-                
-                let dir = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.physics.rotY).normalize();
-                
-                const vanishDist = 12;
-                const newPos = this.physics.pos.clone().addScaledVector(dir, vanishDist);
-                
-                newPos.x = Math.max(-240, Math.min(240, newPos.x));
-                newPos.z = Math.max(-240, Math.min(240, newPos.z));
-                
-                this.createExplosionSparks(this.physics.pos, 0xffea00, 15);
-                this.physics.pos.copy(newPos);
-                this.createExplosionSparks(this.physics.pos, 0x00ffff, 15);
-                
-                sound.playWhoosh();
-                this.announce("השתגרות! 💨");
-                this.cameraShake(5);
-                
-                this.networkSync();
-            }
+
 
             damageTarget(target, dmg) {
                 target.userData.hp -= dmg;
@@ -2485,7 +3665,7 @@
                     // Award score for defeating Saibamen
                     this.addScore(50);
                     
-                    target.position.set((Math.random() - 0.5) * 120, 1.2, (Math.random() - 0.5) * 120);
+                    target.position.set((Math.random() - 0.5) * 120, 1.55, (Math.random() - 0.5) * 120);
                     target.userData.hp = 100;
                 }
             }
@@ -2495,25 +3675,158 @@
                 // Pad with zeros in UI
                 document.getElementById('hud-score').textContent = `${String(this.score).padStart(4, '0')} XP`;
                 
+                // Show Score HUD panel temporarily on score update
+                this.showStatusPanelTemporarily();
+
                 // Check leveling progression
                 this.checkLevelProgress();
             }
 
-            triggerRemoteAttackFX(player, type) {
+            takeDamage(dmg, attackerId) {
+                this.hp = Math.max(0, this.hp - dmg);
+                this.announce(`נפגעת! ${dmg} נזק`);
+                
+                // Show floating text on local player
+                const playerHeadPos = this.physics.pos.clone().add(new THREE.Vector3(0, 2.0, 0));
+                this.createFloatingText(playerHeadPos, `-${dmg}`, 0xff0000);
+                this.cameraShake(6.0);
+                
+                // Update HUD HP fill
+                const hpPercent = (this.hp / this.maxHp) * 100;
+                document.getElementById('hud-hp-fill').style.width = `${hpPercent}%`;
+                document.getElementById('hud-hp-text').textContent = `HP: ${Math.floor(this.hp)} / ${this.maxHp}`;
+                
+                // Drop Dragon Ball logic
+                if (this.hp <= 0) {
+                    this.dieAndRespawn(attackerId);
+                } else if (this.collectedBalls.size > 0 && this.dbProtectionTimer <= 0) {
+                    this.dropOneDragonBall(attackerId);
+                }
+            }
+
+            dropOneDragonBall(attackerId) {
+                const iterator = this.collectedBalls.values();
+                const droppedIndex = iterator.next().value;
+                if (droppedIndex === undefined) return;
+
+                this.collectedBalls.delete(droppedIndex);
+                
+                const slot = document.getElementById(`db-slot-${droppedIndex}`);
+                if (slot) {
+                    slot.className = "db-hud-slot";
+                }
+                
+                let dropPos = this.physics.pos.clone();
+                let knockDir = new THREE.Vector3(Math.random() - 0.5, 0.2, Math.random() - 0.5).normalize();
+                if (attackerId) {
+                    const attacker = this.remotePlayers[attackerId];
+                    if (attacker) {
+                        const diff = attacker.mesh.position.clone().sub(this.physics.pos);
+                        const dist = diff.length();
+                        knockDir.copy(diff).normalize();
+                        dropPos.addScaledVector(knockDir, dist * 0.5);
+                    } else {
+                        dropPos.addScaledVector(knockDir, 5.0);
+                    }
+                } else {
+                    dropPos.addScaledVector(knockDir, 5.0);
+                }
+                
+                dropPos.y = this.getGroundHeightAt(dropPos.x, dropPos.z);
+                this.dragonBallPositions[droppedIndex] = dropPos;
+                
+                this.dbProtectionTimer = 5.0;
+                this.triggerProtectionFX();
+                
+                this.announce(`איבדת את כדור הדרקון ה-${droppedIndex}! ⚠️`);
+
+                this.sendNetworkMessage({
+                    type: "db_drop",
+                    ballIndex: droppedIndex,
+                    pos: { x: parseFloat(dropPos.x.toFixed(2)), y: parseFloat(dropPos.y.toFixed(2)), z: parseFloat(dropPos.z.toFixed(2)) }
+                });
+            }
+
+            dieAndRespawn(attackerId) {
+                this.announce("הובסת! 💀");
+                this.createExplosionSparks(this.physics.pos, 0xff0000, 30);
+                
+                if (this.collectedBalls.size > 0) {
+                    this.collectedBalls.forEach(idx => {
+                        let dropPos = this.physics.pos.clone();
+                        dropPos.x += (Math.random() - 0.5) * 8.0;
+                        dropPos.z += (Math.random() - 0.5) * 8.0;
+                        dropPos.y = this.getGroundHeightAt(dropPos.x, dropPos.z);
+                        
+                        this.dragonBallPositions[idx] = dropPos;
+                        
+                        const slot = document.getElementById(`db-slot-${idx}`);
+                        if (slot) slot.className = "db-hud-slot";
+
+                        this.sendNetworkMessage({
+                            type: "db_drop",
+                            ballIndex: idx,
+                            pos: { x: parseFloat(dropPos.x.toFixed(2)), y: parseFloat(dropPos.y.toFixed(2)), z: parseFloat(dropPos.z.toFixed(2)) }
+                        });
+                    });
+                    this.collectedBalls.clear();
+                }
+                
+                const spawnPlats = this.platforms.filter(p => p.y < 3.0);
+                const spawnPlat = spawnPlats.length > 0 ? spawnPlats[Math.floor(Math.random() * spawnPlats.length)] : this.platforms[Math.floor(Math.random() * this.platforms.length)];
+                this.physics.pos.set(spawnPlat.x, spawnPlat.y, spawnPlat.z);
+                this.physics.vel.set(0, 0, 0);
+                this.physics.flying = false;
+                
+                this.hp = 100;
+                const hpPercent = (this.hp / this.maxHp) * 100;
+                document.getElementById('hud-hp-fill').style.width = `${hpPercent}%`;
+                document.getElementById('hud-hp-text').textContent = `HP: ${this.hp} / ${this.maxHp}`;
+            }
+
+            getGroundHeightAt(x, z) {
+                let groundY = 1.55;
+                this.platforms.forEach(plat => {
+                    if (x > plat.x - plat.w/2 && x < plat.x + plat.w/2 &&
+                        z > plat.z - plat.d/2 && z < plat.z + plat.d/2) {
+                        if (plat.y > groundY) {
+                            groundY = plat.y;
+                        }
+                    }
+                });
+                return groundY;
+            }
+
+            triggerProtectionFX() {
+                if (this.protectionShieldMesh) {
+                    this.scene.remove(this.protectionShieldMesh);
+                }
+                const geom = new THREE.SphereGeometry(1.5, 16, 16);
+                const mat = new THREE.MeshBasicMaterial({ 
+                    color: 0x39ff14, 
+                    transparent: true, 
+                    opacity: 0.35, 
+                    wireframe: true 
+                });
+                this.protectionShieldMesh = new THREE.Mesh(geom, mat);
+                this.scene.add(this.protectionShieldMesh);
+            }
+
+            triggerRemoteAttackFX(player, type, senderId) {
                 const pos = player.mesh.position;
                 if (type === "melee") {
                     this.playToneRemote(120, 'triangle', 0.12);
                 } 
                 else if (type === "kiblast") {
-                    const dir = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.mesh.rotation.y).normalize();
+                    const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.mesh.rotation.y).normalize();
                     const start = pos.clone().addScaledVector(dir, 1.2);
                     start.y += 1.2;
-                    const proj = this.createKiSphere(start, dir, 0.4, 0.35, 0x00ffff);
+                    const proj = this.createKiSphere(start, dir, 0.85, 0.35, 0x00ffff);
                     this.projectiles.push(proj);
                 }
                 else if (type === "kamehameha") {
                     this.createFloatingText(pos, "KAMEHAMEHA!", 0x0088ff);
-                    const dir = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.mesh.rotation.y).normalize();
+                    const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.mesh.rotation.y).normalize();
                     const start = pos.clone().addScaledVector(dir, 2.5);
                     start.y += 1.2;
                     const beam = this.createKamehamehaBeam(start, dir);
@@ -2585,6 +3898,30 @@
                 this.announcerTimeout = setTimeout(() => {
                     log.style.opacity = '0';
                 }, 1600);
+            }
+
+            showPlayerInfoTemporarily(durationMs = 4000) {
+                if (this.hudTimeoutInfo) clearTimeout(this.hudTimeoutInfo);
+                document.body.classList.remove('hud-info-hidden');
+                if (!this.hudPermanentlyVisible) {
+                    this.hudTimeoutInfo = setTimeout(() => {
+                        if (!this.hudPermanentlyVisible) {
+                            document.body.classList.add('hud-info-hidden');
+                        }
+                    }, durationMs);
+                }
+            }
+
+            showStatusPanelTemporarily(durationMs = 2500) {
+                if (this.hudTimeoutStatus) clearTimeout(this.hudTimeoutStatus);
+                document.body.classList.remove('hud-status-hidden');
+                if (!this.hudPermanentlyVisible) {
+                    this.hudTimeoutStatus = setTimeout(() => {
+                        if (!this.hudPermanentlyVisible) {
+                            document.body.classList.add('hud-status-hidden');
+                        }
+                    }, durationMs);
+                }
             }
 
             createFloatingText(pos, text, color) {
@@ -2678,6 +4015,159 @@
                 }
             }
 
+            /** Fire a single fireworks burst at a random sky position */
+            launchFireworkBurst() {
+                const PALETTE = [0xffcc00, 0xff5500, 0x39ff14, 0x00ccff, 0xff00aa, 0x8a2be2, 0xffffff, 0xff3b30];
+                const color = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+                const secondColor = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+
+                // Choose a sky position scattered around the scene
+                const bx = (Math.random() - 0.5) * 60;
+                const by = 35 + Math.random() * 30;   // high up in the sky
+                const bz = (Math.random() - 0.5) * 60;
+                const origin = new THREE.Vector3(bx, by, bz);
+
+                const COUNT = 35;
+                for (let i = 0; i < COUNT; i++) {
+                    const isSecond = i > COUNT * 0.6;
+                    const pGeo = new THREE.BoxGeometry(0.55, 0.55, 0.55);
+                    const pMat = new THREE.MeshBasicMaterial({ color: isSecond ? secondColor : color, transparent: true, opacity: 1.0 });
+                    const pMesh = new THREE.Mesh(pGeo, pMat);
+                    pMesh.position.copy(origin);
+                    this.scene.add(pMesh);
+
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.acos(Math.random() * 2 - 1);
+                    const speed = 0.5 + Math.random() * 0.9;
+
+                    this.particles.push({
+                        type: 'mesh',
+                        mesh: pMesh,
+                        vel: new THREE.Vector3(
+                            Math.sin(phi) * Math.cos(theta) * speed,
+                            Math.sin(phi) * Math.sin(theta) * speed,
+                            Math.cos(phi) * speed
+                        ),
+                        life: 1.0,
+                        decay: 0.018  // slow fade for beautiful trails
+                    });
+                }
+            }
+
+            /**
+             * Orchestrate the full victory experience:
+             * winner name, CSS animations, fireworks loop, music.
+             */
+            triggerVictorySequence(winnerName) {
+                // Update the DOM
+                const screen = document.getElementById('victory-screen');
+                const nameEl = document.getElementById('victory-winner-name');
+                const subtitleEl = document.getElementById('victory-subtitle');
+
+                if (nameEl) nameEl.textContent = winnerName || 'לוחם';
+                if (subtitleEl) subtitleEl.textContent = 'זימן את שנרון וניצח! 🐉';
+
+                if (screen) {
+                    screen.style.display = 'flex';
+                    screen.classList.add('victory-active');
+                    // Force re-run animations by re-cloning name element (resets animation)
+                    if (nameEl) {
+                        const clone = nameEl.cloneNode(true);
+                        nameEl.parentNode.replaceChild(clone, nameEl);
+                    }
+                    if (subtitleEl) {
+                        const clone2 = subtitleEl.cloneNode(true);
+                        subtitleEl.parentNode.replaceChild(clone2, subtitleEl);
+                    }
+                }
+
+                // Music
+                sound.stopMusic();
+                sound.playVictoryFanfare();
+
+                // Fireworks: burst immediately, then schedule ongoing volleys
+                const FIREWORK_SCHEDULE = [0, 300, 600, 900, 1200, 1600, 2000, 2500, 3100, 3800, 4600, 5500];
+                FIREWORK_SCHEDULE.forEach(ms => {
+                    setTimeout(() => {
+                        if (this.isWon) this.launchFireworkBurst();
+                    }, ms);
+                });
+
+                // Keep occasional fireworks going every few seconds indefinitely
+                if (this._fireworkInterval) clearInterval(this._fireworkInterval);
+                this._fireworkInterval = setInterval(() => {
+                    if (!this.isWon) { clearInterval(this._fireworkInterval); return; }
+                    // 2-3 rapid bursts
+                    this.launchFireworkBurst();
+                    setTimeout(() => this.launchFireworkBurst(), 250);
+                    setTimeout(() => this.launchFireworkBurst(), 550);
+                }, 4000);
+            }
+
+            spawnAuraParticles() {
+                const config = CHAR_CONFIG[this.myCharId];
+                const form = config.forms[Math.min(this.ssjLevel, config.forms.length - 1)];
+                const color = form.auraColor;
+
+                // Spawn 1-2 particles per frame
+                const count = (this.ssjLevel === 4) ? 3 : 1;
+                for (let i = 0; i < count; i++) {
+                    const isSSJ4 = (this.ssjLevel === 4);
+                    const isElectric = (form.electric || isSSJ4 || Math.random() < 0.4);
+
+                    let pGeo, pMat;
+                    
+                    if (isElectric && Math.random() < 0.5) {
+                        // Lightning discharge line
+                        const length = 0.4 + Math.random() * 0.6;
+                        pGeo = new THREE.BoxGeometry(0.06, length, 0.06);
+                        pMat = new THREE.MeshBasicMaterial({ 
+                            color: isSSJ4 ? 0xffaa00 : 0xffffff, 
+                            transparent: true,
+                            opacity: 0.9,
+                            blending: THREE.AdditiveBlending
+                        });
+                    } else {
+                        // Rising flame particle
+                        const size = 0.12 + Math.random() * 0.15;
+                        pGeo = new THREE.BoxGeometry(size, size, size);
+                        pMat = new THREE.MeshBasicMaterial({ 
+                            color: color, 
+                            transparent: true,
+                            opacity: 0.8,
+                            blending: THREE.AdditiveBlending
+                        });
+                    }
+
+                    const pMesh = new THREE.Mesh(pGeo, pMat);
+                    
+                    // Position around player
+                    const angle = Math.random() * Math.PI * 2;
+                    const radius = 0.2 + Math.random() * 0.9;
+                    const px = this.physics.pos.x + Math.cos(angle) * radius;
+                    const pz = this.physics.pos.z + Math.sin(angle) * radius;
+                    const py = this.physics.pos.y + Math.random() * 2.2;
+                    pMesh.position.set(px, py, pz);
+                    
+                    // Random rotation for lightning/flame look
+                    pMesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+                    this.scene.add(pMesh);
+
+                    // Add to particle array
+                    const vy = 0.04 + Math.random() * 0.08;
+                    const vx = (Math.random() - 0.5) * 0.03;
+                    const vz = (Math.random() - 0.5) * 0.03;
+
+                    this.particles.push({
+                        type: 'mesh',
+                        mesh: pMesh,
+                        vel: new THREE.Vector3(vx, vy, vz),
+                        life: 1.0,
+                        decay: 0.03 + Math.random() * 0.03
+                    });
+                }
+            }
+
             cameraShake(amt) {
                 this.shakeAmount = amt;
             }
@@ -2696,10 +4186,101 @@
                     this.updateParticles();
                     this.updateCamera();
                     this.networkSync();
+                    
+                    if (this.ssjLevel > 0) {
+                        this.spawnAuraParticles();
+                    }
+                } else {
+                    this.pollLobbyGamepad();
+                }
+
+                // Shenron updates constantly in the sky
+                if (this.shenron) {
+                    this.shenron.update(delta, this.physics.pos);
+                }
+
+                // Update storm lightning flashes
+                if (this.gameStarted) {
+                    this.updateLightning(delta);
                 }
 
                 if (this.renderer && this.scene && this.camera) {
                     this.renderer.render(this.scene, this.camera);
+                }
+            }
+
+            updateLightning(delta) {
+                if (this.stormPhase !== 'none') {
+                    if (this.stormPhase === 'storming') {
+                        this.stormTimer += delta;
+                        if (Math.random() < 0.08) { // Frequent storm lightning flashes
+                            this.triggerLightningFlash();
+                        }
+                        if (this.stormTimer > 4.5) {
+                            this.stormPhase = 'cleared';
+                            if (this.isWon) {
+                                // Display victory wish screen overlay
+                                const victoryScreen = document.getElementById('victory-screen');
+                                if (victoryScreen) {
+                                    victoryScreen.style.display = 'flex';
+                                }
+                            }
+                        }
+                    } else if (this.stormPhase === 'cleared') {
+                        if (Math.random() < 0.002) { // Rare lightning flashes in cleared twilight sky
+                            this.triggerLightningFlash();
+                        }
+                    }
+                }
+
+                if (this.lightningIntensity > 0) {
+                    this.lightningIntensity -= delta * 8.0; 
+                    if (this.lightningIntensity < 0) this.lightningIntensity = 0;
+                }
+
+                if (this.stormPhase !== 'none') {
+                    // Phase 1 is dark storming; Phase 2 is clear jade-green twilight
+                    const targetSkyColor = (this.stormPhase === 'storming') ? 
+                        new THREE.Color(0x05070a) : 
+                        new THREE.Color(0x0f2c1b);
+                    const flashColor = new THREE.Color(0xddeeff);
+                    
+                    const currentSky = targetSkyColor.clone().lerp(flashColor, Math.min(1.0, this.lightningIntensity));
+                    this.scene.background.copy(currentSky);
+                    if (this.scene.fog) {
+                        this.scene.fog.color.copy(currentSky);
+                        this.scene.fog.density = (this.stormPhase === 'storming') ? 0.022 : 0.008; 
+                    }
+
+                    if (this.ambientLight) {
+                        this.ambientLight.color.setHex(0xffffff);
+                        this.ambientLight.intensity = (this.stormPhase === 'storming') ? 
+                            (0.06 + this.lightningIntensity * 0.55) : 
+                            (0.35 + this.lightningIntensity * 0.2); // Jade twilight ambient light is slightly higher to illuminate the scene
+                    }
+                    if (this.sunLight) {
+                        if (this.stormPhase === 'storming') {
+                            this.sunLight.color.setHex(0xffd1a9);
+                            this.sunLight.intensity = 0.02 + this.lightningIntensity * 0.95;
+                        } else {
+                            // In Phase 2: clear twilight light (jade-green glow)
+                            this.sunLight.color.setHex(0xa7f3d0); // Light jade green/mint
+                            this.sunLight.intensity = 0.4 + this.lightningIntensity * 0.4;
+                        }
+                    }
+                }
+            }
+
+            triggerLightningFlash() {
+                this.lightningIntensity = 2.5 + Math.random() * 1.5;
+                if (typeof sound !== 'undefined') {
+                    // Deep thunder boom (triangle + sine only – no harsh sawtooth/noise)
+                    const vol = 0.18 + Math.random() * 0.10;
+                    sound.playTone(45 + Math.random() * 20, 'triangle', 0.55, vol);           // sub-bass rumble
+                    sound.playTone(90 + Math.random() * 15, 'sine',     0.30, vol * 0.6);     // mid thunder body
+                    setTimeout(() => {
+                        sound.playTone(60, 'triangle', 0.20, vol * 0.4); // trailing rumble
+                    }, 180);
                 }
             }
 
@@ -2751,10 +4332,11 @@
 
                 const isMoving = (mx !== 0 || mz !== 0 || Math.abs(mx) > 0.01 || Math.abs(mz) > 0.01);
 
-                // Auto-sprint after walking continuously for 1.0 second
+                // Auto-sprint after walking continuously for 1.0 second OR dragging joystick far (> 0.8)
+                const joyMagnitude = Math.hypot(this.joystickInput.x, this.joystickInput.z);
                 if (isMoving && !this.physics.isCharging) {
                     this.physics.sprintTimer += delta;
-                    if (this.physics.sprintTimer > 1.0) {
+                    if (this.physics.sprintTimer > 1.0 || (this.isJoystickDragging && joyMagnitude > 0.8)) {
                         this.keys['shift'] = true;
                     }
                 } else {
@@ -2762,13 +4344,22 @@
                     this.keys['shift'] = false;
                 }
 
-                // Auto-fade controls overlay when moving to keep screen clean!
-                if (this.showHelp) {
-                    const helpOverlay = document.getElementById('help-overlay');
-                    if (isMoving || this.physics.flying) {
-                        helpOverlay.style.opacity = '0';
+                // Help overlay state management
+                const helpOverlay = document.getElementById('help-overlay');
+                if (helpOverlay) {
+                    if (this.showHelp) {
+                        helpOverlay.style.display = "flex";
+                        helpOverlay.style.opacity = "0.85";
+                    } else if (this.initialHelpActive) {
+                        helpOverlay.style.display = "flex";
+                        if (isMoving || this.physics.flying) {
+                            helpOverlay.style.opacity = "0";
+                        } else {
+                            helpOverlay.style.opacity = "0.85";
+                        }
                     } else {
-                        helpOverlay.style.opacity = '0.85';
+                        helpOverlay.style.display = "none";
+                        helpOverlay.style.opacity = "0";
                     }
                 }
 
@@ -2825,16 +4416,8 @@
                     let nextX = this.physics.pos.x + moveVec.x * currentMoveSpeed;
                     let nextZ = this.physics.pos.z + moveVec.z * currentMoveSpeed;
 
-                    // Enforce AABB boundaries for the 7 High Floating Platforms
-                    const checkPlatforms = [
-                        { x: 90, y: 10.35, z: 90, w: 18, d: 18, h: 3.0 },
-                        { x: -110, y: 12.35, z: -80, w: 22, d: 18, h: 3.5 },
-                        { x: -90, y: 8.35, z: 110, w: 16, d: 16, h: 2.5 },
-                        { x: 130, y: 16.35, z: -90, w: 24, d: 24, h: 4.0 },
-                        { x: -140, y: 15.35, z: 140, w: 20, d: 20, h: 3.5 },
-                        { x: 150, y: 14.35, z: 150, w: 18, d: 18, h: 3.0 },
-                        { x: -160, y: 18.35, z: -160, w: 20, d: 20, h: 3.5 }
-                    ];
+                    // Enforce AABB boundaries for the High Floating Platforms (procedural filter)
+                    const checkPlatforms = this.platforms.filter(plat => plat.y > 5.0);
 
                     const playerMinY = this.physics.pos.y;
                     const playerMaxY = this.physics.pos.y + this.physics.height;
@@ -2909,7 +4492,12 @@
                     }
                 } else {
                     if (this.playerGroup) {
-                        this.playerGroup.rotation.x = THREE.MathUtils.lerp(this.playerGroup.rotation.x, 0, 0.1);
+                        let targetTilt = 0;
+                        if (isMoving) {
+                            targetTilt = isBoosting ? 0.28 : 0.12;
+                        }
+                        this.playerGroup.rotation.x = THREE.MathUtils.lerp(this.playerGroup.rotation.x, targetTilt, 0.1);
+                        
                         if (!isMoving) {
                             if (this.playerGroup.userData.lLeg) this.playerGroup.userData.lLeg.rotation.x = THREE.MathUtils.lerp(this.playerGroup.userData.lLeg.rotation.x, 0, 0.1);
                             if (this.playerGroup.userData.rLeg) this.playerGroup.userData.rLeg.rotation.x = THREE.MathUtils.lerp(this.playerGroup.userData.rLeg.rotation.x, 0, 0.1);
@@ -2921,20 +4509,40 @@
                     }
                 }
 
+                // Auto-trigger flight when pressing E key on keyboard
+                if (this.keys['e'] && !this.physics.flying && !this.physics.isCharging) {
+                    const config = CHAR_CONFIG[this.myCharId];
+                    const form = config.forms[Math.min(this.ssjLevel, config.forms.length - 1)];
+                    if (form.fly || this.myCharId === "piccolo" || this.myCharId === "goku" || this.myCharId === "gohan") {
+                        this.physics.flying = true;
+                        this.physics.vel.set(0, 0, 0);
+                        if (this.ssjLevel === 0 && (this.myCharId === "goku" || this.myCharId === "gohan")) {
+                            this.announce("ענן הנימבוס זומן! ☁️");
+                        } else {
+                            this.announce("מעוף פעיל! 💨");
+                        }
+                        sound.playWhoosh();
+                    }
+                }
+
+                // Auto-trigger flight when pressing F key on keyboard (if in mid-air)
+                if (this.keys['f'] && !this.physics.flying && !this.physics.grounded && !this.physics.isCharging) {
+                    const config = CHAR_CONFIG[this.myCharId];
+                    const form = config.forms[Math.min(this.ssjLevel, config.forms.length - 1)];
+                    if (form.fly || this.myCharId === "piccolo" || this.myCharId === "goku" || this.myCharId === "gohan") {
+                        this.physics.flying = true;
+                        this.physics.vel.set(0, 0, 0);
+                        this.announce("מעוף פעיל! 💨");
+                        sound.playWhoosh();
+                    }
+                }
+
                 if (this.physics.flying && !this.physics.isCharging) {
                     if (this.keys[' '] || this.keys['e']) {
                         const nextY = this.physics.pos.y + moveSpeed * 0.85;
                         let blocked = false;
                         
-                        const checkPlatforms = [
-                            { x: 90, y: 10.35, z: 90, w: 18, d: 18, h: 3.0 },
-                            { x: -110, y: 12.35, z: -80, w: 22, d: 18, h: 3.5 },
-                            { x: -90, y: 8.35, z: 110, w: 16, d: 16, h: 2.5 },
-                            { x: 130, y: 16.35, z: -90, w: 24, d: 24, h: 4.0 },
-                            { x: -140, y: 15.35, z: 140, w: 20, d: 20, h: 3.5 },
-                            { x: 150, y: 14.35, z: 150, w: 18, d: 18, h: 3.0 },
-                            { x: -160, y: 18.35, z: -160, w: 20, d: 20, h: 3.5 }
-                        ];
+                        const checkPlatforms = this.platforms.filter(plat => plat.y > 5.0);
 
                         checkPlatforms.forEach(plat => {
                             if (this.physics.pos.x > plat.x - plat.w/2 - 0.4 && this.physics.pos.x < plat.x + plat.w/2 + 0.4 &&
@@ -2955,24 +4563,7 @@
                         
                         // Check if they land on any platform below them
                         let landedPlatY = null;
-                        const checkPlatforms = [
-                            { x: 90, y: 10.35, z: 90, w: 18, d: 18, h: 3.0 },
-                            { x: -110, y: 12.35, z: -80, w: 22, d: 18, h: 3.5 },
-                            { x: -90, y: 8.35, z: 110, w: 16, d: 16, h: 2.5 },
-                            { x: 130, y: 16.35, z: -90, w: 24, d: 24, h: 4.0 },
-                            { x: -140, y: 15.35, z: 140, w: 20, d: 20, h: 3.5 },
-                            { x: 150, y: 14.35, z: 150, w: 18, d: 18, h: 3.0 },
-                            { x: -160, y: 18.35, z: -160, w: 20, d: 20, h: 3.5 },
-                            { x: 0, y: 1.55, z: 0, w: 220, d: 220 },
-                            { x: 170, y: 1.55, z: 0, w: 90, d: 90 },
-                            { x: -170, y: 1.55, z: 0, w: 90, d: 90 },
-                            { x: 0, y: 1.55, z: 170, w: 90, d: 90 },
-                            { x: 0, y: 1.55, z: -170, w: 90, d: 90 },
-                            { x: 122.5, y: 1.85, z: 0, w: 30, d: 12 },
-                            { x: -122.5, y: 1.85, z: 0, w: 30, d: 12 },
-                            { x: 0, y: 1.85, z: 122.5, w: 12, d: 30 },
-                            { x: 0, y: 1.85, z: -122.5, w: 12, d: 30 }
-                        ];
+                        const checkPlatforms = this.platforms;
 
                         checkPlatforms.forEach(plat => {
                             if (this.physics.pos.x > plat.x - plat.w/2 - 0.4 && this.physics.pos.x < plat.x + plat.w/2 + 0.4 &&
@@ -2993,7 +4584,7 @@
                             this.physics.pos.y = nextY;
                         }
                     }
-                    this.physics.pos.y = Math.max(1.2, Math.min(50, this.physics.pos.y));
+                    this.physics.pos.y = Math.max(1.55, Math.min(50, this.physics.pos.y));
                 }
 
                 if (!this.physics.flying) {
@@ -3001,40 +4592,29 @@
                     this.physics.vel.y -= this.physics.gravity;
                     this.physics.pos.y += this.physics.vel.y;
 
-                    let currentFloor = 1.2;
+                    let currentFloor = 1.55;
 
-                    const checkPlatforms = [
-                        // 7 High Floating Islands
-                        { x: 90, y: 10.35, z: 90, w: 18, d: 18, h: 3.0 },
-                        { x: -110, y: 12.35, z: -80, w: 22, d: 18, h: 3.5 },
-                        { x: -90, y: 8.35, z: 110, w: 16, d: 16, h: 2.5 },
-                        { x: 130, y: 16.35, z: -90, w: 24, d: 24, h: 4.0 },
-                        { x: -140, y: 15.35, z: 140, w: 20, d: 20, h: 3.5 },
-                        { x: 150, y: 14.35, z: 150, w: 18, d: 18, h: 3.0 },
-                        { x: -160, y: 18.35, z: -160, w: 20, d: 20, h: 3.5 },
-                        // Main archipelago points
-                        { x: 0, y: 1.55, z: 0, w: 220, d: 220 },
-                        { x: 170, y: 1.55, z: 0, w: 90, d: 90 },
-                        { x: -170, y: 1.55, z: 0, w: 90, d: 90 },
-                        { x: 0, y: 1.55, z: 170, w: 90, d: 90 },
-                        { x: 0, y: 1.55, z: -170, w: 90, d: 90 },
-                        // Bridges
-                        { x: 122.5, y: 1.85, z: 0, w: 30, d: 12 },
-                        { x: -122.5, y: 1.85, z: 0, w: 30, d: 12 },
-                        { x: 0, y: 1.85, z: 122.5, w: 12, d: 30 },
-                        { x: 0, y: 1.85, z: -122.5, w: 12, d: 30 }
-                    ];
+                    const checkPlatforms = this.platforms;
 
+                    let onAnyPlatform = false;
                     checkPlatforms.forEach(plat => {
                         if (this.physics.pos.x > plat.x - plat.w/2 - 0.4 && this.physics.pos.x < plat.x + plat.w/2 + 0.4 &&
                             this.physics.pos.z > plat.z - plat.d/2 - 0.4 && this.physics.pos.z < plat.z + plat.d/2 + 0.4) {
                             if (prevY >= plat.y - 0.1 && this.physics.pos.y <= plat.y + 0.3 && this.physics.vel.y <= 0) {
                                 currentFloor = plat.y;
+                                onAnyPlatform = true;
                             }
                         }
                     });
 
-                    if (this.physics.pos.y <= currentFloor) {
+                    // Auto flight over water logic
+                    if (this.physics.pos.y < 1.55 && !onAnyPlatform) {
+                        this.physics.flying = true;
+                        this.physics.vel.set(0, 0, 0);
+                        this.physics.pos.y = 1.8; // Hover height over water
+                        this.announce("מעוף פעיל מעל המים! 🌊");
+                        sound.playWhoosh();
+                    } else if (this.physics.pos.y <= currentFloor) {
                         this.physics.pos.y = currentFloor;
                         this.physics.vel.y = 0;
                         this.physics.grounded = true;
@@ -3062,6 +4642,85 @@
                 const percent = (this.ki / this.maxKi) * 100;
                 document.getElementById('hud-ki-fill').style.width = `${percent}%`;
                 document.getElementById('hud-ki-text').textContent = `אנרגיית קי: ${Math.floor(this.ki)} / ${this.maxKi}`;
+
+                // Handle local player Dragon Ball protection timer and shield mesh
+                if (this.dbProtectionTimer > 0) {
+                    this.dbProtectionTimer -= delta;
+                    if (this.dbProtectionTimer <= 0) {
+                        this.dbProtectionTimer = 0;
+                        if (this.protectionShieldMesh) {
+                            this.scene.remove(this.protectionShieldMesh);
+                            this.protectionShieldMesh = null;
+                        }
+                    } else if (this.protectionShieldMesh) {
+                        this.protectionShieldMesh.position.copy(this.physics.pos).y += 1.0;
+                    }
+                }
+
+                // Altar check and summoning progress
+                const distToAltar = Math.hypot(this.physics.pos.x, this.physics.pos.z);
+                const onAltar = (distToAltar < 5.0 && Math.abs(this.physics.pos.y - 1.55) < 4.0);
+                const el = document.getElementById('summon-countdown');
+                
+                if (this.collectedBalls.size === 7 && onAltar && !this.isWon) {
+                    this.summonTimer = Math.max(0, this.summonTimer - delta);
+                    this.lastSummonProgressTime = performance.now();
+                    
+                    const sec = Math.ceil(this.summonTimer);
+                    if (sec < this.lastBeepSec && sec >= 1) {
+                        this.lastBeepSec = sec;
+                        sound.playTone(880, 'sine', 0.15, 0.15); // tick beep!
+                    }
+                    
+                    if (el) {
+                        el.style.display = 'block';
+                        if (sec > 0) {
+                            el.textContent = `אתה מזמן את שנרון: ${sec}... 🐉`;
+                        } else {
+                            el.textContent = `שנרון! 🐉`;
+                        }
+                        el.style.color = '#ffcc00';
+                    }
+                    
+                    this.sendNetworkMessage({
+                        type: "summon_progress",
+                        progress: this.summonTimer,
+                        summonerId: this.mqttClientId
+                    });
+                    
+                    if (this.summonTimer <= 0) {
+                        this.sendNetworkMessage({
+                            type: "summon_success",
+                            winnerId: this.mqttClientId,
+                            winnerName: this.myName
+                        });
+                        
+                        this.isWon = true;
+                        this.stormPhase = 'cleared';
+                        this.triggerVictorySequence(this.myName);
+                    }
+                } else {
+                    // Reset beep ticks tracking based on current timer state
+                    this.lastBeepSec = Math.ceil(this.summonTimer) + 1;
+                    
+                    if (this.collectedBalls.size === 7 && this.summonTimer < 7.0) {
+                        if (!this.wasInterrupted) {
+                            this.wasInterrupted = true;
+                            this.sendNetworkMessage({
+                                type: "summon_paused",
+                                progress: this.summonTimer
+                            });
+                        }
+                        if (el) {
+                            el.style.display = 'block';
+                            const sec = Math.ceil(this.summonTimer);
+                            el.textContent = `הזימון הופסק! נותרו: ${sec} שניות`;
+                            el.style.color = '#94a3b8';
+                        }
+                    } else {
+                        this.wasInterrupted = false;
+                    }
+                }
             }
 
             pollGamepad() {
@@ -3111,42 +4770,32 @@
                     }
 
                     // Automatic sprint when Left Stick pushed fully (> 0.88)
-                    this.keys['shift'] = (magnitude > 0.88);
+                    this.keys['shift'] = (magnitude > 0.88) || !!this.keyboardKeys['shift'];
 
-                    // A / Cross (Button 0) - Jump on ground, Fly Down in air
-                    const crossPressed = !!pad.buttons[0]?.pressed;
-                    
                     // Triangle (Button 3) or RT (Button 7) - Fly Up / Automatic Takeoff
                     const flyUpPressed = !!pad.buttons[3]?.pressed || !!pad.buttons[7]?.pressed;
-                    if (flyUpPressed) {
-                        if (!this.physics.flying) {
-                            this.physics.flying = true;
-                            this.physics.vel.set(0, 0, 0);
-                            this.announce("מעוף פעיל! 💨");
-                            sound.playWhoosh();
-                        }
-                        this.keys['e'] = true;
-                    } else {
-                        this.keys['e'] = false;
+                    if (flyUpPressed && !this.physics.flying) {
+                        this.physics.flying = true;
+                        this.physics.vel.set(0, 0, 0);
+                        this.announce("מעוף פעיל! 💨");
+                        sound.playWhoosh();
                     }
+                    this.keys['e'] = flyUpPressed || !!this.keyboardKeys['e'];
 
                     // Cross/A (Button 0) or LT (Button 6) - Fly Down / Automatic Land
                     const flyDownPressed = !!pad.buttons[0]?.pressed || !!pad.buttons[6]?.pressed;
-                    if (flyDownPressed) {
-                        if (this.physics.flying) {
-                            this.keys['f'] = true;
-                        } else {
-                            if (crossPressed && !this.gpJumpPrev && this.physics.grounded) {
-                                this.keys[' '] = true;
-                            } else if (!crossPressed) {
-                                this.keys[' '] = false;
-                            }
-                            this.gpJumpPrev = crossPressed;
-                        }
+                    if (this.physics.flying) {
+                        this.keys['f'] = flyDownPressed || !!this.keyboardKeys['f'];
+                        this.keys[' '] = !!this.keyboardKeys[' '];
                     } else {
-                        this.keys['f'] = false;
-                        this.keys[' '] = false;
-                        this.gpJumpPrev = false;
+                        this.keys['f'] = !!this.keyboardKeys['f'];
+                        const crossPressed = !!pad.buttons[0]?.pressed;
+                        if (crossPressed && !this.gpJumpPrev && this.physics.grounded) {
+                            this.keys[' '] = true;
+                        } else {
+                            this.keys[' '] = !!this.keyboardKeys[' '];
+                        }
+                        this.gpJumpPrev = crossPressed;
                     }
 
                     // Square (Button 2) - Punch
@@ -3191,23 +4840,95 @@
                     }
                     this.gpDpadDownPrev = dpadDownPressed;
 
-                    // D-pad Left (Button 14) - Vanish Teleport
-                    const dpadLeftPressed = !!pad.buttons[14]?.pressed;
-                    if (dpadLeftPressed && !this.gpDpadLeftPrev) {
-                        this.performVanish();
+                    // Options/Start (Button 9) - Help guide overlay toggle
+                    const startPressed = !!pad.buttons[9]?.pressed;
+                    if (startPressed && !this.gpStartPrev) {
+                        const helpBtn = document.getElementById('help-btn');
+                        if (helpBtn) helpBtn.click();
                     }
-                    this.gpDpadLeftPrev = dpadLeftPressed;
+                    this.gpStartPrev = startPressed;
 
-                    // D-pad Right (Button 15) - Vanish Teleport
-                    const dpadRightPressed = !!pad.buttons[15]?.pressed;
-                    if (dpadRightPressed && !this.gpDpadRightPrev) {
-                        this.performVanish();
-                    }
-                    this.gpDpadRightPrev = dpadRightPressed;
                 } else {
                     gpStatus.innerHTML = "<span>🎮 שלט לא מחובר</span>";
                     this.gamepadInput = null;
                 }
+            }
+
+            pollLobbyGamepad() {
+                const gamepads = navigator.getGamepads();
+                let pad = null;
+                for (let i = 0; i < gamepads.length; i++) {
+                    if (gamepads[i]) {
+                        pad = gamepads[i];
+                        break;
+                    }
+                }
+                
+                const lobbyGpStatus = document.getElementById('lobby-gamepad-status');
+                if (pad) {
+                    if (lobbyGpStatus) {
+                        lobbyGpStatus.innerHTML = "<span style='color: var(--dbz-green)'>🎮 שלט מחובר! לחץ על כפתורי הכיוון לבחירת דמות ועל A/Start להתחלת המשחק</span>";
+                    }
+
+                    // Check D-pad or Left Stick for navigation
+                    const prevPressed = (pad.buttons[14] && pad.buttons[14].pressed) || 
+                                        (pad.buttons[12] && pad.buttons[12].pressed) || 
+                                        (pad.axes[0] && pad.axes[0] < -0.5) || 
+                                        (pad.axes[1] && pad.axes[1] < -0.5);
+
+                    const nextPressed = (pad.buttons[15] && pad.buttons[15].pressed) || 
+                                        (pad.buttons[13] && pad.buttons[13].pressed) || 
+                                        (pad.axes[0] && pad.axes[0] > 0.5) || 
+                                        (pad.axes[1] && pad.axes[1] > 0.5);
+
+                    if (prevPressed && !this.lobbyPrevState) {
+                        this.navigateLobbyRoster(-1);
+                    }
+                    if (nextPressed && !this.lobbyNextState) {
+                        this.navigateLobbyRoster(1);
+                    }
+                    this.lobbyPrevState = prevPressed;
+                    this.lobbyNextState = nextPressed;
+
+                    // Cross/A (Button 0) or Options/Start (Button 9) triggers play
+                    const actionPressed = (pad.buttons[0] && pad.buttons[0].pressed) || 
+                                          (pad.buttons[9] && pad.buttons[9].pressed);
+                    if (actionPressed && !this.lobbyActionPrev) {
+                        this.startLobbyGame();
+                    }
+                    this.lobbyActionPrev = actionPressed;
+                } else {
+                    if (lobbyGpStatus) {
+                        lobbyGpStatus.textContent = "🎮 שלט לא מחובר";
+                    }
+                }
+            }
+
+            navigateLobbyRoster(dir) {
+                const cards = document.querySelectorAll('.char-card');
+                if (cards.length === 0) return;
+
+                let currentIndex = 0;
+                cards.forEach((card, index) => {
+                    if (card.classList.contains('selected')) {
+                        currentIndex = index;
+                    }
+                });
+
+                let nextIndex = (currentIndex + dir) % cards.length;
+                if (nextIndex < 0) nextIndex += cards.length;
+                
+                cards.forEach((card, index) => {
+                    if (index === nextIndex) {
+                        card.classList.add('selected');
+                        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    } else {
+                        card.classList.remove('selected');
+                    }
+                });
+
+                sound.init();
+                sound.playWhoosh();
             }
 
             updateRemotePlayers(delta) {
@@ -3268,14 +4989,52 @@
                         }
                     }
 
-                    // Animate remote aura pulse
-                    if (p.mesh && p.mesh.userData && p.mesh.userData.aura) {
-                        const aura = p.mesh.userData.aura;
-                        if (aura.visible) {
-                            const time = (now + p.mesh.position.x * 10) * 0.005;
-                            aura.rotation.y += 0.02;
-                            aura.scale.set(1.0 + Math.sin(time) * 0.1, 1.0 + Math.cos(time) * 0.05, 1.0 + Math.sin(time) * 0.1);
+                    // Spawn custom aura particles for remote players
+                    if (p.ssj > 0 && Math.random() < 0.35) {
+                        const pConfig = CHAR_CONFIG[p.charId];
+                        const pForm = pConfig.forms[Math.min(p.ssj, pConfig.forms.length - 1)];
+                        const pColor = pForm.auraColor;
+                        const isSSJ4 = (p.ssj === 4);
+
+                        let pGeo, pMat;
+                        if (Math.random() < 0.4) {
+                            // lightning lines
+                            pGeo = new THREE.BoxGeometry(0.06, 0.4 + Math.random() * 0.5, 0.06);
+                            pMat = new THREE.MeshBasicMaterial({ 
+                                color: isSSJ4 ? 0xffaa00 : 0xffffff,
+                                transparent: true,
+                                opacity: 0.9,
+                                blending: THREE.AdditiveBlending
+                            });
+                        } else {
+                            // sparks/flames
+                            const size = 0.12 + Math.random() * 0.12;
+                            pGeo = new THREE.BoxGeometry(size, size, size);
+                            pMat = new THREE.MeshBasicMaterial({ 
+                                color: pColor,
+                                transparent: true,
+                                opacity: 0.8,
+                                blending: THREE.AdditiveBlending
+                            });
                         }
+
+                        const pMesh = new THREE.Mesh(pGeo, pMat);
+                        const angle = Math.random() * Math.PI * 2;
+                        const radius = 0.2 + Math.random() * 0.8;
+                        pMesh.position.copy(p.mesh.position);
+                        pMesh.position.x += Math.cos(angle) * radius;
+                        pMesh.position.z += Math.sin(angle) * radius;
+                        pMesh.position.y += Math.random() * 2.2;
+                        pMesh.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+                        this.scene.add(pMesh);
+
+                        this.particles.push({
+                            type: 'mesh',
+                            mesh: pMesh,
+                            vel: new THREE.Vector3((Math.random()-0.5)*0.02, 0.04 + Math.random()*0.06, (Math.random()-0.5)*0.02),
+                            life: 1.0,
+                            decay: 0.04 + Math.random() * 0.03
+                        });
                     }
 
                     if (now - p.lastUpdateTime > 10000) {
@@ -3290,9 +5049,84 @@
             }
 
             updateProjectiles() {
+                const myId = this.mqttClientId || "local";
                 for (let i = this.projectiles.length - 1; i >= 0; i--) {
                     const p = this.projectiles[i];
                     p.mesh.position.addScaledVector(p.dir, p.speed);
+                    
+                    let destroyed = false;
+                    
+                    if (this.isMultiplayer) {
+                        const ownerId = p.ownerId || "local";
+                        if (ownerId === "local") {
+                            const ids = Object.keys(this.remotePlayers);
+                            for (let r = 0; r < ids.length; r++) {
+                                const id = ids[r];
+                                const rp = this.remotePlayers[id];
+                                if (rp.dbProtectionTimer > 0 || rp.hp <= 0) continue;
+                                
+                                if (p.type === 'blast') {
+                                    const dist = p.mesh.position.distanceTo(rp.mesh.position);
+                                    if (dist < 2.4) {
+                                        this.sendNetworkMessage({ type: "pvp_hit", targetId: id, damage: 20 + this.ssjLevel * 10 });
+                                        this.createExplosionSparks(rp.mesh.position, 0x00ffff, 10);
+                                        this.scene.remove(p.mesh);
+                                        this.projectiles.splice(i, 1);
+                                        destroyed = true;
+                                        break;
+                                    }
+                                } else if (p.type === 'beam') {
+                                    const beamStart = p.mesh.position.clone().addScaledVector(p.dir, -22.5);
+                                    const diff = rp.mesh.position.clone().sub(beamStart);
+                                    const projLength = diff.dot(p.dir);
+                                    if (projLength > 0 && projLength < 45) {
+                                        const perpDist = Math.sqrt(Math.max(0, diff.lengthSq() - projLength * projLength));
+                                        if (perpDist < 2.0) {
+                                            this.sendNetworkMessage({ type: "pvp_hit", targetId: id, damage: 3 });
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            if (p.type === 'blast') {
+                                const dist = p.mesh.position.distanceTo(this.physics.pos);
+                                if (dist < 2.4) {
+                                    this.takeDamage(20, ownerId);
+                                    this.scene.remove(p.mesh);
+                                    this.projectiles.splice(i, 1);
+                                    destroyed = true;
+                                }
+                            } else if (p.type === 'beam') {
+                                const beamStart = p.mesh.position.clone().addScaledVector(p.dir, -22.5);
+                                const diff = this.physics.pos.clone().sub(beamStart);
+                                const projLength = diff.dot(p.dir);
+                                if (projLength > 0 && projLength < 45) {
+                                    const perpDist = Math.sqrt(Math.max(0, diff.lengthSq() - projLength * projLength));
+                                    if (perpDist < 2.0) {
+                                        this.takeDamage(3, ownerId);
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // Single player Saibamen collision check for Ki Blasts (blasts only, Kamehameha has its own logic)
+                        if (p.type === 'blast') {
+                            for (let s = 0; s < this.saibamen.length; s++) {
+                                const saiba = this.saibamen[s];
+                                const dist = p.mesh.position.distanceTo(saiba.position);
+                                if (dist < 2.4) {
+                                    this.damageTarget(saiba, 20 + this.ssjLevel * 10);
+                                    this.createExplosionSparks(saiba.position, 0x00ffff, 10);
+                                    this.scene.remove(p.mesh);
+                                    this.projectiles.splice(i, 1);
+                                    destroyed = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (destroyed) continue;
                     
                     p.life--;
                     if (p.life <= 0) {
@@ -3304,15 +5138,116 @@
 
             updateCollectibles() {
                 const now = performance.now();
+                const delta = Math.min(this.clock.getDelta(), 0.1);
 
-                // Dragon Balls
+                // Update Altar holographic beam pulse
+                if (this.altarBeam) {
+                    const time = now * 0.002;
+                    this.altarBeam.material.opacity = 0.16 + Math.sin(time * 2.0) * 0.06;
+                }
+
+                // Hide summon countdown if inactive
+                if (now - this.lastSummonProgressTime > 1500 && this.summonTimer === 7.0) {
+                    const el = document.getElementById('summon-countdown');
+                    if (el) el.style.display = 'none';
+                }
+
+                // Update remote player protection timers and shields
+                Object.keys(this.remotePlayers).forEach(id => {
+                    const p = this.remotePlayers[id];
+                    if (p.dbProtectionTimer > 0) {
+                        p.dbProtectionTimer -= delta;
+                        if (p.dbProtectionTimer <= 0) {
+                            p.dbProtectionTimer = 0;
+                            if (p.protectionMesh) {
+                                this.scene.remove(p.protectionMesh);
+                                p.protectionMesh = null;
+                            }
+                        } else {
+                            if (!p.protectionMesh) {
+                                const geom = new THREE.SphereGeometry(1.5, 16, 16);
+                                const mat = new THREE.MeshBasicMaterial({ 
+                                    color: 0x39ff14, 
+                                    transparent: true, 
+                                    opacity: 0.3, 
+                                    wireframe: true 
+                                });
+                                p.protectionMesh = new THREE.Mesh(geom, mat);
+                                this.scene.add(p.protectionMesh);
+                            }
+                            p.protectionMesh.position.copy(p.mesh.position).y += 1.0;
+                        }
+                    }
+                });
+
+                // Update Local visual trail history
+                this.localTrailHistory.unshift(this.physics.pos.clone());
+                if (this.localTrailHistory.length > 150) this.localTrailHistory.pop();
+
+                // Position Local Dragon Ball trails
+                const localHeldCount = this.collectedBalls.size;
+                for (let i = 0; i < 7; i++) {
+                    const m = this.localTrailMeshes[i];
+                    if (m) {
+                        if (i < localHeldCount) {
+                            m.visible = true;
+                            const hIdx = (i + 1) * 7;
+                            if (hIdx < this.localTrailHistory.length) {
+                                m.position.copy(this.localTrailHistory[hIdx]);
+                                m.position.y += 0.8;
+                            }
+                        } else {
+                            m.visible = false;
+                        }
+                    }
+                }
+
+                // Update Remote visual trail history and positions
+                Object.keys(this.remotePlayers).forEach(id => {
+                    const p = this.remotePlayers[id];
+                    p.trailHistory.unshift(p.mesh.position.clone());
+                    if (p.trailHistory.length > 150) p.trailHistory.pop();
+
+                    const rHeldCount = p.collectedBalls ? p.collectedBalls.size : 0;
+                    for (let i = 0; i < 7; i++) {
+                        const m = p.trailMeshes[i];
+                        if (m) {
+                            if (i < rHeldCount) {
+                                m.visible = true;
+                                const hIdx = (i + 1) * 7;
+                                if (hIdx < p.trailHistory.length) {
+                                    m.position.copy(p.trailHistory[hIdx]);
+                                    m.position.y += 0.8;
+                                }
+                            } else {
+                                m.visible = false;
+                            }
+                        }
+                    }
+                });
+
+                // Dragon Balls World rendering and distance checks
                 this.dragonBalls.forEach(ball => {
-                    if (ball.visible) {
+                    const idx = ball.userData.index;
+                    let isHeld = this.collectedBalls.has(idx);
+                    if (!isHeld) {
+                        isHeld = Object.values(this.remotePlayers).some(p => p.collectedBalls && p.collectedBalls.has(idx));
+                    }
+                    
+                    if (isHeld) {
+                        ball.visible = false;
+                    } else {
+                        ball.visible = true;
+                        
                         ball.rotation.y += ball.userData.rotSpeed;
                         const offset = ball.userData.pulseOffset;
-                        ball.position.y = DB_LOCATIONS[ball.userData.index - 1].y + Math.sin(now * 0.003 + offset) * 0.25;
+                        const currentY = this.dragonBallPositions[idx] ? this.dragonBallPositions[idx].y : ball.userData.originalY;
+                        ball.position.y = currentY + Math.sin(now * 0.003 + offset) * 0.25;
+                        if (this.dragonBallPositions[idx]) {
+                            ball.position.x = this.dragonBallPositions[idx].x;
+                            ball.position.z = this.dragonBallPositions[idx].z;
+                        }
 
-                        // Pulsing animations for Dragon Balls (scale 1.0 to 1.3, light intensity 1.5 to 3.5)
                         const pulse = Math.sin(now * 0.005 + offset);
                         const pulseScale = 1.0 + pulse * 0.15;
                         if (ball.userData.sphere) {
@@ -3323,8 +5258,8 @@
                         }
 
                         const dist = this.physics.pos.distanceTo(ball.position);
-                        if (dist < 2.4) {
-                            this.collectDragonBallLocal(ball.userData.index);
+                        if (dist < 2.4 && this.dbProtectionTimer <= 0) {
+                            this.collectDragonBallLocal(idx);
                         }
                     }
                 });
@@ -3346,34 +5281,11 @@
                             this.addScore(10);
 
                             setTimeout(() => {
+                                const pos = this.getRandomCollectiblePosition();
+                                c.position.set(pos.x, pos.y, pos.z);
+                                c.userData.originalY = pos.y;
                                 c.visible = true;
                             }, 5000);
-                        }
-                    }
-                });
-
-                // Senzu Beans
-                this.senzuBeans.forEach(b => {
-                    if (b.visible) {
-                        b.rotation.y += b.userData.rotY;
-                        const offset = b.userData.bobOffset;
-                        b.position.y = b.userData.originalY + Math.sin(now * 0.003 + offset) * 0.15;
-
-                        const dist = this.physics.pos.distanceTo(b.position);
-                        if (dist < 1.4) {
-                            b.visible = false;
-                            this.ki = Math.min(this.maxKi, this.ki + 50);
-                            sound.playCollect();
-                            
-                            // Floating UI score indicator
-                            this.createFloatingText(b.position, "+25 XP / סנזו! 🌱", 0x39ff14);
-
-                            // Award Senzu score
-                            this.addScore(25);
-
-                            setTimeout(() => {
-                                b.visible = true;
-                            }, 7000);
                         }
                     }
                 });
@@ -3396,6 +5308,9 @@
                             this.addScore(50);
 
                             setTimeout(() => {
+                                const pos = this.getRandomCollectiblePosition();
+                                cap.position.set(pos.x, pos.y + 0.35, pos.z);
+                                cap.userData.originalY = pos.y + 0.35;
                                 cap.visible = true;
                             }, 10000);
                         }
@@ -3420,6 +5335,9 @@
                 sound.playCollect();
                 this.announce(`אספתם את כדור הדרקון ה-${index}! 🐉`);
                 
+                // Show player info (stats and Dragon Ball slots) temporarily
+                this.showPlayerInfoTemporarily(5000);
+                
                 this.addScore(100);
 
                 const slot = document.getElementById(`db-slot-${index}`);
@@ -3427,13 +5345,21 @@
                     slot.className = "db-hud-slot active";
                 }
 
-                if (this.collectedBalls.size === 7 && !this.isWon) {
-                    this.isWon = true;
-                    setTimeout(() => {
-                        document.getElementById('victory-screen').style.display = 'flex';
-                        sound.stopMusic();
-                        sound.playTransform();
-                    }, 1500);
+                if (this.collectedBalls.size === 7 && this.stormPhase === 'none') {
+                    this.stormPhase = 'storming';
+                    this.stormTimer = 0;
+
+                    // Switch to dramatic storm music
+                    sound.startStormMusic();
+
+                    // Summon Shenron to descend towards the player
+                    if (this.shenron) {
+                        this.shenron.summon(this.physics.pos);
+                    }
+                    this.announce("כדורי הדרקון אוחדו! סופה מתחילה... 🐉");
+                    this.sendNetworkMessage({
+                        type: "summon_started"
+                    });
                 }
 
                 this.dragonBalls.forEach(ball => {
@@ -3513,6 +5439,8 @@
                 // Update Player Name labels
                 Object.keys(this.remotePlayers).forEach(id => {
                     const p = this.remotePlayers[id];
+                    const heldCount = p.collectedBalls ? p.collectedBalls.size : 0;
+                    p.label.textContent = `${p.name} | HP: ${Math.floor(p.hp || 100)} | 🐉: ${heldCount}`;
                     this.updateFloatingDivPosition(p.mesh.position.clone().add(new THREE.Vector3(0, 2.5, 0)), p.label);
                 });
 
@@ -3561,7 +5489,9 @@
                         rotY: parseFloat(this.physics.rotY.toFixed(2)),
                         ssj: this.ssjLevel,
                         flying: this.physics.flying,
-                        isMoving: isMoving
+                        isMoving: isMoving,
+                        hp: this.hp,
+                        heldBalls: [...this.collectedBalls]
                     });
                     this.lastSendTime = now;
                 }
